@@ -9,6 +9,28 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Resources\Sprites\_center.ico" />
+    <None Remove="Resources\Sprites\_stocks.ico" />
+    <None Remove="Resources\Sprites\_users.ico" />
+    <None Remove="Resources\Sprites\_user_add.ico" />
+    <None Remove="Resources\Sprites\_user_change.ico" />
+    <None Remove="Resources\Sprites\_user_fire.ico" />
+    <None Remove="Resources\Sprites\_user_hide.ico" />
+    <None Remove="Resources\Sprites\_user_work.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\Sprites\_center.ico" />
+    <EmbeddedResource Include="Resources\Sprites\_stocks.ico" />
+    <EmbeddedResource Include="Resources\Sprites\_users.ico" />
+    <EmbeddedResource Include="Resources\Sprites\_user_add.ico" />
+    <EmbeddedResource Include="Resources\Sprites\_user_change.ico" />
+    <EmbeddedResource Include="Resources\Sprites\_user_fire.ico" />
+    <EmbeddedResource Include="Resources\Sprites\_user_hide.ico" />
+    <EmbeddedResource Include="Resources\Sprites\_user_work.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.0" />
     <PackageReference Include="System.IO.Ports" Version="8.0.0" />
     <PackageReference Include="System.ServiceProcess.ServiceController" Version="8.0.0" />
