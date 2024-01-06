@@ -1,4 +1,4 @@
-using System.IO.Ports;
+п»їusing System.IO.Ports;
 using System.Text;
 using CbsPromPost.Model;
 using CbsPromPost.Other;
@@ -32,7 +32,7 @@ public sealed partial class FormFlash : Form
 
         buttonPause.Enabled = false;
 
-        labelName.Text = $@"ПОСТ №{Core.Config.PostNumber:0}";
+        labelName.Text = $@"РџРћРЎРў в„–{Core.Config.PostNumber:0}";
         _counts = 0;
 
         _timer.Interval = 1000;
@@ -44,15 +44,15 @@ public sealed partial class FormFlash : Form
         var work = works.Get(Core.Config.Type);
         labelWork.Text = work.Name;
 
-        Text = $@"[КБ ЦБС] ПОСТ №{Core.Config.PostNumber:0}, прошивка и тестирование готовых изделий";
+        Text = $@"[РљР‘ Р¦Р‘РЎ] РџРћРЎРў в„–{Core.Config.PostNumber:0}, РїСЂРѕС€РёРІРєР° Рё С‚РµСЃС‚РёСЂРѕРІР°РЅРёРµ РіРѕС‚РѕРІС‹С… РёР·РґРµР»РёР№";
         Icon = EmbeddedResources.Get<Icon>("Sprites._user_change.ico");
         richTextBoxMain.Text = new StringBuilder()
-            .Append("Задачи:\n")
-            .Append("0> Сосканировать ШК изделия (для формирования FPL-листа.\n")
-            .Append("1> Включить изделие от лабораторного ИП и проверить потребление тока.\n")
-            .Append("2> Проверить изображение с камеры, включая шевеление передатчика.\n")
-            .Append("3> Подключить контроллер через type-C.\n")
-            .Append("Бла-бла-бла.\n")
+            .Append("Р—Р°РґР°С‡Рё:\n")
+            .Append("0> РЎРѕСЃРєР°РЅРёСЂРѕРІР°С‚СЊ РЁРљ РёР·РґРµР»РёСЏ (РґР»СЏ С„РѕСЂРјРёСЂРѕРІР°РЅРёСЏ FPL-Р»РёСЃС‚Р°.\n")
+            .Append("1> Р’РєР»СЋС‡РёС‚СЊ РёР·РґРµР»РёРµ РѕС‚ Р»Р°Р±РѕСЂР°С‚РѕСЂРЅРѕРіРѕ РРџ Рё РїСЂРѕРІРµСЂРёС‚СЊ РїРѕС‚СЂРµР±Р»РµРЅРёРµ С‚РѕРєР°.\n")
+            .Append("2> РџСЂРѕРІРµСЂРёС‚СЊ РёР·РѕР±СЂР°Р¶РµРЅРёРµ СЃ РєР°РјРµСЂС‹, РІРєР»СЋС‡Р°СЏ С€РµРІРµР»РµРЅРёРµ РїРµСЂРµРґР°С‚С‡РёРєР°.\n")
+            .Append("3> РџРѕРґРєР»СЋС‡РёС‚СЊ РєРѕРЅС‚СЂРѕР»Р»РµСЂ С‡РµСЂРµР· type-C.\n")
+            .Append("Р‘Р»Р°-Р±Р»Р°-Р±Р»Р°.\n")
             .ToString();
 
         buttonPause.Click += ButtonPauseClick;
@@ -108,7 +108,7 @@ public sealed partial class FormFlash : Form
 
     private void ComReadString(string com, string barr)
     {
-        Invoke(() => 
+        Invoke(() =>
         {
             if (labelUser.Text.Equals(string.Empty)) return;
             if (!com.Equals(comboBoxScanner.Text)) return;
@@ -142,7 +142,7 @@ public sealed partial class FormFlash : Form
             : Color.LightPink;
 
         var s = Core.IoC.Services.GetRequiredService<Station>();
-        if (s.User.Name.Equals(string.Empty) && !labelUser.Text.Equals(string.Empty) | s.User.Name.Equals(string.Empty) && labelUser.Text.Equals(string.Empty)) // Выключение работы
+        if (s.User.Name.Equals(string.Empty) && !labelUser.Text.Equals(string.Empty) | s.User.Name.Equals(string.Empty) && labelUser.Text.Equals(string.Empty)) // Р’С‹РєР»СЋС‡РµРЅРёРµ СЂР°Р±РѕС‚С‹
         {
             labelDroneId.Text = string.Empty;
             labelUser.Text = string.Empty;
@@ -156,10 +156,10 @@ public sealed partial class FormFlash : Form
             _startTime = DateTime.Now;
             _lastPaused = DateTime.Now;
             _paused = DateTime.MinValue;
-            labelTime.Text = @"РАБОТА НЕ ВЕДЕТСЯ";
+            labelTime.Text = @"Р РђР‘РћРўРђ РќР• Р’Р•Р”Р•РўРЎРЇ";
             labelTime.ForeColor = Color.DarkRed;
             labelWork.Text = work.Name;
-            buttonPause.Text = @"ОТДЫХ";
+            buttonPause.Text = @"РћРўР”Р«РҐ";
             label1.Text = string.Empty;
             labelCount.Text = string.Empty;
             _counts = 0;
@@ -203,7 +203,7 @@ public sealed partial class FormFlash : Form
         {
             var minLast = (DateTime.Now - _lastPaused).TotalMinutes;
             var last = Math.Max(0, _timeMinWorkMinutes - minLast);
-            buttonPause.Text = last > 0 ? $@"ОТДЫХ [{last:0}]" : "ОТДЫХ";
+            buttonPause.Text = last > 0 ? $@"РћРўР”Р«РҐ [{last:0}]" : "РћРўР”Р«РҐ";
             buttonPause.Enabled = (DateTime.Now - _lastPaused).TotalMinutes > _timeMinWorkMinutes;
             labelTime.BackColor = Color.WhiteSmoke;
         }
@@ -211,8 +211,8 @@ public sealed partial class FormFlash : Form
         labelWork.Text = work.Name;
         labelUser.Text = s.User.Name;
         labelTime.Text = sec.ToSecTime();
-        label1.Text = work.TimeNormalSec > 0 ? $@"НОРМАТИВ: {work.TimeNormalSec:0} сек." : string.Empty;
-        labelCount.Text = work.TimeNormalSec > 0 ? $@"КОЛИЧЕСТВО: {_counts}" : string.Empty;
+        label1.Text = work.TimeNormalSec > 0 ? $@"РќРћР РњРђРўРР’: {work.TimeNormalSec:0} СЃРµРє." : string.Empty;
+        labelCount.Text = work.TimeNormalSec > 0 ? $@"РљРћР›РР§Р•РЎРўР’Рћ: {_counts}" : string.Empty;
         _timePausedMinutes = works.Get(Core.Config.Type).TimePauseSec / 60d;
         _timeMinWorkMinutes = works.Get(Core.Config.Type).TimePauseLongSec / 60d;
 
@@ -226,7 +226,7 @@ public sealed partial class FormFlash : Form
 
     private async void ButtonFinishClick(object? sender, EventArgs e)
     {
-        var f = new FormYesNo(@"ВЫ ДЕЙСТВИТЕЛЬНО ХОТИТЕ ЗАКОНЧИТЬ РАБОТУ?", Color.LightYellow, Color.DarkRed, new Size(600, 400));
+        var f = new FormYesNo(@"Р’Р« Р”Р•Р™РЎРўР’РРўР•Р›Р¬РќРћ РҐРћРўРРўР• Р—РђРљРћРќР§РРўР¬ Р РђР‘РћРўРЈ?", Color.LightYellow, Color.DarkRed, new Size(600, 400));
         if (f.ShowDialog(this) != DialogResult.Yes) return;
         var s = Core.IoC.Services.GetRequiredService<Station>();
         await s.StartWorkAsync(new Users.User(), default);
