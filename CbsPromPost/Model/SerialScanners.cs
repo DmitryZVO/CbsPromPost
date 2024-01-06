@@ -14,7 +14,7 @@ public class SerialScanners
     }
 
     private readonly List<string> _aliveSerials = new();
-    private readonly List<string> _blackListSerials = new();
+    public List<string> BlackListSerials = new();
     private readonly Channel<SerialText> _pipe;
     private readonly ILogger<SerialScanners> _logger;
     private bool _alive;
@@ -33,11 +33,15 @@ public class SerialScanners
     {
         ReadFromChannelAsync(cancellationToken);
 
+        var allSerials = SerialPort.GetPortNames(); // список всех доступных COM-портов
+        foreach (var allSerial in allSerials)
+        {
+            if (!BlackListSerials.Exists(x => x.Equals(allSerial))) BlackListSerials.Add(allSerial);
+        }
+
         while (!cancellationToken.IsCancellationRequested)
         {
             await Task.Delay(TimeSpan.FromMilliseconds(1000), cancellationToken);
-
-            var allSerials = SerialPort.GetPortNames(); // список всех доступных COM-портов
 
             lock (_aliveSerials)
             {
@@ -46,7 +50,7 @@ public class SerialScanners
                     var running = _aliveSerials.Any(serial => current.Equals(serial));
                     if (running) continue;
 
-                    if (_blackListSerials.Contains(current)) continue; // этот COM-порт в блеклисте
+                    if (BlackListSerials.Contains(current)) continue; // этот COM-порт в блеклисте
 
                     WriteFromSerialToChannelAsync(current, cancellationToken);
                 }
@@ -96,9 +100,9 @@ public class SerialScanners
         }
         catch (Exception ex)
         {
-            if (ex.Message.Equals("Параметр задан неверно.") && !_blackListSerials.Contains(name)) // Добавляем в блек-лист порты, которые не являются сканерами
+            if (ex.Message.Equals("Параметр задан неверно.") && !BlackListSerials.Contains(name)) // Добавляем в блек-лист порты, которые не являются сканерами
             {
-                _blackListSerials.Add(name);
+                BlackListSerials.Add(name);
             }
 
             _logger.LogInformation("SERIAL_EXEPTION_{Serial}: {Ex}", name, ex.Message);

@@ -11,6 +11,7 @@ public struct ConfigApp
     public string ServerUrl { get; set; } = "http://192.168.101.98:9999/";
     public long PostNumber { get; set; } = -1;
     public long Type { get; set; } = -1;
+    public string ComScanner { get; set; } = "COM1";
 
     public ConfigApp()
     {

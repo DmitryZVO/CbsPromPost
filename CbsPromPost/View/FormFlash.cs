@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using System.IO.Ports;
 using System.Text;
 using CbsPromPost.Model;
 using CbsPromPost.Other;
@@ -18,13 +20,16 @@ public sealed partial class FormFlash : Form
     private DateTime _lastPaused;
     private DateTime _paused;
     private int _counts;
+    private string _comScanner;
 
     private int _counterClick;
     private DateTime _counterClickTime;
+    private readonly SerialScanners _scanner;
 
     public FormFlash()
     {
         InitializeComponent();
+        _scanner = new SerialScanners(Core.IoC.Services.GetRequiredService<ILogger<SerialScanners>>());
 
         buttonPause.Enabled = false;
 
@@ -36,6 +41,9 @@ public sealed partial class FormFlash : Form
         labelName.MouseClick += NameClick;
         Closed += OnClose;
         Shown += FormShown;
+        var works = Core.IoC.Services.GetRequiredService<Works>();
+        var work = works.Get(Core.Config.Type);
+        labelWork.Text = work.Name;
 
         Text = $@"[КБ ЦБС] ПОСТ №{Core.Config.PostNumber:0}, прошивка и тестирование готовых изделий";
         Icon = EmbeddedResources.Get<Icon>("Sprites._user_change.ico");
@@ -50,20 +58,63 @@ public sealed partial class FormFlash : Form
 
         buttonPause.Click += ButtonPauseClick;
         buttonFinish.Click += ButtonFinishClick;
+
+        var select = false;
+        foreach (var p in SerialPort.GetPortNames())
+        {
+            comboBoxScanner.Items.Add(p);
+            if (!p.Equals(Core.Config.ComScanner)) continue;
+
+            comboBoxScanner.SelectedIndex = comboBoxScanner.Items.Count - 1;
+            select = true;
+        }
+
+        if (!select) comboBoxScanner.SelectedIndex = comboBoxScanner.Items.Count > 0 ? 0 : -1;
+        _comScanner = comboBoxScanner.Text;
+        if (!_comScanner.Equals(string.Empty)) _scanner.BlackListSerials.RemoveAll(x => x.Equals(_comScanner));
+        comboBoxScanner.SelectedIndexChanged += ComScannerChange;
+    }
+
+    private void ComScannerChange(object? sender, EventArgs e)
+    {
+        _comScanner = comboBoxScanner.Text;
+        Core.Config.ComScanner = _comScanner;
+        if (!_comScanner.Equals(string.Empty))
+        {
+            _scanner.BlackListSerials = SerialPort.GetPortNames().ToList();
+            _scanner.BlackListSerials.RemoveAll(x => x.Equals(_comScanner));
+        }
+        Core.Config.Save();
     }
 
     private void FormShown(object? sender, EventArgs e)
     {
         var s = Core.IoC.Services.GetRequiredService<Station>();
         labelUser.Text = s.User.Name;
-        labelTime.Text = (DateTime.Now - s.WorkStart).TotalSeconds.ToSecTime();
-        _startTime = s.WorkStart;
-        if (_startTime == DateTime.MinValue) _startTime = DateTime.Now;
-        _lastPaused = s.WorkStart;
-        if (_lastPaused == DateTime.MinValue) _lastPaused = DateTime.Now;
+        if (!s.User.Name.Equals(string.Empty))
+        {
+            labelTime.Text = (DateTime.Now - s.WorkStart).TotalSeconds.ToSecTime();
+            _startTime = s.WorkStart;
+            _lastPaused = s.WorkStart;
+        }
+        else
+        {
+            _startTime = DateTime.Now;
+            _lastPaused = DateTime.Now;
+        }
         _paused = DateTime.MinValue;
-
+        _scanner.OnReadValue += ComReadString;
         _timer.Start();
+    }
+
+    private void ComReadString(string com, string barr)
+    {
+        Invoke(() => 
+        {
+            if (labelUser.Text.Equals(string.Empty)) return;
+            if (!com.Equals(comboBoxScanner.Text)) return;
+            labelDroneId.Text = barr;
+        });
     }
 
     private void OnClose(object? sender, EventArgs e)
@@ -84,10 +135,58 @@ public sealed partial class FormFlash : Form
     {
         if ((DateTime.Now - _counterClickTime).TotalMilliseconds > 1000) _counterClick = 0;
 
+        var works = Core.IoC.Services.GetRequiredService<Works>();
+        var work = works.Get(Core.Config.Type);
+
+        labelName.BackColor = _scanner.IsAlive()
+            ? Color.LightGreen
+            : Color.LightPink;
+
         var s = Core.IoC.Services.GetRequiredService<Station>();
+        if (s.User.Name.Equals(string.Empty) && !labelUser.Text.Equals(string.Empty) | s.User.Name.Equals(string.Empty) && labelUser.Text.Equals(string.Empty)) // Выключение работы
+        {
+            labelDroneId.Text = string.Empty;
+            labelUser.Text = string.Empty;
+            button1.Enabled = false;
+            button2.Enabled = false;
+            button3.Enabled = false;
+            button4.Enabled = false;
+            button5.Enabled = false;
+            buttonPause.Enabled = false;
+            buttonFinish.Enabled = false;
+            _startTime = DateTime.Now;
+            _lastPaused = DateTime.Now;
+            _paused = DateTime.MinValue;
+            labelTime.Text = @"РАБОТА НЕ ВЕДЕТСЯ";
+            labelTime.ForeColor = Color.DarkRed;
+            labelWork.Text = work.Name;
+            buttonPause.Text = @"ОТДЫХ";
+            label1.Text = string.Empty;
+            labelCount.Text = string.Empty;
+            _counts = 0;
+            return;
+        }
+
+        if (!s.User.Name.Equals(string.Empty) && labelUser.Text.Equals(string.Empty))
+        {
+            button1.Enabled = true;
+            button2.Enabled = true;
+            button3.Enabled = true;
+            button4.Enabled = true;
+            button5.Enabled = true;
+            buttonFinish.Enabled = true;
+            _startTime = DateTime.Now;
+            _lastPaused = DateTime.Now;
+            _paused = DateTime.MinValue;
+        }
+
+        button1.Enabled = !labelDroneId.Text.Equals(string.Empty);
+        button2.Enabled = !labelDroneId.Text.Equals(string.Empty);
+        button3.Enabled = !labelDroneId.Text.Equals(string.Empty);
+        button4.Enabled = !labelDroneId.Text.Equals(string.Empty);
+        button5.Enabled = !labelDroneId.Text.Equals(string.Empty);
 
         var sec = (DateTime.Now - s.WorkStart).TotalSeconds;
-
         if (_paused != DateTime.MinValue)
         {
             var msPaused = (DateTime.Now - _paused).TotalMilliseconds;
@@ -110,8 +209,6 @@ public sealed partial class FormFlash : Form
             labelTime.BackColor = Color.WhiteSmoke;
         }
 
-        var works = Core.IoC.Services.GetRequiredService<Works>();
-        var work = works.Get(Core.Config.Type);
         labelWork.Text = work.Name;
         labelUser.Text = s.User.Name;
         labelTime.Text = sec.ToSecTime();
@@ -120,41 +217,12 @@ public sealed partial class FormFlash : Form
         _timePausedMinutes = works.Get(Core.Config.Type).TimePauseSec / 60d;
         _timeMinWorkMinutes = works.Get(Core.Config.Type).TimePauseLongSec / 60d;
 
-        /*
-        labelName.BackColor = _scanner.IsAlive()
-            ? Color.LightGreen
-            : Color.LightPink;
-        */
-
         if (sec < work.TimeNormalSec * 1.0d)
             labelTime.ForeColor = Color.DarkGreen;
         else if (sec < work.TimeNormalSec * 1.5d)
             labelTime.ForeColor = Color.DarkOrange;
         else
             labelTime.ForeColor = Color.DarkRed;
-
-        if (s.User.Name.Equals(string.Empty))
-        {
-
-            labelDroneId.Text = string.Empty;
-            labelUser.Text = @"РАБОТА НЕ ВЕДЕТСЯ";
-            button1.Enabled = false;
-            button2.Enabled = false;
-            button3.Enabled = false;
-            button4.Enabled = false;
-            button5.Enabled = false;
-            buttonPause.Enabled = false;
-            buttonFinish.Enabled = false;
-        }
-        else
-        {
-            button1.Enabled = true;
-            button2.Enabled = true;
-            button3.Enabled = true;
-            button4.Enabled = true;
-            button5.Enabled = true;
-            buttonFinish.Enabled = true;
-        }
     }
 
     private async void ButtonFinishClick(object? sender, EventArgs e)
