@@ -6,7 +6,6 @@ using CbsPromPost.Resources;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using OpenCvSharp;
-using static System.Net.Mime.MediaTypeNames;
 using Application = System.Windows.Forms.Application;
 using Size = System.Drawing.Size;
 using Timer = System.Windows.Forms.Timer;
