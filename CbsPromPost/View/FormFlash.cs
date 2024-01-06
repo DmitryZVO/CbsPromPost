@@ -238,6 +238,7 @@ public sealed partial class FormFlash : Form
 
     private void NewWebFrame(Mat mat)
     {
+        if (mat.Empty()) return;
         Invoke(() =>
         {
             pictureBoxMain.Image?.Dispose();
