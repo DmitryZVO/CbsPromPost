@@ -124,7 +124,7 @@ public class Station
         {
             //
         }
-        return string.Empty;
+        return "ПОВТОРИТЕ ПОПЫТКУ";
     }
 
     public static void ServiceStart(string serviceName)
