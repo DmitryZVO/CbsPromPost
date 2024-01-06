@@ -1,4 +1,4 @@
-using CbsPromPost.Other;
+п»їusing CbsPromPost.Other;
 using CbsPromPost.View;
 
 namespace CbsPromPost;
@@ -13,7 +13,7 @@ internal static class Program
         using var mutex = new Mutex(true, "TULA_CBS", out var createdNew);
         if (!createdNew)
         {
-            MessageBox.Show(@"Запущен другой экземпляр программы! Продолженние не возможно....", @"ОШИБКА", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            MessageBox.Show(@"Р—Р°РїСѓС‰РµРЅ РґСЂСѓРіРѕР№ СЌРєР·РµРјРїР»СЏСЂ РїСЂРѕРіСЂР°РјРјС‹! РџСЂРѕРґРѕР»Р¶РµРЅРЅРёРµ РЅРµ РІРѕР·РјРѕР¶РЅРѕ....", @"РћРЁРР‘РљРђ", MessageBoxButtons.OK, MessageBoxIcon.Error);
             return;
         }
 
@@ -25,7 +25,7 @@ internal static class Program
                 Application.Run(new FormFlash());
                 break;
             default:
-                MessageBox.Show(@"Неизвестный тип работы!", @"ОШИБКА", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(@"РќРµРёР·РІРµСЃС‚РЅС‹Р№ С‚РёРї СЂР°Р±РѕС‚С‹!", @"РћРЁРР‘РљРђ", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 break;
         }
     }

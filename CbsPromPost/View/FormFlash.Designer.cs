@@ -46,6 +46,10 @@ sealed partial class FormFlash
         label2 = new Label();
         button4 = new Button();
         button5 = new Button();
+        button6 = new Button();
+        button7 = new Button();
+        labelHex = new Label();
+        labelFpl = new Label();
         ((System.ComponentModel.ISupportInitialize)pictureBoxMain).BeginInit();
         SuspendLayout();
         // 
@@ -154,7 +158,7 @@ sealed partial class FormFlash
         pictureBoxMain.BorderStyle = BorderStyle.FixedSingle;
         pictureBoxMain.Location = new Point(12, 234);
         pictureBoxMain.Name = "pictureBoxMain";
-        pictureBoxMain.Size = new Size(901, 675);
+        pictureBoxMain.Size = new Size(901, 611);
         pictureBoxMain.TabIndex = 19;
         pictureBoxMain.TabStop = false;
         // 
@@ -165,13 +169,13 @@ sealed partial class FormFlash
         richTextBoxMain.Location = new Point(919, 234);
         richTextBoxMain.Name = "richTextBoxMain";
         richTextBoxMain.ReadOnly = true;
-        richTextBoxMain.Size = new Size(417, 675);
+        richTextBoxMain.Size = new Size(417, 611);
         richTextBoxMain.TabIndex = 20;
         richTextBoxMain.Text = "";
         // 
         // button1
         // 
-        button1.Font = new Font("Segoe UI", 22F, FontStyle.Regular, GraphicsUnit.Point);
+        button1.Font = new Font("Segoe UI", 14F, FontStyle.Regular, GraphicsUnit.Point);
         button1.Location = new Point(1342, 354);
         button1.Name = "button1";
         button1.Size = new Size(230, 61);
@@ -181,7 +185,7 @@ sealed partial class FormFlash
         // 
         // button2
         // 
-        button2.Font = new Font("Segoe UI", 22F, FontStyle.Regular, GraphicsUnit.Point);
+        button2.Font = new Font("Segoe UI", 14F, FontStyle.Regular, GraphicsUnit.Point);
         button2.Location = new Point(1342, 421);
         button2.Name = "button2";
         button2.Size = new Size(230, 61);
@@ -191,7 +195,7 @@ sealed partial class FormFlash
         // 
         // button3
         // 
-        button3.Font = new Font("Segoe UI", 22F, FontStyle.Regular, GraphicsUnit.Point);
+        button3.Font = new Font("Segoe UI", 14F, FontStyle.Regular, GraphicsUnit.Point);
         button3.Location = new Point(1342, 488);
         button3.Name = "button3";
         button3.Size = new Size(230, 61);
@@ -222,8 +226,8 @@ sealed partial class FormFlash
         // 
         // button4
         // 
-        button4.Font = new Font("Segoe UI", 22F, FontStyle.Regular, GraphicsUnit.Point);
-        button4.Location = new Point(1342, 848);
+        button4.Font = new Font("Segoe UI", 14F, FontStyle.Regular, GraphicsUnit.Point);
+        button4.Location = new Point(1342, 555);
         button4.Name = "button4";
         button4.Size = new Size(230, 61);
         button4.TabIndex = 26;
@@ -232,19 +236,65 @@ sealed partial class FormFlash
         // 
         // button5
         // 
-        button5.Font = new Font("Segoe UI", 22F, FontStyle.Regular, GraphicsUnit.Point);
-        button5.Location = new Point(1342, 781);
+        button5.Font = new Font("Segoe UI", 14F, FontStyle.Regular, GraphicsUnit.Point);
+        button5.Location = new Point(1342, 622);
         button5.Name = "button5";
         button5.Size = new Size(230, 61);
         button5.TabIndex = 27;
         button5.Text = "HEX";
         button5.UseVisualStyleBackColor = true;
         // 
+        // button6
+        // 
+        button6.Font = new Font("Segoe UI", 14F, FontStyle.Regular, GraphicsUnit.Point);
+        button6.Location = new Point(1342, 689);
+        button6.Name = "button6";
+        button6.Size = new Size(230, 61);
+        button6.TabIndex = 28;
+        button6.Text = "HEX";
+        button6.UseVisualStyleBackColor = true;
+        // 
+        // button7
+        // 
+        button7.Font = new Font("Segoe UI", 14F, FontStyle.Regular, GraphicsUnit.Point);
+        button7.Location = new Point(1342, 756);
+        button7.Name = "button7";
+        button7.Size = new Size(230, 61);
+        button7.TabIndex = 29;
+        button7.Text = "HEX";
+        button7.UseVisualStyleBackColor = true;
+        // 
+        // labelHex
+        // 
+        labelHex.Font = new Font("Segoe UI", 16F, FontStyle.Regular, GraphicsUnit.Point);
+        labelHex.ForeColor = Color.Black;
+        labelHex.Location = new Point(12, 848);
+        labelHex.Name = "labelHex";
+        labelHex.Size = new Size(1560, 32);
+        labelHex.TabIndex = 30;
+        labelHex.Text = "HEX";
+        labelHex.TextAlign = ContentAlignment.MiddleCenter;
+        // 
+        // labelFpl
+        // 
+        labelFpl.Font = new Font("Segoe UI", 16F, FontStyle.Regular, GraphicsUnit.Point);
+        labelFpl.ForeColor = Color.Black;
+        labelFpl.Location = new Point(12, 880);
+        labelFpl.Name = "labelFpl";
+        labelFpl.Size = new Size(1560, 32);
+        labelFpl.TabIndex = 31;
+        labelFpl.Text = "FPL";
+        labelFpl.TextAlign = ContentAlignment.MiddleCenter;
+        // 
         // FormFlash
         // 
         AutoScaleDimensions = new SizeF(7F, 15F);
         AutoScaleMode = AutoScaleMode.Font;
         ClientSize = new Size(1584, 921);
+        Controls.Add(labelFpl);
+        Controls.Add(labelHex);
+        Controls.Add(button7);
+        Controls.Add(button6);
         Controls.Add(button5);
         Controls.Add(button4);
         Controls.Add(label2);
@@ -291,4 +341,8 @@ sealed partial class FormFlash
     private Label label2;
     private Button button4;
     private Button button5;
+    private Button button6;
+    private Button button7;
+    private Label labelHex;
+    private Label labelFpl;
 }

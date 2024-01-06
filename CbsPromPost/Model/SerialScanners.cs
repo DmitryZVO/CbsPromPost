@@ -14,7 +14,7 @@ public class SerialScanners
     }
 
     private readonly List<string> _aliveSerials = new();
-    public List<string> BlackListSerials = new();
+    public string WhiteSerial = string.Empty;
     private readonly Channel<SerialText> _pipe;
     private readonly ILogger<SerialScanners> _logger;
     private bool _alive;
@@ -33,24 +33,19 @@ public class SerialScanners
     {
         ReadFromChannelAsync(cancellationToken);
 
-        var allSerials = SerialPort.GetPortNames(); // список всех доступных COM-портов
-        foreach (var allSerial in allSerials)
-        {
-            if (!BlackListSerials.Exists(x => x.Equals(allSerial))) BlackListSerials.Add(allSerial);
-        }
-
         while (!cancellationToken.IsCancellationRequested)
         {
             await Task.Delay(TimeSpan.FromMilliseconds(1000), cancellationToken);
 
             lock (_aliveSerials)
             {
+                var allSerials = SerialPort.GetPortNames(); // список всех доступных COM-портов
                 foreach (var current in allSerials)
                 {
                     var running = _aliveSerials.Any(serial => current.Equals(serial));
                     if (running) continue;
 
-                    if (BlackListSerials.Contains(current)) continue; // этот COM-порт в блеклисте
+                    if (!current.Equals(WhiteSerial)) continue;
 
                     WriteFromSerialToChannelAsync(current, cancellationToken);
                 }
@@ -100,11 +95,6 @@ public class SerialScanners
         }
         catch (Exception ex)
         {
-            if (ex.Message.Equals("Параметр задан неверно.") && !BlackListSerials.Contains(name)) // Добавляем в блек-лист порты, которые не являются сканерами
-            {
-                BlackListSerials.Add(name);
-            }
-
             _logger.LogInformation("SERIAL_EXEPTION_{Serial}: {Ex}", name, ex.Message);
         }
         port.Close();
