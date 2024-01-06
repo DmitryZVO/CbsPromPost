@@ -1,5 +1,6 @@
 ﻿using System.IO.Ports;
 using System.Text;
+using System.Xml.Linq;
 using CbsPromPost.Model;
 using CbsPromPost.Other;
 using CbsPromPost.Resources;
@@ -244,6 +245,8 @@ public sealed partial class FormFlash : Form
             pictureBoxMain.Image = OpenCvSharp.Extensions.BitmapConverter.ToBitmap(mat);
             pictureBoxMain.Refresh();
         });
+        //if (labelDroneId.Text.Equals(string.Empty)) return;
+        //Cv2.ImWrite($"CAPTURE\\_{DateTime.Now.Ticks:0}.jpg", mat);
     }
 
     private void ComReadString(string com, string text)
@@ -269,7 +272,37 @@ public sealed partial class FormFlash : Form
 
                 labelDroneId.Text = text;
                 File.Copy(Application.StartupPath + "\\DB\\_HEX\\" + Core.Config.FileHex, $"{Environment.GetFolderPath(Environment.SpecialFolder.Desktop)}\\_hex_{labelDroneId.Text}_{Core.Config.FileHex}");
-                File.Copy(Application.StartupPath + "\\DB\\_HEX\\" + Core.Config.FileFpl, $"{Environment.GetFolderPath(Environment.SpecialFolder.Desktop)}\\_fpl_{labelDroneId.Text}_{Core.Config.FileFpl}");
+                var fileFplOrig = Application.StartupPath + "\\DB\\_HEX\\" + Core.Config.FileFpl;
+                var fileFpl = $"{Environment.GetFolderPath(Environment.SpecialFolder.Desktop)}\\_fpl_{labelDroneId.Text}_{Core.Config.FileFpl}";
+                var file =  await File.ReadAllLinesAsync(fileFplOrig);
+                for (var i = 0; i < file.Length; i++)
+                {
+                    if (!file[i].Contains("set name")) continue;
+                    file[i] = $"set name = VT40 {text}";
+                    break;
+                }
+                /*
+                if (File.Exists(fileFpl)) File.Delete(fileFpl);
+                File.WriteAllLines(fileFpl, file);
+                */
+                var port = new SerialPort(Core.Config.ComBeta, 115200, Parity.None, 8, StopBits.One)
+                {
+                    ReadTimeout = 1000,
+                    WriteTimeout = 1000,
+                };
+                richTextBoxMain.Text = string.Empty;
+                port.Open();
+                port.WriteLine("#");
+                foreach (var f in file)
+                {
+                    richTextBoxMain.AppendText($"{f}\n");
+                    port.WriteLine(f);
+                    await Task.Delay(TimeSpan.FromMilliseconds(10));
+                    richTextBoxMain.AppendText(port.ReadLine());
+                }
+                port.Close();
+                port.Dispose();
+
                 return;
             }
 

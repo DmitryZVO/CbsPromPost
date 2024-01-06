@@ -12,6 +12,7 @@ public struct ConfigApp
     public long PostNumber { get; set; } = -1;
     public long Type { get; set; } = -1;
     public string ComScanner { get; set; } = "COM1";
+    public string ComBeta { get; set; } = "COM3";
     public string Button1Exe { get; set; } = "ImpulseRC_Driver_Fixer.exe";
     public string Button2Exe { get; set; } = string.Empty;
     public string Button3Exe { get; set; } = string.Empty;
