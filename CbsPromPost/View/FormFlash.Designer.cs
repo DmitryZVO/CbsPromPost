@@ -37,20 +37,22 @@ sealed partial class FormFlash
         labelWork = new Label();
         labelName = new Label();
         labelDroneId = new Label();
-        pictureBoxMain = new PictureBox();
         richTextBoxMain = new RichTextBox();
-        button1 = new Button();
+        buttonReset = new Button();
         button2 = new Button();
         button3 = new Button();
-        comboBoxScanner = new ComboBox();
-        label2 = new Label();
+        labelComScanner = new Label();
         button4 = new Button();
         button5 = new Button();
-        button6 = new Button();
-        button7 = new Button();
+        buttonImpulseRC = new Button();
+        buttonWebCam = new Button();
         labelHex = new Label();
         labelFpl = new Label();
-        ((System.ComponentModel.ISupportInitialize)pictureBoxMain).BeginInit();
+        labelComBeta = new Label();
+        progressBar1 = new ProgressBar();
+        buttonMsp = new Button();
+        textBoxCli = new TextBox();
+        labelDfu = new Label();
         SuspendLayout();
         // 
         // label1
@@ -152,158 +154,191 @@ sealed partial class FormFlash
         labelDroneId.TabIndex = 18;
         labelDroneId.TextAlign = ContentAlignment.MiddleCenter;
         // 
-        // pictureBoxMain
-        // 
-        pictureBoxMain.BackColor = Color.Black;
-        pictureBoxMain.BorderStyle = BorderStyle.FixedSingle;
-        pictureBoxMain.Location = new Point(12, 234);
-        pictureBoxMain.Name = "pictureBoxMain";
-        pictureBoxMain.Size = new Size(901, 611);
-        pictureBoxMain.TabIndex = 19;
-        pictureBoxMain.TabStop = false;
-        // 
         // richTextBoxMain
         // 
         richTextBoxMain.BackColor = Color.White;
         richTextBoxMain.BorderStyle = BorderStyle.FixedSingle;
-        richTextBoxMain.Location = new Point(919, 234);
+        richTextBoxMain.Location = new Point(12, 265);
         richTextBoxMain.Name = "richTextBoxMain";
         richTextBoxMain.ReadOnly = true;
-        richTextBoxMain.Size = new Size(417, 611);
+        richTextBoxMain.Size = new Size(1324, 589);
         richTextBoxMain.TabIndex = 20;
         richTextBoxMain.Text = "";
         // 
-        // button1
+        // buttonReset
         // 
-        button1.Font = new Font("Segoe UI", 14F, FontStyle.Regular, GraphicsUnit.Point);
-        button1.Location = new Point(1342, 354);
-        button1.Name = "button1";
-        button1.Size = new Size(230, 61);
-        button1.TabIndex = 21;
-        button1.Text = "КОНТРОЛЛЕР";
-        button1.UseVisualStyleBackColor = true;
+        buttonReset.Font = new Font("Segoe UI", 14F, FontStyle.Regular, GraphicsUnit.Point);
+        buttonReset.Location = new Point(1342, 329);
+        buttonReset.Name = "buttonReset";
+        buttonReset.Size = new Size(230, 38);
+        buttonReset.TabIndex = 21;
+        buttonReset.Text = "ПЕРЕЗАГРУЗКА";
+        buttonReset.UseVisualStyleBackColor = true;
         // 
         // button2
         // 
         button2.Font = new Font("Segoe UI", 14F, FontStyle.Regular, GraphicsUnit.Point);
-        button2.Location = new Point(1342, 421);
+        button2.Location = new Point(1342, 407);
         button2.Name = "button2";
-        button2.Size = new Size(230, 61);
+        button2.Size = new Size(230, 38);
         button2.TabIndex = 22;
-        button2.Text = "ImpulseRC";
+        button2.Text = "button2";
         button2.UseVisualStyleBackColor = true;
         // 
         // button3
         // 
         button3.Font = new Font("Segoe UI", 14F, FontStyle.Regular, GraphicsUnit.Point);
-        button3.Location = new Point(1342, 488);
+        button3.Location = new Point(1342, 451);
         button3.Name = "button3";
-        button3.Size = new Size(230, 61);
+        button3.Size = new Size(230, 38);
         button3.TabIndex = 23;
-        button3.Text = "Betaflight";
+        button3.Text = "button3";
         button3.UseVisualStyleBackColor = true;
         // 
-        // comboBoxScanner
+        // labelComScanner
         // 
-        comboBoxScanner.DropDownStyle = ComboBoxStyle.DropDownList;
-        comboBoxScanner.Font = new Font("Segoe UI", 22F, FontStyle.Regular, GraphicsUnit.Point);
-        comboBoxScanner.FormattingEnabled = true;
-        comboBoxScanner.Location = new Point(1342, 300);
-        comboBoxScanner.Name = "comboBoxScanner";
-        comboBoxScanner.Size = new Size(230, 48);
-        comboBoxScanner.TabIndex = 24;
-        // 
-        // label2
-        // 
-        label2.Font = new Font("Segoe UI", 22F, FontStyle.Regular, GraphicsUnit.Point);
-        label2.ForeColor = Color.Black;
-        label2.Location = new Point(1342, 234);
-        label2.Name = "label2";
-        label2.Size = new Size(230, 63);
-        label2.TabIndex = 25;
-        label2.Text = "СКАНЕР";
-        label2.TextAlign = ContentAlignment.MiddleCenter;
+        labelComScanner.Font = new Font("Segoe UI", 12F, FontStyle.Regular, GraphicsUnit.Point);
+        labelComScanner.ForeColor = Color.Black;
+        labelComScanner.Location = new Point(1342, 234);
+        labelComScanner.Name = "labelComScanner";
+        labelComScanner.Size = new Size(230, 28);
+        labelComScanner.TabIndex = 25;
+        labelComScanner.Text = "СКАНЕР";
+        labelComScanner.TextAlign = ContentAlignment.MiddleCenter;
         // 
         // button4
         // 
         button4.Font = new Font("Segoe UI", 14F, FontStyle.Regular, GraphicsUnit.Point);
-        button4.Location = new Point(1342, 555);
+        button4.Location = new Point(1342, 495);
         button4.Name = "button4";
-        button4.Size = new Size(230, 61);
+        button4.Size = new Size(230, 38);
         button4.TabIndex = 26;
-        button4.Text = "FPL";
+        button4.Text = "button4";
         button4.UseVisualStyleBackColor = true;
         // 
         // button5
         // 
         button5.Font = new Font("Segoe UI", 14F, FontStyle.Regular, GraphicsUnit.Point);
-        button5.Location = new Point(1342, 622);
+        button5.Location = new Point(1342, 539);
         button5.Name = "button5";
-        button5.Size = new Size(230, 61);
+        button5.Size = new Size(230, 38);
         button5.TabIndex = 27;
-        button5.Text = "HEX";
+        button5.Text = "button5";
         button5.UseVisualStyleBackColor = true;
         // 
-        // button6
+        // buttonImpulseRC
         // 
-        button6.Font = new Font("Segoe UI", 14F, FontStyle.Regular, GraphicsUnit.Point);
-        button6.Location = new Point(1342, 689);
-        button6.Name = "button6";
-        button6.Size = new Size(230, 61);
-        button6.TabIndex = 28;
-        button6.Text = "HEX";
-        button6.UseVisualStyleBackColor = true;
+        buttonImpulseRC.Font = new Font("Segoe UI", 14F, FontStyle.Regular, GraphicsUnit.Point);
+        buttonImpulseRC.Location = new Point(1342, 785);
+        buttonImpulseRC.Name = "buttonImpulseRC";
+        buttonImpulseRC.Size = new Size(230, 38);
+        buttonImpulseRC.TabIndex = 28;
+        buttonImpulseRC.Text = "ДРАЙВЕРА ImpulseRC";
+        buttonImpulseRC.UseVisualStyleBackColor = true;
         // 
-        // button7
+        // buttonWebCam
         // 
-        button7.Font = new Font("Segoe UI", 14F, FontStyle.Regular, GraphicsUnit.Point);
-        button7.Location = new Point(1342, 756);
-        button7.Name = "button7";
-        button7.Size = new Size(230, 61);
-        button7.TabIndex = 29;
-        button7.Text = "HEX";
-        button7.UseVisualStyleBackColor = true;
+        buttonWebCam.Font = new Font("Segoe UI", 14F, FontStyle.Regular, GraphicsUnit.Point);
+        buttonWebCam.Location = new Point(1342, 873);
+        buttonWebCam.Name = "buttonWebCam";
+        buttonWebCam.Size = new Size(230, 38);
+        buttonWebCam.TabIndex = 29;
+        buttonWebCam.Text = "ВИДЕО";
+        buttonWebCam.UseVisualStyleBackColor = true;
         // 
         // labelHex
         // 
-        labelHex.Font = new Font("Segoe UI", 16F, FontStyle.Regular, GraphicsUnit.Point);
+        labelHex.BackColor = Color.Bisque;
+        labelHex.BorderStyle = BorderStyle.FixedSingle;
+        labelHex.Font = new Font("Segoe UI", 14F, FontStyle.Regular, GraphicsUnit.Point);
         labelHex.ForeColor = Color.Black;
-        labelHex.Location = new Point(12, 848);
+        labelHex.Location = new Point(12, 234);
         labelHex.Name = "labelHex";
-        labelHex.Size = new Size(1560, 32);
+        labelHex.Size = new Size(718, 28);
         labelHex.TabIndex = 30;
         labelHex.Text = "HEX";
         labelHex.TextAlign = ContentAlignment.MiddleCenter;
         // 
         // labelFpl
         // 
-        labelFpl.Font = new Font("Segoe UI", 16F, FontStyle.Regular, GraphicsUnit.Point);
+        labelFpl.BackColor = Color.MistyRose;
+        labelFpl.BorderStyle = BorderStyle.FixedSingle;
+        labelFpl.Font = new Font("Segoe UI", 12F, FontStyle.Regular, GraphicsUnit.Point);
         labelFpl.ForeColor = Color.Black;
-        labelFpl.Location = new Point(12, 880);
+        labelFpl.Location = new Point(736, 234);
         labelFpl.Name = "labelFpl";
-        labelFpl.Size = new Size(1560, 32);
+        labelFpl.Size = new Size(600, 28);
         labelFpl.TabIndex = 31;
         labelFpl.Text = "FPL";
         labelFpl.TextAlign = ContentAlignment.MiddleCenter;
+        // 
+        // labelComBeta
+        // 
+        labelComBeta.Font = new Font("Segoe UI", 12F, FontStyle.Regular, GraphicsUnit.Point);
+        labelComBeta.ForeColor = Color.Black;
+        labelComBeta.Location = new Point(1342, 265);
+        labelComBeta.Name = "labelComBeta";
+        labelComBeta.Size = new Size(230, 28);
+        labelComBeta.TabIndex = 33;
+        labelComBeta.Text = "ПОЛЕТНИК";
+        labelComBeta.TextAlign = ContentAlignment.MiddleCenter;
+        // 
+        // progressBar1
+        // 
+        progressBar1.Location = new Point(12, 888);
+        progressBar1.Name = "progressBar1";
+        progressBar1.Size = new Size(1324, 23);
+        progressBar1.TabIndex = 34;
+        // 
+        // buttonMsp
+        // 
+        buttonMsp.Font = new Font("Segoe UI", 14F, FontStyle.Regular, GraphicsUnit.Point);
+        buttonMsp.Location = new Point(1342, 829);
+        buttonMsp.Name = "buttonMsp";
+        buttonMsp.Size = new Size(230, 38);
+        buttonMsp.TabIndex = 35;
+        buttonMsp.Text = "ТЕЛЕМЕТРИЯ/КОНФИГ";
+        buttonMsp.UseVisualStyleBackColor = true;
+        // 
+        // textBoxCli
+        // 
+        textBoxCli.Location = new Point(12, 860);
+        textBoxCli.Name = "textBoxCli";
+        textBoxCli.Size = new Size(1324, 23);
+        textBoxCli.TabIndex = 37;
+        // 
+        // labelDfu
+        // 
+        labelDfu.Font = new Font("Segoe UI", 10F, FontStyle.Regular, GraphicsUnit.Point);
+        labelDfu.ForeColor = Color.Black;
+        labelDfu.Location = new Point(1342, 295);
+        labelDfu.Name = "labelDfu";
+        labelDfu.Size = new Size(230, 28);
+        labelDfu.TabIndex = 38;
+        labelDfu.Text = "ПОЛЕТНИК DFU";
+        labelDfu.TextAlign = ContentAlignment.MiddleCenter;
         // 
         // FormFlash
         // 
         AutoScaleDimensions = new SizeF(7F, 15F);
         AutoScaleMode = AutoScaleMode.Font;
-        ClientSize = new Size(1584, 921);
+        ClientSize = new Size(1584, 923);
+        Controls.Add(labelDfu);
+        Controls.Add(textBoxCli);
+        Controls.Add(buttonMsp);
+        Controls.Add(progressBar1);
+        Controls.Add(labelComBeta);
         Controls.Add(labelFpl);
         Controls.Add(labelHex);
-        Controls.Add(button7);
-        Controls.Add(button6);
+        Controls.Add(buttonWebCam);
+        Controls.Add(buttonImpulseRC);
         Controls.Add(button5);
         Controls.Add(button4);
-        Controls.Add(label2);
-        Controls.Add(comboBoxScanner);
+        Controls.Add(labelComScanner);
         Controls.Add(button3);
         Controls.Add(button2);
-        Controls.Add(button1);
+        Controls.Add(buttonReset);
         Controls.Add(richTextBoxMain);
-        Controls.Add(pictureBoxMain);
         Controls.Add(labelDroneId);
         Controls.Add(label1);
         Controls.Add(labelCount);
@@ -317,8 +352,8 @@ sealed partial class FormFlash
         Name = "FormFlash";
         StartPosition = FormStartPosition.CenterScreen;
         Text = "[КБ ЦБС] Пост прошивки БПЛА";
-        ((System.ComponentModel.ISupportInitialize)pictureBoxMain).EndInit();
         ResumeLayout(false);
+        PerformLayout();
     }
 
     #endregion
@@ -332,17 +367,20 @@ sealed partial class FormFlash
     private Label labelWork;
     private Label labelName;
     private Label labelDroneId;
-    private PictureBox pictureBoxMain;
     private RichTextBox richTextBoxMain;
-    private Button button1;
+    private Button buttonReset;
     private Button button2;
     private Button button3;
-    private ComboBox comboBoxScanner;
-    private Label label2;
+    private Label labelComScanner;
     private Button button4;
     private Button button5;
-    private Button button6;
-    private Button button7;
+    private Button buttonImpulseRC;
+    private Button buttonWebCam;
     private Label labelHex;
     private Label labelFpl;
+    private Label labelComBeta;
+    private ProgressBar progressBar1;
+    private Button buttonMsp;
+    private TextBox textBoxCli;
+    private Label labelDfu;
 }

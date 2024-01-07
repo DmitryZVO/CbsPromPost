@@ -5,6 +5,8 @@ namespace CbsPromPost.Other;
 
 public class WebCam
 {
+    private bool _exit;
+
     public event Action<Mat> OnNewVideoFrame = delegate { };
 
     public async void StartAsync(int targetFps, CancellationToken cancellationToken = default)
@@ -13,12 +15,14 @@ public class WebCam
         {
             using var capture = new VideoCapture(0, VideoCaptureAPIs.ANY)
             {
-                FrameWidth = 640,
-                FrameHeight = 480,
+                FrameWidth = 800,
+                FrameHeight = 600,
             };
 
             while (!cancellationToken.IsCancellationRequested)
             {
+                if (_exit) break;
+
                 var start = DateTime.Now;
 
                 try
@@ -38,5 +42,9 @@ public class WebCam
                 await Task.Delay(TimeSpan.FromMilliseconds(lastMs), cancellationToken);
             }
         }, cancellationToken);
+    }
+    public void Dispose()
+    {
+        _exit = true;
     }
 }

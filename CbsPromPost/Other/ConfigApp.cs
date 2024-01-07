@@ -13,13 +13,8 @@ public struct ConfigApp
     public long Type { get; set; } = -1;
     public string ComScanner { get; set; } = "COM1";
     public string ComBeta { get; set; } = "COM3";
-    public string Button1Exe { get; set; } = "ImpulseRC_Driver_Fixer.exe";
-    public string Button2Exe { get; set; } = string.Empty;
-    public string Button3Exe { get; set; } = string.Empty;
-    public string Button4Exe { get; set; } = string.Empty;
-    public string Button5Exe { get; set; } = string.Empty;
-    public string Button6Exe { get; set; } = string.Empty;
-    public string Button7Exe { get; set; } = string.Empty;
+    public string UsbDfuVid { get; set; } = "0483";
+    public string UsbDfuPid { get; set; } = "DF11";
     public string FileHex { get; set; } = string.Empty;
     public string FileFpl { get; set; } = string.Empty;
 

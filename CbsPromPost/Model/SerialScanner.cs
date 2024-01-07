@@ -5,7 +5,7 @@ using Microsoft.Extensions.Logging;
 
 namespace CbsPromPost.Model;
 
-public class SerialScanners
+public class SerialScanner
 {
     private class SerialText
     {
@@ -14,23 +14,25 @@ public class SerialScanners
     }
 
     private readonly List<string> _aliveSerials = new();
-    public string WhiteSerial = string.Empty;
+    private string _serial;
     private readonly Channel<SerialText> _pipe;
-    private readonly ILogger<SerialScanners> _logger;
+    private readonly ILogger<SerialScanner> _logger;
     private bool _alive;
 
     public event Action<string, string> OnReadValue = delegate { };
     public event Action<bool> OnAliveChange = delegate { };
     public bool IsAlive() => _alive;
 
-    public SerialScanners(ILogger<SerialScanners> logger)
+    public SerialScanner(ILogger<SerialScanner> logger)
     {
         _pipe = Channel.CreateBounded<SerialText>(100);
         _logger = logger;
+        _serial = string.Empty;
     }
 
-    public async Task StartAsync(CancellationToken cancellationToken = default)
+    public async void StartAsync(string com, CancellationToken cancellationToken = default)
     {
+        _serial = com;
         ReadFromChannelAsync(cancellationToken);
 
         while (!cancellationToken.IsCancellationRequested)
@@ -42,10 +44,9 @@ public class SerialScanners
                 var allSerials = SerialPort.GetPortNames(); // список всех доступных COM-портов
                 foreach (var current in allSerials)
                 {
-                    var running = _aliveSerials.Any(serial => current.Equals(serial));
-                    if (running) continue;
+                    if (_aliveSerials.Any(x => current.Equals(x))) continue;
 
-                    if (!current.Equals(WhiteSerial)) continue;
+                    if (!current.Equals(_serial)) continue;
 
                     WriteFromSerialToChannelAsync(current, cancellationToken);
                 }

@@ -1,12 +1,10 @@
 ﻿using System.IO.Ports;
-using System.Text;
-using System.Xml.Linq;
 using CbsPromPost.Model;
 using CbsPromPost.Other;
 using CbsPromPost.Resources;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using OpenCvSharp;
+using static System.Net.Mime.MediaTypeNames;
 using Application = System.Windows.Forms.Application;
 using Size = System.Drawing.Size;
 using Timer = System.Windows.Forms.Timer;
@@ -23,77 +21,60 @@ public sealed partial class FormFlash : Form
     private DateTime _lastPaused;
     private DateTime _paused;
     private int _counts;
-    private string _comScanner;
-    private readonly WebCam _webCam;
+    private FormWebCam _formWeb;
 
     private int _counterClick;
     private DateTime _counterClickTime;
-    private readonly SerialScanners _scanner;
+    private readonly SerialScanner _scanner;
+    private readonly SerialBetaflight _betaflight;
 
     public FormFlash()
     {
         InitializeComponent();
-        _scanner = new SerialScanners(Core.IoC.Services.GetRequiredService<ILogger<SerialScanners>>());
+        _scanner = new SerialScanner(Core.IoC.Services.GetRequiredService<ILogger<SerialScanner>>());
+        _betaflight = new SerialBetaflight(Core.IoC.Services.GetRequiredService<ILogger<SerialBetaflight>>());
 
         buttonPause.Enabled = false;
 
+        _formWeb = new FormWebCam();
         labelName.Text = $@"ПОСТ №{Core.Config.PostNumber:0}";
         _counts = 0;
-        _comScanner = string.Empty;
         _timer.Interval = 1000;
-        _timer.Tick += TimerTick;
-        labelName.MouseClick += NameClick;
-        Closed += OnClose;
-        Shown += FormShown;
+
         var works = Core.IoC.Services.GetRequiredService<Works>();
         var work = works.Get(Core.Config.Type);
         labelWork.Text = work.Name;
 
         Text = $@"[КБ ЦБС] ПОСТ №{Core.Config.PostNumber:0}, прошивка и тестирование готовых изделий";
         Icon = EmbeddedResources.Get<Icon>("Sprites._user_change.ico");
-        richTextBoxMain.Text = new StringBuilder()
-            .Append("Задачи:\n")
-            .Append("0> Сосканировать ШК изделия (для формирования FPL-листа.\n")
-            .Append("1> Включить изделие от лабораторного ИП и проверить потребление тока.\n")
-            .Append("2> Проверить изображение с камеры, включая шевеление передатчика.\n")
-            .Append("3> Подключить контроллер через type-C.\n")
-            .Append("Бла-бла-бла.\n")
-            .ToString();
+        richTextBoxMain.Text = string.Empty;
 
         buttonPause.Click += ButtonPauseClick;
         buttonFinish.Click += ButtonFinishClick;
 
-        UpdateScanners();
-        comboBoxScanner.SelectedValueChanged += ComScannerChange;
-        _ = _scanner.StartAsync();
-        _webCam = new WebCam();
-
-        button1.Text = Core.Config.Button1Exe.Equals(string.Empty)? string.Empty : Core.Config.Button1Exe.Split(".")[0];
-        button2.Text = Core.Config.Button2Exe.Equals(string.Empty) ? string.Empty : Core.Config.Button2Exe.Split(".")[0];
-        button3.Text = Core.Config.Button3Exe.Equals(string.Empty) ? string.Empty : Core.Config.Button3Exe.Split(".")[0];
-        button4.Text = Core.Config.Button4Exe.Equals(string.Empty) ? string.Empty : Core.Config.Button4Exe.Split(".")[0];
-        button5.Text = Core.Config.Button5Exe.Equals(string.Empty) ? string.Empty : Core.Config.Button5Exe.Split(".")[0];
-        button6.Text = Core.Config.Button6Exe.Equals(string.Empty) ? string.Empty : Core.Config.Button6Exe.Split(".")[0];
-        button7.Text = Core.Config.Button7Exe.Equals(string.Empty) ? string.Empty : Core.Config.Button7Exe.Split(".")[0];
-        labelHex.Text = Core.Config.FileHex;
         labelFpl.Text = Core.Config.FileFpl;
-        button1.Click += Button1Click;
-        button2.Click += Button2Click;
-        button3.Click += Button3Click;
-        button4.Click += Button4Click;
-        button5.Click += Button5Click;
-        button6.Click += Button6Click;
-        button7.Click += Button7Click;
+        labelHex.Text = Core.Config.FileHex;
+        labelComScanner.Text = $@"ШК СКАНЕР [{Core.Config.ComScanner}]";
+        labelComBeta.Text = $@"BetaFlight [{Core.Config.ComBeta}]";
+        labelDfu.Text = $@"BetaFlight DFU mode [{Core.Config.UsbDfuVid}:{Core.Config.UsbDfuPid}]";
 
-        pictureBoxMain.SizeMode = PictureBoxSizeMode.StretchImage;
+        _timer.Tick += TimerTick;
+        labelName.MouseClick += NameClick;
+        Closed += OnClose;
+        Shown += FormShown;
+        buttonWebCam.Click += ButtonWebCam;
+        buttonImpulseRC.Click += ButtonImpulseRc;
+        buttonReset.Click += ButtonResetClick;
+        var menu = new ContextMenuStrip();
+        menu.Items.Add("ОЧИСТИТЬ", null, OnRichTextBoxClear);
+        richTextBoxMain.ContextMenuStrip = menu;
     }
 
-    private void Button1Click(object? sender, EventArgs e)
+    private void ButtonImpulseRc(object? sender, EventArgs e)
     {
-        if (Core.Config.Button1Exe.Equals(string.Empty)) return;
         try
         {
-            System.Diagnostics.Process.Start($"{Application.StartupPath}DB\\button1\\{Core.Config.Button1Exe}");
+            System.Diagnostics.Process.Start($"{Application.StartupPath}DB\\ImpulseRC_Driver_Fixer.exe");
         }
         catch (Exception ex)
         {
@@ -101,120 +82,43 @@ public sealed partial class FormFlash : Form
         }
     }
 
-    private void Button2Click(object? sender, EventArgs e)
+    private void OnRichTextBoxClear(object? sender, EventArgs e)
     {
-        if (Core.Config.Button2Exe.Equals(string.Empty)) return;
-        try
-        {
-            System.Diagnostics.Process.Start($"{Application.StartupPath}DB\\button2\\{Core.Config.Button2Exe}");
-        }
-        catch (Exception ex)
-        {
-            new FormInfo($"ОШИБКА ЗАПУСКА\r\n[{ex.Message}]", Color.LightPink, Color.DarkRed, 3000, new Size(1000, 800)).Show(this);
-        }
-    }
-    private void Button3Click(object? sender, EventArgs e)
-    {
-        if (Core.Config.Button3Exe.Equals(string.Empty)) return;
-        try
-        {
-            System.Diagnostics.Process.Start($"{Application.StartupPath}DB\\button3\\{Core.Config.Button3Exe}");
-        }
-        catch (Exception ex)
-        {
-            new FormInfo($"ОШИБКА ЗАПУСКА\r\n[{ex.Message}]", Color.LightPink, Color.DarkRed, 3000, new Size(1000, 800)).Show(this);
-        }
-    }
-    private void Button4Click(object? sender, EventArgs e)
-    {
-        if (Core.Config.Button4Exe.Equals(string.Empty)) return;
-        try
-        {
-            System.Diagnostics.Process.Start($"{Application.StartupPath}DB\\button4\\{Core.Config.Button4Exe}");
-        }
-        catch (Exception ex)
-        {
-            new FormInfo($"ОШИБКА ЗАПУСКА\r\n[{ex.Message}]", Color.LightPink, Color.DarkRed, 3000, new Size(1000, 800)).Show(this);
-        }
-    }
-    private void Button5Click(object? sender, EventArgs e)
-    {
-        if (Core.Config.Button5Exe.Equals(string.Empty)) return;
-        try
-        {
-            System.Diagnostics.Process.Start($"{Application.StartupPath}DB\\button5\\{Core.Config.Button5Exe}");
-        }
-        catch (Exception ex)
-        {
-            new FormInfo($"ОШИБКА ЗАПУСКА\r\n[{ex.Message}]", Color.LightPink, Color.DarkRed, 3000, new Size(1000, 800)).Show(this);
-        }
-    }
-    private void Button6Click(object? sender, EventArgs e)
-    {
-        if (Core.Config.Button6Exe.Equals(string.Empty)) return;
-        try
-        {
-            System.Diagnostics.Process.Start($"{Application.StartupPath}DB\\button6\\{Core.Config.Button6Exe}");
-        }
-        catch (Exception ex)
-        {
-            new FormInfo($"ОШИБКА ЗАПУСКА\r\n[{ex.Message}]", Color.LightPink, Color.DarkRed, 3000, new Size(1000, 800)).Show(this);
-        }
-    }
-    private void Button7Click(object? sender, EventArgs e)
-    {
-        if (Core.Config.Button7Exe.Equals(string.Empty)) return;
-        try
-        {
-            System.Diagnostics.Process.Start($"{Application.StartupPath}DB\\button7\\{Core.Config.Button7Exe}");
-        }
-        catch (Exception ex)
-        {
-            new FormInfo($"ОШИБКА ЗАПУСКА\r\n[{ex.Message}]", Color.LightPink, Color.DarkRed, 3000, new Size(1000, 800)).Show(this);
-        }
+        richTextBoxMain.Text = string.Empty;
     }
 
-    private void UpdateScanners()
+    private void ButtonWebCam(object? sender, EventArgs e)
     {
-        var select = false;
-        var ports = SerialPort.GetPortNames().ToList();
-        foreach (var p in ports)
+        if (_formWeb.Visible)
         {
-            if (comboBoxScanner.Items.Contains(p)) continue;
-
-            comboBoxScanner.Items.Add(p);
-            if (!p.Equals(Core.Config.ComScanner)) continue;
-
-            comboBoxScanner.SelectedIndex = comboBoxScanner.Items.Count - 1;
-            select = true;
+            _formWeb.Activate();
+            return;
         }
 
-        var itemsRemove = new List<string>();
-        foreach (var cb in comboBoxScanner.Items)
-        {
-            if (ports.Exists(x=>x.Equals(cb))) continue;
-            itemsRemove.Add(cb.ToString()!);
-        }
-
-        foreach (var i in itemsRemove)
-        {
-            comboBoxScanner.Items.Remove(i);
-        }
-
-        if (!select && comboBoxScanner.Text.Equals(string.Empty)) comboBoxScanner.SelectedIndex = comboBoxScanner.Items.Count > 0 ? 0 : -1;
-        _comScanner = comboBoxScanner.Text;
+        if (_formWeb.IsDisposed) _formWeb = new FormWebCam();
+        _formWeb.Show(this);
     }
 
-    private void ComScannerChange(object? sender, EventArgs e)
+    private async void ButtonResetClick(object? sender, EventArgs e)
     {
-        _comScanner = comboBoxScanner.Text;
-        Core.Config.ComScanner = _comScanner;
-        _scanner.WhiteSerial = _comScanner;
-        Core.Config.Save();
+        if (_betaflight.IsAliveDfu())
+        {
+            richTextBoxMain.AppendText(string.Join(string.Empty, _betaflight.DfuExit()));
+            richTextBoxMain.ScrollToCaret();
+            return;
+        }
+
+        await _betaflight.CliWrite("#");
+        await Task.Delay(500);
+        richTextBoxMain.AppendText(string.Join(string.Empty, await _betaflight.CliWrite("exit")));
     }
 
     private void FormShown(object? sender, EventArgs e)
     {
+        _scanner.StartAsync(Core.Config.ComScanner);
+        _betaflight.StartAsync(Core.Config.ComBeta);
+        _betaflight.StartUsbAsync(int.Parse(Core.Config.UsbDfuVid, System.Globalization.NumberStyles.HexNumber), int.Parse(Core.Config.UsbDfuPid, System.Globalization.NumberStyles.HexNumber));
+
         var s = Core.IoC.Services.GetRequiredService<Station>();
         labelUser.Text = s.User.Name;
         if (!s.User.Name.Equals(string.Empty))
@@ -230,23 +134,18 @@ public sealed partial class FormFlash : Form
         }
         _paused = DateTime.MinValue;
         _scanner.OnReadValue += ComReadString;
-        if (!_comScanner.Equals(string.Empty)) _scanner.WhiteSerial = _comScanner;
         _timer.Start();
-        _webCam.OnNewVideoFrame += NewWebFrame;
-        _webCam.StartAsync(30);
+        textBoxCli.KeyDown += CliKeyDown;
     }
 
-    private void NewWebFrame(Mat mat)
+    private async void CliKeyDown(object? sender, KeyEventArgs e)
     {
-        if (mat.Empty()) return;
-        Invoke(() =>
-        {
-            pictureBoxMain.Image?.Dispose();
-            pictureBoxMain.Image = OpenCvSharp.Extensions.BitmapConverter.ToBitmap(mat);
-            pictureBoxMain.Refresh();
-        });
-        //if (labelDroneId.Text.Equals(string.Empty)) return;
-        //Cv2.ImWrite($"CAPTURE\\_{DateTime.Now.Ticks:0}.jpg", mat);
+        if (e.KeyCode != Keys.Enter) return;
+        e.SuppressKeyPress = true;
+        var txt = textBoxCli.Text;
+        textBoxCli.Text = string.Empty;
+        richTextBoxMain.AppendText(string.Join(string.Empty, await _betaflight.CliWrite(txt)));
+        richTextBoxMain.ScrollToCaret();
     }
 
     private void ComReadString(string com, string text)
@@ -254,7 +153,6 @@ public sealed partial class FormFlash : Form
         Invoke(async () =>
         {
             if (labelUser.Text.Equals(string.Empty)) return;
-            if (!com.Equals(comboBoxScanner.Text)) return;
 
             var notOk = text.Length != 8;
             if (!notOk && text[..2] != "TT") notOk = true;
@@ -263,7 +161,8 @@ public sealed partial class FormFlash : Form
 
             if (notOk)
             {
-                new FormInfo(@$"НЕИЗВЕСТНЫЙ ШК: {text}", Color.LightPink, Color.DarkRed, 3000, new Size(600, 400)).Show(this);
+                new FormInfo(@$"НЕИЗВЕСТНЫЙ ШК: {text}", Color.LightPink, Color.DarkRed, 3000, new Size(600, 400))
+                    .Show(this);
                 return;
             }
 
@@ -271,20 +170,18 @@ public sealed partial class FormFlash : Form
             {
 
                 labelDroneId.Text = text;
-                File.Copy(Application.StartupPath + "\\DB\\_HEX\\" + Core.Config.FileHex, $"{Environment.GetFolderPath(Environment.SpecialFolder.Desktop)}\\_hex_{labelDroneId.Text}_{Core.Config.FileHex}");
+                File.Copy(Application.StartupPath + "\\DB\\_HEX\\" + Core.Config.FileHex,
+                    $"{Environment.GetFolderPath(Environment.SpecialFolder.Desktop)}\\_hex_{labelDroneId.Text}_{Core.Config.FileHex}");
                 var fileFplOrig = Application.StartupPath + "\\DB\\_HEX\\" + Core.Config.FileFpl;
                 var fileFpl = $"{Environment.GetFolderPath(Environment.SpecialFolder.Desktop)}\\_fpl_{labelDroneId.Text}_{Core.Config.FileFpl}";
-                var file =  await File.ReadAllLinesAsync(fileFplOrig);
+                var file = await File.ReadAllLinesAsync(fileFplOrig);
                 for (var i = 0; i < file.Length; i++)
                 {
                     if (!file[i].Contains("set name")) continue;
                     file[i] = $"set name = VT40 {text}";
                     break;
                 }
-                /*
-                if (File.Exists(fileFpl)) File.Delete(fileFpl);
-                File.WriteAllLines(fileFpl, file);
-                */
+
                 var port = new SerialPort(Core.Config.ComBeta, 115200, Parity.None, 8, StopBits.One)
                 {
                     ReadTimeout = 1000,
@@ -301,6 +198,7 @@ public sealed partial class FormFlash : Form
                     await Task.Delay(TimeSpan.FromMilliseconds(10));
                     richTextBoxMain.AppendText(port.ReadLine());
                 }
+
                 port.Close();
                 port.Dispose();
 
@@ -309,20 +207,26 @@ public sealed partial class FormFlash : Form
 
             if (!labelDroneId.Text.Equals(text))
             {
-                new FormInfo($"НЕ ВЕРНЫЙ ШК: [{text}]\r\nОЖИДАЕМ [{labelDroneId.Text}]", Color.LightPink, Color.DarkRed, 3000, new Size(600, 400)).Show(this);
+                new FormInfo($"НЕ ВЕРНЫЙ ШК: [{text}]\r\nОЖИДАЕМ [{labelDroneId.Text}]", Color.LightPink, Color.DarkRed,
+                    3000, new Size(600, 400)).Show(this);
                 return;
             }
 
-            var answ = await Core.IoC.Services.GetRequiredService<Station>().FinishBodyAsync(labelDroneId.Text, default);
+            var answ = await Core.IoC.Services.GetRequiredService<Station>()
+                .FinishBodyAsync(labelDroneId.Text, default);
             if (answ.Equals(string.Empty))
             {
                 _counts++;
-                new FormInfo(@"РАБОТА ЗАВЕРШЕНА", Color.LightGreen, Color.DarkGreen, 3000, new Size(600, 400)).Show(this);
-                File.Delete($"{Environment.GetFolderPath(Environment.SpecialFolder.Desktop)}\\_hex_{labelDroneId.Text}_{Core.Config.FileHex}");
-                File.Delete($"{Environment.GetFolderPath(Environment.SpecialFolder.Desktop)}\\_fpl_{labelDroneId.Text}_{Core.Config.FileFpl}");
+                new FormInfo(@"РАБОТА ЗАВЕРШЕНА", Color.LightGreen, Color.DarkGreen, 3000, new Size(600, 400))
+                    .Show(this);
+                File.Delete(
+                    $"{Environment.GetFolderPath(Environment.SpecialFolder.Desktop)}\\_hex_{labelDroneId.Text}_{Core.Config.FileHex}");
+                File.Delete(
+                    $"{Environment.GetFolderPath(Environment.SpecialFolder.Desktop)}\\_fpl_{labelDroneId.Text}_{Core.Config.FileFpl}");
                 labelDroneId.Text = string.Empty; // Финиш работы
                 return;
             }
+
             new FormInfo(@$"{answ}", Color.LightPink, Color.DarkRed, 3000, new Size(600, 400)).Show(this);
         });
     }
@@ -347,11 +251,10 @@ public sealed partial class FormFlash : Form
 
         var works = Core.IoC.Services.GetRequiredService<Works>();
         var work = works.Get(Core.Config.Type);
-        UpdateScanners();
 
-        labelName.BackColor = _scanner.IsAlive()
-            ? Color.LightGreen
-            : Color.LightPink;
+        labelComScanner.BackColor = _scanner.IsAlive() ? Color.LightGreen : Color.LightPink;
+        labelComBeta.BackColor = _betaflight.IsAlive() ? Color.LightGreen : Color.LightPink;
+        labelDfu.BackColor = _betaflight.IsAliveDfu() ? Color.LightGreen : Color.LightPink;
 
         var s = Core.IoC.Services.GetRequiredService<Station>();
         if (s.User.Name.Equals(string.Empty) && !labelUser.Text.Equals(string.Empty) | s.User.Name.Equals(string.Empty) && labelUser.Text.Equals(string.Empty)) // Выключение работы
@@ -363,13 +266,12 @@ public sealed partial class FormFlash : Form
 
             labelDroneId.Text = string.Empty;
             labelUser.Text = string.Empty;
-            button1.Enabled = false;
-            button2.Enabled = false;
-            button3.Enabled = false;
-            button4.Enabled = false;
-            button5.Enabled = false;
-            button6.Enabled = false;
-            button7.Enabled = false;
+            //button1.Enabled = false;
+            //button2.Enabled = false;
+            //button3.Enabled = false;
+            //button4.Enabled = false;
+            //button5.Enabled = false;
+            //button6.Enabled = false;
             buttonPause.Enabled = false;
             buttonFinish.Enabled = false;
             _startTime = DateTime.Now;
@@ -387,27 +289,25 @@ public sealed partial class FormFlash : Form
 
         if (!s.User.Name.Equals(string.Empty) && labelUser.Text.Equals(string.Empty))
         {
-            button1.Enabled = true;
-            button2.Enabled = true;
-            button3.Enabled = true;
-            button4.Enabled = true;
-            button5.Enabled = true;
-            button6.Enabled = true;
-            button7.Enabled = true;
+            //button1.Enabled = true;
+            //button2.Enabled = true;
+            //button3.Enabled = true;
+            //button4.Enabled = true;
+            //button5.Enabled = true;
+            //button6.Enabled = true;
             buttonFinish.Enabled = true;
             _startTime = DateTime.Now;
             _lastPaused = DateTime.Now;
             _paused = DateTime.MinValue;
         }
-
+        /*
         button1.Enabled = !labelDroneId.Text.Equals(string.Empty);
         button2.Enabled = !labelDroneId.Text.Equals(string.Empty);
         button3.Enabled = !labelDroneId.Text.Equals(string.Empty);
         button4.Enabled = !labelDroneId.Text.Equals(string.Empty);
         button5.Enabled = !labelDroneId.Text.Equals(string.Empty);
         button6.Enabled = !labelDroneId.Text.Equals(string.Empty);
-        button7.Enabled = !labelDroneId.Text.Equals(string.Empty);
-
+        */
         var sec = (DateTime.Now - s.WorkStart).TotalSeconds;
         if (_paused != DateTime.MinValue)
         {
