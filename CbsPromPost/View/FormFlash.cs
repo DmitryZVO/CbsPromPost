@@ -293,6 +293,7 @@ public sealed partial class FormFlash : Form
                 richTextBoxMain.Text = string.Empty;
                 port.Open();
                 port.WriteLine("#");
+
                 foreach (var f in file)
                 {
                     richTextBoxMain.AppendText($"{f}\n");
