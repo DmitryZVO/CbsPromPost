@@ -39,20 +39,29 @@ sealed partial class FormFlash
         labelDroneId = new Label();
         richTextBoxMain = new RichTextBox();
         buttonReset = new Button();
-        button2 = new Button();
-        button3 = new Button();
+        buttonLoadRawImage = new Button();
+        buttonLoadFpl = new Button();
         labelComScanner = new Label();
-        button4 = new Button();
-        button5 = new Button();
+        buttonClearFlash = new Button();
+        buttonWriteRawImage = new Button();
         buttonImpulseRC = new Button();
         buttonWebCam = new Button();
         labelHex = new Label();
         labelFpl = new Label();
         labelComBeta = new Label();
-        progressBar1 = new ProgressBar();
+        progressBarMain = new ProgressBar();
         buttonMsp = new Button();
         textBoxCli = new TextBox();
         labelDfu = new Label();
+        button1 = new Button();
+        button2 = new Button();
+        button6 = new Button();
+        button7 = new Button();
+        button8 = new Button();
+        button9 = new Button();
+        button10 = new Button();
+        button11 = new Button();
+        button12 = new Button();
         SuspendLayout();
         // 
         // label1
@@ -161,7 +170,7 @@ sealed partial class FormFlash
         richTextBoxMain.Location = new Point(12, 265);
         richTextBoxMain.Name = "richTextBoxMain";
         richTextBoxMain.ReadOnly = true;
-        richTextBoxMain.Size = new Size(1324, 589);
+        richTextBoxMain.Size = new Size(1324, 558);
         richTextBoxMain.TabIndex = 20;
         richTextBoxMain.Text = "";
         // 
@@ -175,25 +184,25 @@ sealed partial class FormFlash
         buttonReset.Text = "ПЕРЕЗАГРУЗКА";
         buttonReset.UseVisualStyleBackColor = true;
         // 
-        // button2
+        // buttonLoadRawImage
         // 
-        button2.Font = new Font("Segoe UI", 14F, FontStyle.Regular, GraphicsUnit.Point);
-        button2.Location = new Point(1342, 407);
-        button2.Name = "button2";
-        button2.Size = new Size(230, 38);
-        button2.TabIndex = 22;
-        button2.Text = "button2";
-        button2.UseVisualStyleBackColor = true;
+        buttonLoadRawImage.Font = new Font("Segoe UI", 14F, FontStyle.Regular, GraphicsUnit.Point);
+        buttonLoadRawImage.Location = new Point(1342, 653);
+        buttonLoadRawImage.Name = "buttonLoadRawImage";
+        buttonLoadRawImage.Size = new Size(230, 38);
+        buttonLoadRawImage.TabIndex = 22;
+        buttonLoadRawImage.Text = "СКАЧАТЬ RAW HEX";
+        buttonLoadRawImage.UseVisualStyleBackColor = true;
         // 
-        // button3
+        // buttonLoadFpl
         // 
-        button3.Font = new Font("Segoe UI", 14F, FontStyle.Regular, GraphicsUnit.Point);
-        button3.Location = new Point(1342, 451);
-        button3.Name = "button3";
-        button3.Size = new Size(230, 38);
-        button3.TabIndex = 23;
-        button3.Text = "button3";
-        button3.UseVisualStyleBackColor = true;
+        buttonLoadFpl.Font = new Font("Segoe UI", 14F, FontStyle.Regular, GraphicsUnit.Point);
+        buttonLoadFpl.Location = new Point(1342, 609);
+        buttonLoadFpl.Name = "buttonLoadFpl";
+        buttonLoadFpl.Size = new Size(230, 38);
+        buttonLoadFpl.TabIndex = 23;
+        buttonLoadFpl.Text = "СКАЧАТЬ FPL";
+        buttonLoadFpl.UseVisualStyleBackColor = true;
         // 
         // labelComScanner
         // 
@@ -206,25 +215,25 @@ sealed partial class FormFlash
         labelComScanner.Text = "СКАНЕР";
         labelComScanner.TextAlign = ContentAlignment.MiddleCenter;
         // 
-        // button4
+        // buttonClearFlash
         // 
-        button4.Font = new Font("Segoe UI", 14F, FontStyle.Regular, GraphicsUnit.Point);
-        button4.Location = new Point(1342, 495);
-        button4.Name = "button4";
-        button4.Size = new Size(230, 38);
-        button4.TabIndex = 26;
-        button4.Text = "button4";
-        button4.UseVisualStyleBackColor = true;
+        buttonClearFlash.Font = new Font("Segoe UI", 14F, FontStyle.Regular, GraphicsUnit.Point);
+        buttonClearFlash.Location = new Point(1342, 697);
+        buttonClearFlash.Name = "buttonClearFlash";
+        buttonClearFlash.Size = new Size(230, 38);
+        buttonClearFlash.TabIndex = 26;
+        buttonClearFlash.Text = "ОЧИСТИТЬ FLASH";
+        buttonClearFlash.UseVisualStyleBackColor = true;
         // 
-        // button5
+        // buttonWriteRawImage
         // 
-        button5.Font = new Font("Segoe UI", 14F, FontStyle.Regular, GraphicsUnit.Point);
-        button5.Location = new Point(1342, 539);
-        button5.Name = "button5";
-        button5.Size = new Size(230, 38);
-        button5.TabIndex = 27;
-        button5.Text = "button5";
-        button5.UseVisualStyleBackColor = true;
+        buttonWriteRawImage.Font = new Font("Segoe UI", 14F, FontStyle.Regular, GraphicsUnit.Point);
+        buttonWriteRawImage.Location = new Point(1342, 741);
+        buttonWriteRawImage.Name = "buttonWriteRawImage";
+        buttonWriteRawImage.Size = new Size(230, 38);
+        buttonWriteRawImage.TabIndex = 27;
+        buttonWriteRawImage.Text = "ЗАЛИТЬ RAW HEX";
+        buttonWriteRawImage.UseVisualStyleBackColor = true;
         // 
         // buttonImpulseRC
         // 
@@ -283,12 +292,12 @@ sealed partial class FormFlash
         labelComBeta.Text = "ПОЛЕТНИК";
         labelComBeta.TextAlign = ContentAlignment.MiddleCenter;
         // 
-        // progressBar1
+        // progressBarMain
         // 
-        progressBar1.Location = new Point(12, 888);
-        progressBar1.Name = "progressBar1";
-        progressBar1.Size = new Size(1324, 23);
-        progressBar1.TabIndex = 34;
+        progressBarMain.Location = new Point(12, 888);
+        progressBarMain.Name = "progressBarMain";
+        progressBarMain.Size = new Size(1324, 23);
+        progressBarMain.TabIndex = 34;
         // 
         // buttonMsp
         // 
@@ -318,25 +327,127 @@ sealed partial class FormFlash
         labelDfu.Text = "ПОЛЕТНИК DFU";
         labelDfu.TextAlign = ContentAlignment.MiddleCenter;
         // 
+        // button1
+        // 
+        button1.BackColor = Color.Honeydew;
+        button1.Location = new Point(102, 829);
+        button1.Name = "button1";
+        button1.Size = new Size(39, 25);
+        button1.TabIndex = 39;
+        button1.Text = "#";
+        button1.UseVisualStyleBackColor = false;
+        button1.Click += Button1_Click;
+        // 
+        // button2
+        // 
+        button2.Location = new Point(147, 829);
+        button2.Name = "button2";
+        button2.Size = new Size(59, 25);
+        button2.TabIndex = 40;
+        button2.Text = "help";
+        button2.UseVisualStyleBackColor = true;
+        button2.Click += Button2_Click;
+        // 
+        // button6
+        // 
+        button6.Location = new Point(212, 829);
+        button6.Name = "button6";
+        button6.Size = new Size(59, 25);
+        button6.TabIndex = 41;
+        button6.Text = "version";
+        button6.UseVisualStyleBackColor = true;
+        button6.Click += Button6_Click;
+        // 
+        // button7
+        // 
+        button7.BackColor = Color.MistyRose;
+        button7.Location = new Point(1291, 829);
+        button7.Name = "button7";
+        button7.Size = new Size(45, 25);
+        button7.TabIndex = 42;
+        button7.Text = "exit";
+        button7.UseVisualStyleBackColor = false;
+        button7.Click += Button7_Click;
+        // 
+        // button8
+        // 
+        button8.Location = new Point(273, 829);
+        button8.Name = "button8";
+        button8.Size = new Size(59, 25);
+        button8.TabIndex = 43;
+        button8.Text = "status";
+        button8.UseVisualStyleBackColor = true;
+        button8.Click += Button8_Click;
+        // 
+        // button9
+        // 
+        button9.Location = new Point(338, 829);
+        button9.Name = "button9";
+        button9.Size = new Size(59, 25);
+        button9.TabIndex = 44;
+        button9.Text = "bl";
+        button9.UseVisualStyleBackColor = true;
+        button9.Click += Button9_Click;
+        // 
+        // button10
+        // 
+        button10.Location = new Point(403, 829);
+        button10.Name = "button10";
+        button10.Size = new Size(59, 25);
+        button10.TabIndex = 45;
+        button10.Text = "dump";
+        button10.UseVisualStyleBackColor = true;
+        button10.Click += Button10_Click;
+        // 
+        // button11
+        // 
+        button11.Location = new Point(1226, 829);
+        button11.Name = "button11";
+        button11.Size = new Size(59, 25);
+        button11.TabIndex = 46;
+        button11.Text = "save";
+        button11.UseVisualStyleBackColor = true;
+        button11.Click += Button11_Click;
+        // 
+        // button12
+        // 
+        button12.BackColor = Color.White;
+        button12.Location = new Point(12, 829);
+        button12.Name = "button12";
+        button12.Size = new Size(84, 25);
+        button12.TabIndex = 47;
+        button12.Text = "ОЧИСТИТЬ";
+        button12.UseVisualStyleBackColor = false;
+        button12.Click += Button12_Click;
+        // 
         // FormFlash
         // 
         AutoScaleDimensions = new SizeF(7F, 15F);
         AutoScaleMode = AutoScaleMode.Font;
         ClientSize = new Size(1584, 923);
+        Controls.Add(button12);
+        Controls.Add(button11);
+        Controls.Add(button10);
+        Controls.Add(button9);
+        Controls.Add(button8);
+        Controls.Add(button7);
+        Controls.Add(button6);
+        Controls.Add(button2);
+        Controls.Add(button1);
         Controls.Add(labelDfu);
         Controls.Add(textBoxCli);
         Controls.Add(buttonMsp);
-        Controls.Add(progressBar1);
+        Controls.Add(progressBarMain);
         Controls.Add(labelComBeta);
         Controls.Add(labelFpl);
         Controls.Add(labelHex);
         Controls.Add(buttonWebCam);
         Controls.Add(buttonImpulseRC);
-        Controls.Add(button5);
-        Controls.Add(button4);
+        Controls.Add(buttonWriteRawImage);
+        Controls.Add(buttonClearFlash);
         Controls.Add(labelComScanner);
-        Controls.Add(button3);
-        Controls.Add(button2);
+        Controls.Add(buttonLoadFpl);
+        Controls.Add(buttonLoadRawImage);
         Controls.Add(buttonReset);
         Controls.Add(richTextBoxMain);
         Controls.Add(labelDroneId);
@@ -369,18 +480,27 @@ sealed partial class FormFlash
     private Label labelDroneId;
     private RichTextBox richTextBoxMain;
     private Button buttonReset;
-    private Button button2;
-    private Button button3;
+    private Button buttonLoadRawImage;
+    private Button buttonLoadFpl;
     private Label labelComScanner;
-    private Button button4;
-    private Button button5;
+    private Button buttonClearFlash;
+    private Button buttonWriteRawImage;
     private Button buttonImpulseRC;
     private Button buttonWebCam;
     private Label labelHex;
     private Label labelFpl;
     private Label labelComBeta;
-    private ProgressBar progressBar1;
+    private ProgressBar progressBarMain;
     private Button buttonMsp;
     private TextBox textBoxCli;
     private Label labelDfu;
+    private Button button1;
+    private Button button2;
+    private Button button6;
+    private Button button7;
+    private Button button8;
+    private Button button9;
+    private Button button10;
+    private Button button11;
+    private Button button12;
 }
