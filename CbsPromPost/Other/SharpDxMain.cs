@@ -1,4 +1,5 @@
-﻿using SharpDX.Mathematics.Interop;
+﻿using CbsPromPost.Model;
+using SharpDX.Mathematics.Interop;
 using SharpDX.Direct2D1;
 
 namespace CbsPromPost.Other;
@@ -9,24 +10,6 @@ internal class SharpDxMain : SharpDx
     {
     }
 
-    /*
-    public sealed override async Task FrameUpdateAsync(Mat frame)
-    {
-        var temp = CreateDxBitmap(frame);
-        if (temp is null) return;
-
-        lock (this)
-        {
-            _frame.Dispose();
-            _frame = temp;
-            frame.Dispose();
-        }
-
-        FpsOcvC++;
-
-        await RenderCallback();
-    }
-    */
     protected sealed override void DrawUser()
     {
         lock (this)

@@ -63,7 +63,7 @@ public class SerialBetaflight
         return 0;
     }
 
-    public async Task<byte[]> DfuRawHexReadAll()
+    public async Task<byte[]> DfuRawBinReadAll()
     {
         using var ret = new MemoryStream();
         const int blocks = DfuFlashSize / DfuBlockSize;
@@ -125,7 +125,7 @@ public class SerialBetaflight
         return block;
     }
 
-    public async Task<int> DfuRawHexWrite(byte[] hex, int timeotMs)
+    public async Task<int> DfuRawBinWrite(byte[] hex, int timeotMs)
     {
         if (!_aliveDfu) return -1;
         if (_usbDfu == null) return -1;
@@ -434,7 +434,7 @@ public class SerialBetaflight
         }
         _sem.Dispose();
     }
-    public async Task<List<string>> CliWrite(string text)
+    public async Task<List<string>> CliWrite(string text, int waitMs=200)
     {
         var ret = new List<string>();
         if (!_port.IsOpen) return ret;
@@ -447,7 +447,7 @@ public class SerialBetaflight
         do
         {
             ret.Add(_port.ReadExisting());
-            await Task.Delay(TimeSpan.FromMilliseconds(200));
+            await Task.Delay(TimeSpan.FromMilliseconds(waitMs));
             _progress += 20;
             OnProgressChange.Invoke(_progress);
 

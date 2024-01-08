@@ -47,4 +47,10 @@
     <PackageReference Include="System.ServiceProcess.ServiceController" Version="8.0.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Compile Update="View\FormDroneConfig.cs">
+      <SubType>Form</SubType>
+    </Compile>
+  </ItemGroup>
+
 </Project>
