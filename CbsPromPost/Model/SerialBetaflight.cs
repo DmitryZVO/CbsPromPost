@@ -145,15 +145,16 @@ public class SerialBetaflight
         _progress = 0;
         OnProgressChange(_progress);
 
-        if (await DfuWaitState(DfuState.DfuIdle, 3000) < 0) return -2;
-        var test = DateTime.Now;
-        if (await DfuMassErase(60000) < 0) return -2; // КОСТЫЛЬ
-        var t = (DateTime.Now - test).TotalMilliseconds;
+        var ret0 = await DfuWaitState(DfuState.DfuIdle, 3000);
+        if (ret0 < 0) return -2;
+        var erase = await DfuMassErase(60000);
+        if (erase < 0) return -2; // КОСТЫЛЬ
 
         _progress += 25;
         OnProgressChange(_progress);
 
-        if (await DfuWaitState(DfuState.DfuIdle, 3000) < 0) return -2;
+        var wait = await DfuWaitState(DfuState.DfuIdle, 3000);
+        if (wait < 0) return -2;
 
         _progress += 50;
         OnProgressChange(_progress);
@@ -210,29 +211,22 @@ public class SerialBetaflight
         var erase = await DfuMassEraseCommand();
         if (erase < 0) return -1;
         var time = await DfuGetStatus(); // initiate erase command, returns 'download busy' even if invalid address or ROP
-        await Task.Delay(TimeSpan.FromMilliseconds(time.BwPollTimeout));
-
-        //var wait = await DfuWaitState(DfuState.DfuIdle, timeotMs);
-        //if (wait < 0) return -1;
-
+        if (time.BwPollTimeout>0) await Task.Delay(TimeSpan.FromMilliseconds(time.BwPollTimeout));
         
-        DfuStatus waitState;
         var startFlash = DateTime.Now;
-        do
+        while (true)
         {
-            await Task.Delay(TimeSpan.FromMilliseconds(100));
-            await DfuClearStatus();
-            waitState = await DfuGetStatus();
+            var answ = await DfuClearStatus();
+            if (answ < 0) return -3;
+            var waitState = await DfuGetStatus();
+            if (waitState.BState == DfuState.DfuIdle) break;
             if ((DateTime.Now - startFlash).TotalMilliseconds > timeotMs) return -1;
 
             _progress += 5;
             OnProgressChange(_progress);
-
-        } while (waitState.BState != DfuState.DfuIdle);
+        }
         
-
         _progress = 0;
-
         OnProgressChange(_progress);
         return 0;
     }
@@ -351,16 +345,16 @@ public class SerialBetaflight
         if (!_aliveDfu) return -1;
         if (_usbDfu == null) return -1;
 
-        var packet = new UsbSetupPacket()
-        {
-            RequestType = 0x21, // '2' => Class request ; '1' => to interface
-            Request = 0x01, // DFU_DNLOAD
-            Value = 0,
-            Index = 0
-        };
-
         try
         {
+            var packet = new UsbSetupPacket
+            {
+                RequestType = 0x21, // '2' => Class request ; '1' => to interface
+                Request = 0x01, // DFU_DNLOAD
+                Value = 0,
+                Index = 0
+            };
+
             await _sem.WaitAsync();
             _usbDfu.ControlTransfer(ref packet, data, data.Count, out var lenWrite);
             _sem.Release();
@@ -378,16 +372,16 @@ public class SerialBetaflight
         if (!_aliveDfu) return -1;
         if (_usbDfu == null) return -1;
 
-        var packet = new UsbSetupPacket()
-        {
-            RequestType = 0x21, // '2' => Class request ; '1' => to interface
-            Request = 0x01, // DFU_DNLOAD
-            Value = (short)block,
-            Index = 0
-        };
-
         try
         {
+            var packet = new UsbSetupPacket
+            {
+                RequestType = 0x21, // '2' => Class request ; '1' => to interface
+                Request = 0x01, // DFU_DNLOAD
+                Value = (short)block,
+                Index = 0
+            };
+
             await _sem.WaitAsync();
             _usbDfu.ControlTransfer(ref packet, data, data.Count, out var lenWrite);
             _sem.Release();
@@ -400,7 +394,7 @@ public class SerialBetaflight
         return -1;
     }
 
-    public async void StartUsbAsync(int vid, int pid, CancellationToken cancellationToken = default)
+    public async Task StartUsbAsync(int vid, int pid, CancellationToken cancellationToken = default)
     {
 
         var usbFinder = new UsbDeviceFinder(vid, pid);
@@ -429,7 +423,7 @@ public class SerialBetaflight
         }
     }
 
-    public async void StartAsync(string com, CancellationToken cancellationToken = default)
+    public async Task StartAsync(string com, CancellationToken cancellationToken = default)
     {
         _serial = com;
         _port = new SerialPort(_serial, 115200, Parity.None, 8, StopBits.One);

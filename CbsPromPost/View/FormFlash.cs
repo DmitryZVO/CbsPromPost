@@ -386,8 +386,8 @@ public sealed partial class FormFlash : Form
     private void FormShown(object? sender, EventArgs e)
     {
         _scanner.StartAsync(Core.Config.ComScanner);
-        _betaflight.StartAsync(Core.Config.ComBeta);
-        _betaflight.StartUsbAsync(int.Parse(Core.Config.UsbDfuVid, System.Globalization.NumberStyles.HexNumber), int.Parse(Core.Config.UsbDfuPid, System.Globalization.NumberStyles.HexNumber));
+        _ = _betaflight.StartAsync(Core.Config.ComBeta);
+        _ = _betaflight.StartUsbAsync(int.Parse(Core.Config.UsbDfuVid, System.Globalization.NumberStyles.HexNumber), int.Parse(Core.Config.UsbDfuPid, System.Globalization.NumberStyles.HexNumber));
 
         var s = Core.IoC.Services.GetRequiredService<Station>();
         labelUser.Text = s.User.Name;
