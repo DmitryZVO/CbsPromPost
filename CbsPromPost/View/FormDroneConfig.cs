@@ -15,7 +15,7 @@ public partial class FormDroneConfig : Form
     {
         InitializeComponent();
 
-        _reverseSpin = new bool[] { false, false, false, false };
+        _reverseSpin = new[] { false, false, false, false };
         _betaflight = bf;
         _dx3 = new SharpDxDrone3d(pictureBox3d, 100, bf);
         _dx2 = new SharpDxDrone2d(pictureBox2d, 100, bf);

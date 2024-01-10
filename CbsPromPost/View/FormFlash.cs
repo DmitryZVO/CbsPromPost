@@ -30,6 +30,7 @@ public sealed partial class FormFlash : Form
     public FormFlash()
     {
         InitializeComponent();
+
         _scanner = new SerialScanner(Core.IoC.Services.GetRequiredService<ILogger<SerialScanner>>());
         _betaflight = new SerialBetaflight(Core.IoC.Services.GetRequiredService<ILogger<SerialBetaflight>>());
 
@@ -40,6 +41,11 @@ public sealed partial class FormFlash : Form
         labelName.Text = $@"ПОСТ №{Core.Config.PostNumber:0}";
         _counts = 0;
         _timer.Interval = 1000;
+        foreach (var f in Core.Config.Firmwares)
+        {
+            comboBoxFirmware.Items.Add(f.Name);
+        }
+        comboBoxFirmware.SelectedIndex = 0;
 
         var works = Core.IoC.Services.GetRequiredService<Works>();
         var work = works.Get(Core.Config.Type);
@@ -49,8 +55,8 @@ public sealed partial class FormFlash : Form
         Icon = EmbeddedResources.Get<Icon>("Sprites._user_change.ico");
         richTextBoxMain.Text = string.Empty;
 
-        labelFpl.Text = Core.Config.FileFpl;
-        labelHex.Text = Core.Config.FileBin;
+        labelFpl.Text = Core.Config.Firmwares.Find(x => x.Name.Equals(comboBoxFirmware.Items[comboBoxFirmware.SelectedIndex].ToString()))!.FileFpl;
+        labelHex.Text = Core.Config.Firmwares.Find(x => x.Name.Equals(comboBoxFirmware.Items[comboBoxFirmware.SelectedIndex].ToString()))!.FileBin;
         labelComScanner.Text = $@"ШК СКАНЕР [{Core.Config.ComScanner}]";
         labelComBeta.Text = $@"BetaFlight [{Core.Config.ComBeta}]";
         labelDfu.Text = $@"BetaFlight DFU mode [{Core.Config.UsbDfuVid}:{Core.Config.UsbDfuPid}]";
@@ -79,11 +85,26 @@ public sealed partial class FormFlash : Form
         buttonWriteFpl.Click += ButtonWriteFplClick;
         buttonFullFlash.Click += ButtonFullFlashClick;
         buttonDroneConfig.Click += ButtonDroneConfigClick;
-        button4.Click += Test;
+        buttonBf.Click += StartBf;
+        comboBoxFirmware.SelectedValueChanged += FlashChanged;
     }
 
-    private async void Test(object? sender, EventArgs e)
+    private void StartBf(object? sender, EventArgs e)
     {
+        try
+        {
+            System.Diagnostics.Process.Start($"{Application.StartupPath}DB\\Betaflight Configurator\\betaflight-configurator.exe");
+        }
+        catch (Exception ex)
+        {
+            new FormInfo($"ОШИБКА ЗАПУСКА\r\n[{ex.Message}]", Color.LightPink, Color.DarkRed, 3000, new Size(1000, 800)).Show(this);
+        }
+    }
+
+    private void FlashChanged(object? sender, EventArgs e)
+    {
+        labelFpl.Text = Core.Config.Firmwares.Find(x => x.Name.Equals(comboBoxFirmware.Items[comboBoxFirmware.SelectedIndex].ToString()))!.FileFpl;
+        labelHex.Text = Core.Config.Firmwares.Find(x => x.Name.Equals(comboBoxFirmware.Items[comboBoxFirmware.SelectedIndex].ToString()))!.FileBin;
     }
 
     private void ButtonDroneConfigClick(object? sender, EventArgs e)
@@ -134,10 +155,10 @@ public sealed partial class FormFlash : Form
             return -1;
         }
 
-        var pb = Application.StartupPath + "DB\\_HEX\\" + Core.Config.FileBin;
+        var pb = Application.StartupPath + "DB\\_HEX\\" + Core.Config.Firmwares.Find(x => x.Name.Equals(comboBoxFirmware.Items[comboBoxFirmware.SelectedIndex].ToString()))!.FileBin;
         if (!File.Exists(pb)) return -2;
         var dataBin = await File.ReadAllBytesAsync(pb);
-        var pf = Application.StartupPath + "DB\\_HEX\\" + Core.Config.FileFpl;
+        var pf = Application.StartupPath + "DB\\_HEX\\" + Core.Config.Firmwares.Find(x => x.Name.Equals(comboBoxFirmware.Items[comboBoxFirmware.SelectedIndex].ToString()))!.FileFpl;
         if (!File.Exists(pf)) return -3;
         var dataFpl = await File.ReadAllLinesAsync(pf);
 

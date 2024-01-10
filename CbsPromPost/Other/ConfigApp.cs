@@ -15,10 +15,19 @@ public struct ConfigApp
     public string ComBeta { get; set; } = "COM3";
     public string UsbDfuVid { get; set; } = "0483";
     public string UsbDfuPid { get; set; } = "DF11";
-    public string FileBin { get; set; } = string.Empty;
-    public string FileFpl { get; set; } = string.Empty;
 
-    public ConfigApp()
+    public List<Firmware> Firmwares { get; set; } = new()
+    {
+        new Firmware { FileBin = string.Empty, FileFpl = string.Empty, Name = "_DEFAULT" } 
+    };
+    public class Firmware
+    {
+        public string Name { get; set; } = string.Empty;
+        public string FileBin { get; set; } = string.Empty;
+        public string FileFpl { get; set; } = string.Empty;
+    }
+
+public ConfigApp()
     {
     }
 
