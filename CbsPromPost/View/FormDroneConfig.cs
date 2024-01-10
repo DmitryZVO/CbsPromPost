@@ -40,8 +40,6 @@ public partial class FormDroneConfig : Form
         buttonD3Inv.Click += Motor3SpinInv;
         buttonD4Inv.Click += Motor4SpinInv;
         buttonMinimalSpeed.Click += MotorMinimum;
-
-        _ = StartAsync();
     }
 
     private void MotorMinimum(object? sender, EventArgs e)
@@ -132,6 +130,7 @@ public partial class FormDroneConfig : Form
 
     private void ShownForm(object? sender, EventArgs e)
     {
+        _ = StartAsync();
         _ = _dx3.StartAsync();
         _ = _dx2.StartAsync();
     }

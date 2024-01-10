@@ -66,6 +66,7 @@ public class SerialBetaflight
         DfuStatus currState;
         do
         {
+            await Task.Delay(1);
             await DfuClearStatus();
             currState = await DfuGetStatus();
             if ((DateTime.Now - now).TotalMilliseconds > timeoutMs) return -1;
@@ -145,7 +146,9 @@ public class SerialBetaflight
         OnProgressChange(_progress);
 
         if (await DfuWaitState(DfuState.DfuIdle, 3000) < 0) return -2;
-        if (await DfuMassErase(30000) < 0) return -2;
+        var test = DateTime.Now;
+        if (await DfuMassErase(60000) < 0) return -2; // КОСТЫЛЬ
+        var t = (DateTime.Now - test).TotalMilliseconds;
 
         _progress += 25;
         OnProgressChange(_progress);
@@ -187,37 +190,46 @@ public class SerialBetaflight
         _progress = 0;
         OnProgressChange(_progress);
 
-        if (await DfuWaitState(DfuState.DfuIdle, 3000) < 0) return -2;
-
+        var wait0 = await DfuWaitState(DfuState.DfuIdle, 3000);
+        if (wait0 < 0) return -2;
         _progress += 25;
         OnProgressChange(_progress);
 
         var check = await DfuCheckProtected();
         if (check < 0) return -1;
-        if (await DfuCheckProtected() == 1)
+        var check2 = await DfuCheckProtected();
+        if (check2 == 1)
         {
-            if (await DfuRemoveReadProtection() < 0) return -1;
+            var check3 = await DfuRemoveReadProtection();
+            if (check3 < 0) return -1;
             return -3;
         }
-
         _progress += 50;
         OnProgressChange(_progress);
 
-        if (await DfuMassEraseCommand() < 0) return -1;
-        await DfuGetStatus(); // initiate erase command, returns 'download busy' even if invalid address or ROP
+        var erase = await DfuMassEraseCommand();
+        if (erase < 0) return -1;
+        //var time = await DfuGetStatus(); // initiate erase command, returns 'download busy' even if invalid address or ROP
+        //await Task.Delay(TimeSpan.FromMilliseconds(time.BwPollTimeout));
+
+        var wait = await DfuWaitState(DfuState.DfuIdle, timeotMs);
+        if (wait < 0) return -1;
+
+        /*
         DfuStatus waitState;
-        var start = DateTime.Now;
+        var startFlash = DateTime.Now;
         do
         {
-            await Task.Delay(300);
+            await Task.Delay(TimeSpan.FromMilliseconds(100));
             await DfuClearStatus();
             waitState = await DfuGetStatus();
-            if ((DateTime.Now - start).TotalMilliseconds > timeotMs) return -1;
+            if ((DateTime.Now - startFlash).TotalMilliseconds > timeotMs) return -1;
 
             _progress += 5;
             OnProgressChange(_progress);
 
         } while (waitState.BState != DfuState.DfuIdle);
+        */
 
         _progress = 0;
 
@@ -239,7 +251,7 @@ public class SerialBetaflight
 
     private async Task<int> DfuUnProtectCommand()
     {
-        return await DfuWrite(new byte[] {0x92});
+        return await DfuWrite(new byte[] { 0x92 });
     }
 
     private async Task<int> DfuCheckProtected() // -1=ERROR, 0=ОК, 1=Protected
@@ -503,7 +515,7 @@ public class SerialBetaflight
 
         _port.ReadExisting();
         _port.Write(data, 0, data.Length);
-
+        
         await Task.Delay(TimeSpan.FromMilliseconds(msWait));
         using var ms = new MemoryStream();
         if (_port.BytesToRead > 0)

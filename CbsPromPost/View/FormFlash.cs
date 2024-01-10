@@ -103,8 +103,8 @@ public sealed partial class FormFlash : Form
 
     private void FlashChanged(object? sender, EventArgs e)
     {
-        labelFpl.Text = Core.Config.Firmwares.Find(x => x.Name.Equals(comboBoxFirmware.Items[comboBoxFirmware.SelectedIndex].ToString()))!.FileFpl;
-        labelHex.Text = Core.Config.Firmwares.Find(x => x.Name.Equals(comboBoxFirmware.Items[comboBoxFirmware.SelectedIndex].ToString()))!.FileBin;
+        labelFpl.Text = Core.Config.Firmwares.Find(x => x.Name.Equals(comboBoxFirmware.Items[comboBoxFirmware.SelectedIndex]!.ToString()))!.FileFpl;
+        labelHex.Text = Core.Config.Firmwares.Find(x => x.Name.Equals(comboBoxFirmware.Items[comboBoxFirmware.SelectedIndex]!.ToString()))!.FileBin;
     }
 
     private void ButtonDroneConfigClick(object? sender, EventArgs e)
@@ -269,7 +269,7 @@ public sealed partial class FormFlash : Form
             {
                 richTextBoxMain.AppendText(
                     $"DFU: ЗАПИСЬ ПРОШИКИ, ОБЛАСТЬ 0x{SerialBetaflight.DfuStartAddress:x8} - 0x{SerialBetaflight.DfuStartAddress + SerialBetaflight.DfuFlashSize:x8} файл hex [{data.Length:0} байт]\r\n");
-                var res = await _betaflight.DfuRawBinWrite(data, 30000);
+                var res = await _betaflight.DfuRawBinWrite(data, 60000);
                 await _betaflight.DfuExit();
                 richTextBoxMain.AppendText(res >= 0 ? "DFU: УСПЕХ\r\n" : "DFU: ОШИБКА!!!\r\n");
                 richTextBoxMain.ScrollToCaret();
@@ -290,7 +290,7 @@ public sealed partial class FormFlash : Form
         }
         richTextBoxMain.AppendText(
             $"DFU: ОЧИСТКА ПРОШИКИ, ОБЛАСТЬ 0x{SerialBetaflight.DfuStartAddress:x8} - 0x{SerialBetaflight.DfuStartAddress + SerialBetaflight.DfuFlashSize:x8} [{SerialBetaflight.DfuFlashSize:0} байт]\r\n");
-        var res = await _betaflight.DfuMassErase(30000);
+        var res = await _betaflight.DfuMassErase(60000);
         await _betaflight.DfuExit();
         richTextBoxMain.AppendText(res >= 0 ? "DFU: УСПЕХ\r\n" : "DFU: ОШИБКА!!!\r\n");
     }
@@ -596,13 +596,18 @@ public sealed partial class FormFlash : Form
 
     private async Task<string> WriteToCliAsync(string text, int waitMs = 200)
     {
-        var res = await _betaflight.CliWrite(text, waitMs);
-        if (res.Any(x => x.Contains("ERROR"))) richTextBoxMain.SelectionColor = Color.Red;
-        var ret = string.Join(string.Empty, res);
-        richTextBoxMain.AppendText(ret);
+        var ret = await Task.Run(async () =>
+        {
+            var res = await _betaflight.CliWrite(text, waitMs);
+            return res;
+        });
+
+        if (ret.Any(x => x.Contains("ERROR"))) richTextBoxMain.SelectionColor = Color.Red;
+        var retStr = string.Join(string.Empty, ret);
+        richTextBoxMain.AppendText(retStr);
         richTextBoxMain.SelectionColor = Color.Black;
         richTextBoxMain.ScrollToCaret();
-        return ret;
+        return retStr;
     }
 
     private void Button1_Click(object sender, EventArgs e) => _ = WriteToCliAsync("#\r\n");
