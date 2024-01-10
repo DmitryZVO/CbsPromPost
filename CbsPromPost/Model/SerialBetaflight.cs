@@ -209,13 +209,13 @@ public class SerialBetaflight
 
         var erase = await DfuMassEraseCommand();
         if (erase < 0) return -1;
-        //var time = await DfuGetStatus(); // initiate erase command, returns 'download busy' even if invalid address or ROP
-        //await Task.Delay(TimeSpan.FromMilliseconds(time.BwPollTimeout));
+        var time = await DfuGetStatus(); // initiate erase command, returns 'download busy' even if invalid address or ROP
+        await Task.Delay(TimeSpan.FromMilliseconds(time.BwPollTimeout));
 
-        var wait = await DfuWaitState(DfuState.DfuIdle, timeotMs);
-        if (wait < 0) return -1;
+        //var wait = await DfuWaitState(DfuState.DfuIdle, timeotMs);
+        //if (wait < 0) return -1;
 
-        /*
+        
         DfuStatus waitState;
         var startFlash = DateTime.Now;
         do
@@ -229,7 +229,7 @@ public class SerialBetaflight
             OnProgressChange(_progress);
 
         } while (waitState.BState != DfuState.DfuIdle);
-        */
+        
 
         _progress = 0;
 
