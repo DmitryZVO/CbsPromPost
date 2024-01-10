@@ -1,17 +1,24 @@
-﻿using OpenCvSharp;
+﻿using CbsPromPost.Resources;
+using OpenCvSharp;
 using SharpDX;
+using SharpDX.DXGI;
+using SharpDX.IO;
 using SharpDX.Direct2D1;
 using SharpDX.Direct3D;
 using SharpDX.Direct3D11;
+using SharpDX.D3DCompiler;
 using SharpDX.DirectWrite;
-using SharpDX.DXGI;
+using SharpDX.Mathematics;
 using SharpDX.Mathematics.Interop;
+using SharpDX.WIC;
+using SharpDX.Text;
 using Rectangle = System.Drawing.Rectangle;
 using Bitmap = SharpDX.Direct2D1.Bitmap;
+using PixelFormat = SharpDX.Direct2D1.PixelFormat;
 
 namespace CbsPromPost.Other;
 
-public abstract class SharpDx : IDisposable
+public abstract class SharpDx3D : IDisposable
 {
     protected int FpsTarget; // сжелаемое FPS
     protected int FpsScrC; // счетчик кадров экрана
@@ -23,18 +30,23 @@ public abstract class SharpDx : IDisposable
     protected readonly SharpDX.DXGI.Factory D2DFactory;
     protected readonly SharpDX.Direct2D1.Factory D2dFactory;
     protected RenderTarget? Rt;
-    protected readonly Texture2D BackBuffer;
-    protected readonly RenderTargetView RenderView;
-    protected readonly SharpDX.Direct3D11.DeviceContext Context;
     protected readonly SharpDX.DirectWrite.Factory DWf;
     protected readonly PixelFormat PixelFormat;
     protected readonly PictureBox FormTarget;
+    protected readonly Texture2D BackBuffer;
+    protected readonly RenderTargetView RenderView;
+    protected readonly SharpDX.Direct3D11.DeviceContext Context;
+    protected readonly VertexShader D3DVertexShader; // Вершинный Шейдер
+    protected readonly PixelShader D3DPixelShader; // Пиксельный Шейдер
+    protected readonly SharpDX.Direct3D11.Buffer D3dshParBuf; // Буфер для передачи в шейдеры (параметры рендеринга)
+    protected readonly DepthStencilView D3dDepthView; // Буфер глубины direct3D
+
 
     protected readonly DefBrushes Brushes;
 
     protected double FpsScr; // текущая FPS экрана
     protected double FpsOcv; // текущая FPS экрана
-    protected readonly SpritesDb Sprites; // Спрайты
+    protected readonly SpritesDb3D Sprites; // Спрайты
     protected Bitmap FrameVideo; // Видеокадр
     protected int BaseWidth;
     protected int BaseHeight;
@@ -113,7 +125,7 @@ public abstract class SharpDx : IDisposable
         public SharpDX.Direct2D1.Brush RoiGray03;
         public SharpDX.Direct2D1.Brush RoiYellow03;
 
-        public DefBrushes(SharpDx sdx)
+        public DefBrushes(SharpDx3D sdx)
         {
             SysText14 = new TextFormat(sdx.DWf, "Arial", 14);
             SysText20 = new TextFormat(sdx.DWf, "Arial", 20);
@@ -132,7 +144,7 @@ public abstract class SharpDx : IDisposable
             SysTextBrushDarkGreen = new SolidColorBrush(sdx.Rt,
                 new RawColor4(0.0F, 0.5F, 0.0F, 0.9F));
             SysTextBrushWhite = new SolidColorBrush(sdx.Rt,
-                new RawColor4(1.0F, 1.0F, 1.0F, 0.9F));
+                new RawColor4(1.0F, 1.0F, 1.0F, 0.7F));
             SysTextBrushGray = new SolidColorBrush(sdx.Rt,
                 new RawColor4(0.3F, 0.3F, 0.3F, 0.9F));
             SysTextBrushBlack = new SolidColorBrush(sdx.Rt,
@@ -201,7 +213,7 @@ public abstract class SharpDx : IDisposable
         }
     }
 
-    protected SharpDx(PictureBox surface, int fpsTarget, SpritesDb sprites, int widthVirtual) // Инициализация класса
+    protected SharpDx3D(PictureBox surface, int fpsTarget, SpritesDb3D sprites, int widthVirtual) // Инициализация класса
     {
         var scale = widthVirtual / (float)surface.Size.Width;
         FormTarget = surface;
@@ -222,12 +234,12 @@ public abstract class SharpDx : IDisposable
         {
             BufferCount = 1, // Количество буферов
             ModeDescription = bufferDescription, // Описание буфера
-            IsWindowed = false, // Режим отображения окно/полный экран
+            IsWindowed = true, // Режим отображения окно/полный экран
             OutputHandle = surface.Handle, // Ссылка на заголовок формы рендеринга
-            SampleDescription = new SampleDescription(2, 0), // ????
+            SampleDescription = new SampleDescription(1, 0), // ????
             SwapEffect = SwapEffect.Discard, // ????
-            Usage = Usage.BackBuffer | Usage.RenderTargetOutput, // Куда выводить 
-            Flags = SwapChainFlags.None, // Флаги ??
+            Usage = Usage.RenderTargetOutput, // Куда выводить 
+            Flags = SwapChainFlags.AllowModeSwitch, // Флаги ??
         };
         SharpDX.Direct3D11.Device.CreateWithSwapChain( // Инициализируем Direct3D11
             DriverType.Hardware, // Использовать ускорение видеодаптера
@@ -235,7 +247,7 @@ public abstract class SharpDx : IDisposable
             swapChainDesc, // Структура описывающия инициализацию DirectX
             out Device, // Куда выводить
             out SwapChain); // Ссылка на буфер
-        BackBuffer = SharpDX.Direct3D11.Resource.FromSwapChain<Texture2D>(SwapChain, 0);
+        BackBuffer = SwapChain.GetBackBuffer<Texture2D>(0);
         RenderView = new RenderTargetView(Device, BackBuffer);
         Context = Device.ImmediateContext;
         ////////////////// Инициализация Direct2D
@@ -253,6 +265,72 @@ public abstract class SharpDx : IDisposable
             });
         Context.OutputMerger.SetRenderTargets(RenderView);
         DWf = new SharpDX.DirectWrite.Factory();
+
+        /////////////// ИНИЦИАЛИЗАЦИЯ 3D ////////////////////////
+
+        ShaderSignature inputSignature;
+        using (var vertexShaderByteCode = ShaderBytecode.CompileFromFile("VertexShader.hlsl", "main", "vs_4_0", ShaderFlags.Debug))
+        {
+            D3DVertexShader = new VertexShader(Device, vertexShaderByteCode);
+            inputSignature = ShaderSignature.GetInputSignature(vertexShaderByteCode);
+        }
+        using (var pixelShaderByteCode = ShaderBytecode.CompileFromFile("PixelShader.hlsl", "main", "ps_4_0", ShaderFlags.Debug))
+        {
+            D3DPixelShader = new PixelShader(Device, pixelShaderByteCode);
+        }
+
+        var inputElements = new SharpDX.Direct3D11.InputElement[]
+        {
+                new("POSITION", 0, Format.R32G32B32_Float, 0, 0, InputClassification.PerVertexData, 0),
+                new("COLOR", 0, Format.R32G32B32A32_Float, 12, 0, InputClassification.PerVertexData, 0),
+                new("TEXCOORD", 0, Format.R32G32_Float, 28, 0, InputClassification.PerVertexData, 0),
+                new("NORMAL", 0, Format.R32G32B32_Float, 36, 0, InputClassification.PerVertexData, 0)
+        };
+
+        D3dshParBuf = new SharpDX.Direct3D11.Buffer(Device, Utilities.SizeOf<SharpDxG3D.ShaderParam>(), ResourceUsage.Default, BindFlags.ConstantBuffer, CpuAccessFlags.None, ResourceOptionFlags.None, 0);
+        Context.InputAssembler.InputLayout = new InputLayout(Device, inputSignature, inputElements);
+
+        Context.VertexShader.Set(D3DVertexShader);
+        Context.VertexShader.SetConstantBuffer(0, D3dshParBuf);
+        Context.PixelShader.Set(D3DPixelShader);
+        Context.InputAssembler.PrimitiveTopology = PrimitiveTopology.TriangleList;
+
+        using var depthBuffer = new Texture2D(Device, new Texture2DDescription()
+        {
+            Format = Format.D32_Float,
+            ArraySize = 1,
+            MipLevels = 1,
+            Width = BaseWidth, ///////////////////////
+            Height = BaseHeight, ///////////////////////
+            SampleDescription = new SampleDescription(1, 0),
+            Usage = ResourceUsage.Default,
+            BindFlags = BindFlags.DepthStencil,
+            CpuAccessFlags = CpuAccessFlags.None,
+            OptionFlags = ResourceOptionFlags.None
+        });
+        D3dDepthView = new DepthStencilView(Device, depthBuffer);
+        Context.OutputMerger.SetTargets(D3dDepthView, RenderView);
+
+        var description = DepthStencilStateDescription.Default();
+        description.DepthComparison = Comparison.LessEqual;
+        description.IsDepthEnabled = true;
+        description.DepthWriteMask = DepthWriteMask.All;
+        var depthState = new DepthStencilState(Device, description);
+        Context.OutputMerger.SetDepthStencilState(depthState);
+
+        var bD = new BlendStateDescription();
+        bD.RenderTarget[0].IsBlendEnabled = true;
+        bD.RenderTarget[0].SourceBlend = BlendOption.SourceAlpha;
+        bD.RenderTarget[0].DestinationBlend = BlendOption.InverseSourceAlpha;
+        bD.RenderTarget[0].BlendOperation = SharpDX.Direct3D11.BlendOperation.Add;
+        bD.RenderTarget[0].SourceAlphaBlend = BlendOption.One;
+        bD.RenderTarget[0].DestinationAlphaBlend = BlendOption.Zero;
+        bD.RenderTarget[0].AlphaBlendOperation = SharpDX.Direct3D11.BlendOperation.Add;
+        bD.RenderTarget[0].RenderTargetWriteMask = ColorWriteMaskFlags.All; //All
+        Context.Rasterizer.SetViewport(new Viewport(0, 0, BaseWidth, BaseHeight, 0.0f, 1.0f));
+        var d3DblendState = new BlendState(Device, bD);
+        Context.OutputMerger.SetBlendState(d3DblendState);
+        /////////////// ================ ////////////////////////
 
         /////////////// ================ ////////////////////////
         Brushes = new DefBrushes(this);
@@ -293,7 +371,7 @@ public abstract class SharpDx : IDisposable
         }
     }
 
-    public Bitmap? CreateDxBitmap(System.Drawing.Bitmap sbm)
+    public Tuple<Bitmap, ShaderResourceView>? CreateDxBitmap(System.Drawing.Bitmap sbm)
     {
         lock (this)
         {
@@ -307,13 +385,27 @@ public abstract class SharpDx : IDisposable
                 var pFormat = new PixelFormat(Format.B8G8R8A8_UNorm, SharpDX.Direct2D1.AlphaMode.Premultiplied);
                 var bmpProps = new BitmapProperties(pFormat);
 
-                var result =
+                using var ret = new Texture2D(Device, new Texture2DDescription()
+                {
+                    Width = sbm.Width,
+                    Height = sbm.Height,
+                    ArraySize = 1,
+                    BindFlags = BindFlags.ShaderResource,
+                    Usage = ResourceUsage.Immutable,
+                    CpuAccessFlags = CpuAccessFlags.None,
+                    Format = Format.B8G8R8A8_UNorm,
+                    MipLevels = 1,
+                    OptionFlags = ResourceOptionFlags.None,
+                    SampleDescription = new SampleDescription(1, 0),
+                }, new DataRectangle(bmpData.Scan0, bmpData.Stride));
+
+                var result = new Tuple<Bitmap, ShaderResourceView>(
                     new Bitmap(
                         Rt,
                         new Size2(sbm.Width, sbm.Height),
                         stream,
                         bmpData.Stride,
-                        bmpProps);
+                        bmpProps), new ShaderResourceView(Device, ret));
 
                 sbm.UnlockBits(bmpData);
                 stream.Dispose();
@@ -321,7 +413,8 @@ public abstract class SharpDx : IDisposable
             }
             catch
             {
-                return new Bitmap(Rt, new Size2(sbm.Width, sbm.Height));
+                return new Tuple<Bitmap, ShaderResourceView>(new Bitmap(Rt, new Size2(sbm.Width, sbm.Height)),
+                    new ShaderResourceView(Device, null));
             }
         }
     }
@@ -407,6 +500,9 @@ public abstract class SharpDx : IDisposable
             RenderView.Dispose();
             BackBuffer.Dispose();
             Device.Dispose();
+            D3DVertexShader.Dispose();
+            D3DPixelShader.Dispose();
+            D3dDepthView.Dispose();
             Context.Dispose();
             SwapChain?.Dispose();
             SwapChain = null;
@@ -427,15 +523,11 @@ public abstract class SharpDx : IDisposable
 
         lock (this)
         {
-            Rt?.BeginDraw();
-
             DrawUser(); // Вывод пользовательской графики
             DrawInfo(); // Вывод статистики
-
-            Rt?.EndDraw();
             try
             {
-                SwapChain?.Present(0, PresentFlags.DoNotWait);
+                SwapChain?.Present(0, PresentFlags.None);
             }
             catch
             {
@@ -461,9 +553,10 @@ public abstract class SharpDx : IDisposable
             new RawRectangleF(10, 10, BaseWidth, BaseHeight),
             Brushes.SysTextBrushYellow);
     }
-    public abstract class SpritesDb
+    public abstract class SpritesDb3D
     {
         public Dictionary<string, Bitmap> Items { get; set; } = new();
+        public Dictionary<string, Sprites3D.Obj> Objects { get; set; } = new();
 
         public virtual void DisposeBitmap()
         {
@@ -473,9 +566,10 @@ public abstract class SharpDx : IDisposable
             }
         }
 
-        public virtual void LoadBitmap(SharpDx sdx)
+        public virtual void LoadBitmap(SharpDx3D sdx)
         {
         }
     }
+
 }
 

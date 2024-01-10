@@ -9,6 +9,15 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Resources\Sprites\CCW.png" />
+    <None Remove="Resources\Sprites\CW.png" />
+    <None Remove="Resources\Sprites\moon.jpg" />
+    <None Remove="Resources\Sprites\moonTexture.jpg" />
+    <None Remove="Resources\Sprites\sphere.obj" />
+    <None Remove="Resources\Sprites\texture.png" />
+    <None Remove="Resources\Sprites\textureN.png" />
+    <None Remove="Resources\Sprites\vt40.obj" />
+    <None Remove="Resources\Sprites\VT40.png" />
     <None Remove="Resources\Sprites\_center.ico" />
     <None Remove="Resources\Sprites\_stocks.ico" />
     <None Remove="Resources\Sprites\_users.ico" />
@@ -20,6 +29,13 @@
   </ItemGroup>
 
   <ItemGroup>
+    <EmbeddedResource Include="Resources\Sprites\CCW.png" />
+    <EmbeddedResource Include="Resources\Sprites\CW.png" />
+    <EmbeddedResource Include="Resources\Sprites\sphere.obj" />
+    <EmbeddedResource Include="Resources\Sprites\texture.png" />
+    <EmbeddedResource Include="Resources\Sprites\textureN.png" />
+    <EmbeddedResource Include="Resources\Sprites\vt40.obj" />
+    <EmbeddedResource Include="Resources\Sprites\VT40.png" />
     <EmbeddedResource Include="Resources\Sprites\_center.ico" />
     <EmbeddedResource Include="Resources\Sprites\_stocks.ico" />
     <EmbeddedResource Include="Resources\Sprites\_users.ico" />
@@ -31,6 +47,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="AssimpNet" Version="4.1.0" />
     <PackageReference Include="hidlibrary" Version="3.3.40" />
     <PackageReference Include="LibUsbDotNet" Version="2.2.29" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.0" />
@@ -38,6 +55,7 @@
     <PackageReference Include="OpenCvSharp4.Extensions" Version="4.9.0.20240103" />
     <PackageReference Include="OpenCvSharp4.runtime.win" Version="4.9.0.20240103" />
     <PackageReference Include="SharpDX" Version="4.2.0" />
+    <PackageReference Include="SharpDX.D3DCompiler" Version="4.2.0" />
     <PackageReference Include="SharpDX.Direct2D1" Version="4.2.0" />
     <PackageReference Include="SharpDX.Direct3D11" Version="4.2.0" />
     <PackageReference Include="SharpDX.DXGI" Version="4.2.0" />
@@ -48,9 +66,21 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Update="Properties\Resources.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
     <Compile Update="View\FormDroneConfig.cs">
       <SubType>Form</SubType>
     </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Update="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
   </ItemGroup>
 
 </Project>

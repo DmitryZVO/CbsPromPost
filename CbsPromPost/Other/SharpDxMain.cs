@@ -1,4 +1,4 @@
-﻿using CbsPromPost.Model;
+﻿using CbsPromPost.Resources;
 using SharpDX.Mathematics.Interop;
 using SharpDX.Direct2D1;
 

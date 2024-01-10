@@ -65,8 +65,9 @@ sealed partial class FormFlash
         button3 = new Button();
         buttonWriteFpl = new Button();
         groupBoxButtons = new GroupBox();
-        groupBoxCli = new GroupBox();
         buttonFullFlash = new Button();
+        groupBoxCli = new GroupBox();
+        button4 = new Button();
         groupBoxButtons.SuspendLayout();
         groupBoxCli.SuspendLayout();
         SuspendLayout();
@@ -314,7 +315,7 @@ sealed partial class FormFlash
         progressBarMain.Size = new Size(1301, 23);
         progressBarMain.TabIndex = 34;
         // 
-        // buttonMsp
+        // buttonDroneConfig
         // 
         buttonDroneConfig.BackColor = Color.White;
         buttonDroneConfig.FlatStyle = FlatStyle.Flat;
@@ -461,6 +462,7 @@ sealed partial class FormFlash
         // 
         // groupBoxButtons
         // 
+        groupBoxButtons.Controls.Add(button4);
         groupBoxButtons.Controls.Add(buttonFullFlash);
         groupBoxButtons.Controls.Add(buttonWriteFpl);
         groupBoxButtons.Controls.Add(buttonLoadBinImage);
@@ -473,6 +475,17 @@ sealed partial class FormFlash
         groupBoxButtons.Size = new Size(243, 486);
         groupBoxButtons.TabIndex = 50;
         groupBoxButtons.TabStop = false;
+        // 
+        // buttonFullFlash
+        // 
+        buttonFullFlash.BackColor = Color.FromArgb(192, 255, 192);
+        buttonFullFlash.Font = new Font("Segoe UI", 14F, FontStyle.Regular, GraphicsUnit.Point);
+        buttonFullFlash.Location = new Point(7, 17);
+        buttonFullFlash.Name = "buttonFullFlash";
+        buttonFullFlash.Size = new Size(230, 38);
+        buttonFullFlash.TabIndex = 51;
+        buttonFullFlash.Text = "СТАНДАРТИЗИРОВАТЬ";
+        buttonFullFlash.UseVisualStyleBackColor = false;
         // 
         // groupBoxCli
         // 
@@ -494,16 +507,15 @@ sealed partial class FormFlash
         groupBoxCli.TabIndex = 51;
         groupBoxCli.TabStop = false;
         // 
-        // buttonFullFlash
+        // button4
         // 
-        buttonFullFlash.BackColor = Color.FromArgb(192, 255, 192);
-        buttonFullFlash.Font = new Font("Segoe UI", 14F, FontStyle.Regular, GraphicsUnit.Point);
-        buttonFullFlash.Location = new Point(7, 17);
-        buttonFullFlash.Name = "buttonFullFlash";
-        buttonFullFlash.Size = new Size(230, 38);
-        buttonFullFlash.TabIndex = 51;
-        buttonFullFlash.Text = "СТАНДАРТИЗИРОВАТЬ";
-        buttonFullFlash.UseVisualStyleBackColor = false;
+        button4.Font = new Font("Segoe UI", 14F, FontStyle.Regular, GraphicsUnit.Point);
+        button4.Location = new Point(7, 131);
+        button4.Name = "button4";
+        button4.Size = new Size(230, 38);
+        button4.TabIndex = 52;
+        button4.Text = "ТЕСТ";
+        button4.UseVisualStyleBackColor = true;
         // 
         // FormFlash
         // 
@@ -581,4 +593,5 @@ sealed partial class FormFlash
     private GroupBox groupBoxButtons;
     private GroupBox groupBoxCli;
     private Button buttonFullFlash;
+    private Button button4;
 }

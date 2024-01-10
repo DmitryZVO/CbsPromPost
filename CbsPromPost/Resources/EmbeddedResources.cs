@@ -1,4 +1,5 @@
 ﻿using System.Reflection;
+using Assimp;
 
 namespace CbsPromPost.Resources;
 
@@ -8,6 +9,7 @@ public static class EmbeddedResources
     {
         { typeof(string), s => { using var sr = new StreamReader(s); return sr.ReadToEnd(); } },
         { typeof(Bitmap), s => new Bitmap(s) },
+        { typeof(Scene), s => new AssimpContext().ImportFileFromStream(s) },
         { typeof(Icon), s => new Icon(s) }
     };
 

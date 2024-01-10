@@ -31,6 +31,7 @@ public sealed partial class FormYesNo : Form
 
     private void FormInfo_FormClosing(object sender, FormClosingEventArgs e)
     {
+
         _timer.Stop();
         _timer.Dispose();
     }

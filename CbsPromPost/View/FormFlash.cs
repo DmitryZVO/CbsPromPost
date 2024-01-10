@@ -1,5 +1,4 @@
-﻿using System.IO.Ports;
-using CbsPromPost.Model;
+﻿using CbsPromPost.Model;
 using CbsPromPost.Other;
 using CbsPromPost.Resources;
 using Microsoft.Extensions.DependencyInjection;
@@ -80,6 +79,11 @@ public sealed partial class FormFlash : Form
         buttonWriteFpl.Click += ButtonWriteFplClick;
         buttonFullFlash.Click += ButtonFullFlashClick;
         buttonDroneConfig.Click += ButtonDroneConfigClick;
+        button4.Click += Test;
+    }
+
+    private async void Test(object? sender, EventArgs e)
+    {
     }
 
     private void ButtonDroneConfigClick(object? sender, EventArgs e)
