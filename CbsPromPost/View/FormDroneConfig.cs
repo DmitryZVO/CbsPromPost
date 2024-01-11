@@ -171,19 +171,52 @@ public partial class FormDroneConfig : Form
         _dx2.Motors.ToList().ForEach(x => x.ValuePwm = 1000);
         TrackBarsUpdate();
     }
-    private void MotorsSet1100(object? sender, EventArgs e)
+    private async void MotorsSet1100(object? sender, EventArgs e)
     {
-        _dx2.Motors.ToList().ForEach(x => x.ValuePwm = 1100);
-        TrackBarsUpdate();
+        var min = _dx2.Motors.ToList().Min(x => x.ValuePwm);
+        if (min >= 1100)
+        {
+            _dx2.Motors.ToList().ForEach(x => x.ValuePwm = 1100);
+            TrackBarsUpdate();
+        }
+
+        for (var i = min; i < 1100; i += 10)
+        {
+            _dx2.Motors.ToList().ForEach(x => x.ValuePwm = i);
+            TrackBarsUpdate();
+            await Task.Delay(50);
+        }
     }
-    private void MotorsSet1250(object? sender, EventArgs e)
+    private async void MotorsSet1250(object? sender, EventArgs e)
     {
-        _dx2.Motors.ToList().ForEach(x => x.ValuePwm = 1250);
-        TrackBarsUpdate();
+        var min = _dx2.Motors.ToList().Min(x => x.ValuePwm);
+        if (min >= 1250)
+        {
+            _dx2.Motors.ToList().ForEach(x => x.ValuePwm = 1250);
+            TrackBarsUpdate();
+        }
+
+        for (var i = min; i < 1250; i += 10)
+        {
+            _dx2.Motors.ToList().ForEach(x => x.ValuePwm = i);
+            TrackBarsUpdate();
+            await Task.Delay(50);
+        }
     }
-    private void MotorsSet1500(object? sender, EventArgs e)
+    private async void MotorsSet1500(object? sender, EventArgs e)
     {
-        _dx2.Motors.ToList().ForEach(x => x.ValuePwm = 1500);
-        TrackBarsUpdate();
+        var min = _dx2.Motors.ToList().Min(x => x.ValuePwm);
+        if (min >= 1500)
+        {
+            _dx2.Motors.ToList().ForEach(x => x.ValuePwm = 1500);
+            TrackBarsUpdate();
+        }
+
+        for (var i = min; i < 1500; i += 10)
+        {
+            _dx2.Motors.ToList().ForEach(x => x.ValuePwm = i);
+            TrackBarsUpdate();
+            await Task.Delay(50);
+        }
     }
 }

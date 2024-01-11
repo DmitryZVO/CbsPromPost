@@ -534,7 +534,7 @@ public sealed partial class FormFlash : Form
         var s = Core.IoC.Services.GetRequiredService<Station>();
         if (s.User.Name.Equals(string.Empty) && !labelUser.Text.Equals(string.Empty) | s.User.Name.Equals(string.Empty) && labelUser.Text.Equals(string.Empty)) // Выключение работы
         {
-            labelDroneId.Text = string.Empty;
+            if (!Core.Config.TestMode) labelDroneId.Text = string.Empty;
             labelUser.Text = string.Empty;
             groupBoxButtons.Enabled = false;
             buttonPause.Enabled = false;
@@ -561,7 +561,7 @@ public sealed partial class FormFlash : Form
             _paused = DateTime.MinValue;
         }
 
-        groupBoxButtons.Enabled = !labelDroneId.Text.Equals(string.Empty);
+        if (!Core.Config.TestMode) groupBoxButtons.Enabled = !labelDroneId.Text.Equals(string.Empty);
 
         var sec = (DateTime.Now - s.WorkStart).TotalSeconds;
         if (_paused != DateTime.MinValue)
