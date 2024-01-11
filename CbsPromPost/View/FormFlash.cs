@@ -3,6 +3,7 @@ using CbsPromPost.Other;
 using CbsPromPost.Resources;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using OpenCvSharp;
 using Application = System.Windows.Forms.Application;
 using Size = System.Drawing.Size;
 using Timer = System.Windows.Forms.Timer;
@@ -13,13 +14,14 @@ public sealed partial class FormFlash : Form
 {
     private readonly Timer _timer = new();
 
+    private readonly WebCam _webCam;
+    private readonly SharpDxMain _dx;
     private double _timePausedMinutes;
     private double _timeMinWorkMinutes;
     private DateTime _startTime;
     private DateTime _lastPaused;
     private DateTime _paused;
     private int _counts;
-    private FormWebCam _formWeb;
     private FormDroneConfig _formDrone;
 
     private int _counterClick;
@@ -36,7 +38,6 @@ public sealed partial class FormFlash : Form
 
         buttonPause.Enabled = false;
 
-        _formWeb = new FormWebCam();
         _formDrone = new FormDroneConfig(_betaflight);
         labelName.Text = $@"ПОСТ №{Core.Config.PostNumber:0}";
         _counts = 0;
@@ -47,6 +48,10 @@ public sealed partial class FormFlash : Form
         }
         comboBoxFirmware.SelectedIndex = 0;
 
+        _webCam = new WebCam();
+        _dx = new SharpDxMain(pictureBoxMain, -1);
+        pictureBoxMain.SizeMode = PictureBoxSizeMode.StretchImage;
+
         var works = Core.IoC.Services.GetRequiredService<Works>();
         var work = works.Get(Core.Config.Type);
         labelWork.Text = work.Name;
@@ -55,8 +60,8 @@ public sealed partial class FormFlash : Form
         Icon = EmbeddedResources.Get<Icon>("Sprites._user_change.ico");
         richTextBoxMain.Text = string.Empty;
 
-        labelFpl.Text = Core.Config.Firmwares.Find(x => x.Name.Equals(comboBoxFirmware.Items[comboBoxFirmware.SelectedIndex].ToString()))!.FileFpl;
-        labelHex.Text = Core.Config.Firmwares.Find(x => x.Name.Equals(comboBoxFirmware.Items[comboBoxFirmware.SelectedIndex].ToString()))!.FileBin;
+        labelFpl.Text = Core.Config.Firmwares.Find(x => x.Name.Equals(comboBoxFirmware.Items[comboBoxFirmware.SelectedIndex]!.ToString()))!.FileFpl;
+        labelHex.Text = Core.Config.Firmwares.Find(x => x.Name.Equals(comboBoxFirmware.Items[comboBoxFirmware.SelectedIndex]!.ToString()))!.FileBin;
         labelComScanner.Text = $@"ШК СКАНЕР [{Core.Config.ComScanner}]";
         labelComBeta.Text = $@"BetaFlight [{Core.Config.ComBeta}]";
         labelDfu.Text = $@"BetaFlight DFU mode [{Core.Config.UsbDfuVid}:{Core.Config.UsbDfuPid}]";
@@ -74,7 +79,6 @@ public sealed partial class FormFlash : Form
         textBoxCli.KeyDown += CliKeyDown;
         Closed += OnClose;
         Shown += FormShown;
-        buttonWebCam.Click += ButtonWebCam;
         buttonImpulseRC.Click += ButtonImpulseRc;
         buttonReset.Click += ButtonResetClick;
         buttonLoadBinImage.Click += ButtonImageBinReadClick;
@@ -85,18 +89,23 @@ public sealed partial class FormFlash : Form
         buttonFullFlash.Click += ButtonFullFlashClick;
         buttonDroneConfig.Click += ButtonDroneConfigClick;
         comboBoxFirmware.SelectedValueChanged += FlashChanged;
+        buttonBadDrone.Click += BadDrone;
     }
 
-    private void StartBf(object? sender, EventArgs e)
+    private async void BadDrone(object? sender, EventArgs e)
     {
-        try
+        var answ = await Core.IoC.Services.GetRequiredService<Station>().FinishBodyAsync(labelDroneId.Text, default);
+        if (answ.Equals(string.Empty))
         {
-            System.Diagnostics.Process.Start($"{Application.StartupPath}DB\\Betaflight Configurator\\betaflight-configurator.exe");
+            new FormInfo(@"ПЕРЕВЕДЕНО В БРАК", Color.Orange, Color.DarkRed, 3000, new Size(600, 400))
+                .Show(this);
+            labelDroneId.Text = string.Empty; // Финиш работы
+            if (!_formDrone.Visible) return;
+            _formDrone.Close();
+            _formDrone.Dispose();
+            return;
         }
-        catch (Exception ex)
-        {
-            new FormInfo($"ОШИБКА ЗАПУСКА\r\n[{ex.Message}]", Color.LightPink, Color.DarkRed, 3000, new Size(1000, 800)).Show(this);
-        }
+        new FormInfo(@$"{answ}", Color.LightPink, Color.DarkRed, 3000, new Size(600, 400)).Show(this);
     }
 
     private void FlashChanged(object? sender, EventArgs e)
@@ -159,10 +168,10 @@ public sealed partial class FormFlash : Form
             return -1;
         }
 
-        var pb = Application.StartupPath + "DB\\_HEX\\" + Core.Config.Firmwares.Find(x => x.Name.Equals(comboBoxFirmware.Items[comboBoxFirmware.SelectedIndex].ToString()))!.FileBin;
+        var pb = Application.StartupPath + "DB\\_HEX\\" + Core.Config.Firmwares.Find(x => x.Name.Equals(comboBoxFirmware.Items[comboBoxFirmware.SelectedIndex]!.ToString()))!.FileBin;
         if (!File.Exists(pb)) return -2;
         var dataBin = await File.ReadAllBytesAsync(pb);
-        var pf = Application.StartupPath + "DB\\_HEX\\" + Core.Config.Firmwares.Find(x => x.Name.Equals(comboBoxFirmware.Items[comboBoxFirmware.SelectedIndex].ToString()))!.FileFpl;
+        var pf = Application.StartupPath + "DB\\_HEX\\" + Core.Config.Firmwares.Find(x => x.Name.Equals(comboBoxFirmware.Items[comboBoxFirmware.SelectedIndex]!.ToString()))!.FileFpl;
         if (!File.Exists(pf)) return -3;
         var dataFpl = await File.ReadAllLinesAsync(pf);
 
@@ -392,18 +401,6 @@ public sealed partial class FormFlash : Form
         richTextBoxMain.Text = string.Empty;
     }
 
-    private void ButtonWebCam(object? sender, EventArgs e)
-    {
-        if (_formWeb.Visible)
-        {
-            _formWeb.Activate();
-            return;
-        }
-
-        if (_formWeb.IsDisposed) _formWeb = new FormWebCam();
-        _formWeb.Show();
-    }
-
     private async void ButtonResetClick(object? sender, EventArgs e)
     {
         if (_betaflight.IsAliveDfu())
@@ -423,6 +420,9 @@ public sealed partial class FormFlash : Form
         _scanner.StartAsync(Core.Config.ComScanner);
         _ = _betaflight.StartAsync(Core.Config.ComBeta);
         _ = _betaflight.StartUsbAsync(int.Parse(Core.Config.UsbDfuVid, System.Globalization.NumberStyles.HexNumber), int.Parse(Core.Config.UsbDfuPid, System.Globalization.NumberStyles.HexNumber));
+
+        _webCam.StartAsync(-1);
+        _webCam.OnNewVideoFrame += NewFrame;
 
         var s = Core.IoC.Services.GetRequiredService<Station>();
         labelUser.Text = s.User.Name;
@@ -463,8 +463,8 @@ public sealed partial class FormFlash : Form
 
             var notOk = text.Length != 8;
             if (!notOk && text[..2] != "TT") notOk = true;
-            if (!notOk && !long.TryParse(text[2..5], out var valueD)) notOk = true;
-            if (!notOk && !long.TryParse(text[5..8], out var valueN)) notOk = true;
+            if (!notOk && !long.TryParse(text[2..5], out _)) notOk = true;
+            if (!notOk && !long.TryParse(text[5..8], out _)) notOk = true;
 
             if (notOk)
             {
@@ -503,8 +503,19 @@ public sealed partial class FormFlash : Form
         });
     }
 
+    private async void NewFrame(Mat mat)
+    {
+        if (mat.Empty()) return;
+        await _dx.FrameUpdateAsync(mat);
+        //if (labelDroneId.Text.Equals(string.Empty)) return;
+        //Cv2.ImWrite($"CAPTURE\\_{DateTime.Now.Ticks:0}.jpg", mat);
+    }
+
     private void OnClose(object? sender, EventArgs e)
     {
+        _webCam.OnNewVideoFrame -= NewFrame;
+        _webCam.Dispose();
+        _dx.Dispose();
         _timer.Stop();
     }
 

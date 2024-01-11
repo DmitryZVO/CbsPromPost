@@ -45,7 +45,6 @@ sealed partial class FormFlash
         buttonClearFlash = new Button();
         buttonWriteBinImage = new Button();
         buttonImpulseRC = new Button();
-        buttonWebCam = new Button();
         labelHex = new Label();
         labelFpl = new Label();
         labelComBeta = new Label();
@@ -69,8 +68,11 @@ sealed partial class FormFlash
         groupBoxCli = new GroupBox();
         labelTimer = new Label();
         comboBoxFirmware = new ComboBox();
+        pictureBoxMain = new PictureBox();
+        buttonBadDrone = new Button();
         groupBoxButtons.SuspendLayout();
         groupBoxCli.SuspendLayout();
+        ((System.ComponentModel.ISupportInitialize)pictureBoxMain).BeginInit();
         SuspendLayout();
         // 
         // label1
@@ -131,11 +133,11 @@ sealed partial class FormFlash
         // labelUser
         // 
         labelUser.BorderStyle = BorderStyle.FixedSingle;
-        labelUser.Font = new Font("Segoe UI", 28F, FontStyle.Regular, GraphicsUnit.Point);
+        labelUser.Font = new Font("Segoe UI", 20F, FontStyle.Regular, GraphicsUnit.Point);
         labelUser.ForeColor = Color.FromArgb(0, 0, 64);
-        labelUser.Location = new Point(501, 75);
+        labelUser.Location = new Point(671, 75);
         labelUser.Name = "labelUser";
-        labelUser.Size = new Size(824, 61);
+        labelUser.Size = new Size(654, 61);
         labelUser.TabIndex = 12;
         labelUser.TextAlign = ContentAlignment.MiddleCenter;
         // 
@@ -179,7 +181,7 @@ sealed partial class FormFlash
         richTextBoxMain.Location = new Point(12, 265);
         richTextBoxMain.Name = "richTextBoxMain";
         richTextBoxMain.ReadOnly = true;
-        richTextBoxMain.Size = new Size(1313, 534);
+        richTextBoxMain.Size = new Size(595, 534);
         richTextBoxMain.TabIndex = 20;
         richTextBoxMain.Text = "";
         // 
@@ -258,18 +260,6 @@ sealed partial class FormFlash
         buttonImpulseRC.Text = "ДРАЙВЕРА ImpulseRC";
         buttonImpulseRC.UseVisualStyleBackColor = true;
         // 
-        // buttonWebCam
-        // 
-        buttonWebCam.BackColor = Color.White;
-        buttonWebCam.FlatStyle = FlatStyle.Flat;
-        buttonWebCam.Font = new Font("Segoe UI", 10F, FontStyle.Regular, GraphicsUnit.Point);
-        buttonWebCam.Location = new Point(1333, 883);
-        buttonWebCam.Name = "buttonWebCam";
-        buttonWebCam.Size = new Size(241, 28);
-        buttonWebCam.TabIndex = 29;
-        buttonWebCam.Text = "ВИДЕО";
-        buttonWebCam.UseVisualStyleBackColor = false;
-        // 
         // labelHex
         // 
         labelHex.BackColor = Color.Bisque;
@@ -321,7 +311,7 @@ sealed partial class FormFlash
         buttonDroneConfig.BackColor = Color.White;
         buttonDroneConfig.FlatStyle = FlatStyle.Flat;
         buttonDroneConfig.Font = new Font("Segoe UI", 10F, FontStyle.Regular, GraphicsUnit.Point);
-        buttonDroneConfig.Location = new Point(1333, 849);
+        buttonDroneConfig.Location = new Point(1331, 883);
         buttonDroneConfig.Name = "buttonDroneConfig";
         buttonDroneConfig.Size = new Size(241, 28);
         buttonDroneConfig.TabIndex = 35;
@@ -472,7 +462,7 @@ sealed partial class FormFlash
         groupBoxButtons.Controls.Add(buttonImpulseRC);
         groupBoxButtons.Location = new Point(1331, 355);
         groupBoxButtons.Name = "groupBoxButtons";
-        groupBoxButtons.Size = new Size(243, 486);
+        groupBoxButtons.Size = new Size(243, 522);
         groupBoxButtons.TabIndex = 50;
         groupBoxButtons.TabStop = false;
         // 
@@ -527,11 +517,33 @@ sealed partial class FormFlash
         comboBoxFirmware.Size = new Size(355, 28);
         comboBoxFirmware.TabIndex = 52;
         // 
+        // pictureBoxMain
+        // 
+        pictureBoxMain.BorderStyle = BorderStyle.FixedSingle;
+        pictureBoxMain.Location = new Point(613, 265);
+        pictureBoxMain.Name = "pictureBoxMain";
+        pictureBoxMain.Size = new Size(712, 534);
+        pictureBoxMain.TabIndex = 53;
+        pictureBoxMain.TabStop = false;
+        // 
+        // buttonBadDrone
+        // 
+        buttonBadDrone.Font = new Font("Segoe UI", 24F, FontStyle.Regular, GraphicsUnit.Point);
+        buttonBadDrone.ForeColor = Color.Maroon;
+        buttonBadDrone.Location = new Point(501, 75);
+        buttonBadDrone.Name = "buttonBadDrone";
+        buttonBadDrone.Size = new Size(164, 61);
+        buttonBadDrone.TabIndex = 54;
+        buttonBadDrone.Text = "БРАК";
+        buttonBadDrone.UseVisualStyleBackColor = true;
+        // 
         // FormFlash
         // 
         AutoScaleDimensions = new SizeF(7F, 15F);
         AutoScaleMode = AutoScaleMode.Font;
         ClientSize = new Size(1584, 923);
+        Controls.Add(buttonBadDrone);
+        Controls.Add(pictureBoxMain);
         Controls.Add(comboBoxFirmware);
         Controls.Add(groupBoxCli);
         Controls.Add(buttonReset);
@@ -539,7 +551,6 @@ sealed partial class FormFlash
         Controls.Add(labelComScanner);
         Controls.Add(labelComBeta);
         Controls.Add(labelDfu);
-        Controls.Add(buttonWebCam);
         Controls.Add(buttonDroneConfig);
         Controls.Add(labelFpl);
         Controls.Add(labelHex);
@@ -560,6 +571,7 @@ sealed partial class FormFlash
         groupBoxButtons.ResumeLayout(false);
         groupBoxCli.ResumeLayout(false);
         groupBoxCli.PerformLayout();
+        ((System.ComponentModel.ISupportInitialize)pictureBoxMain).EndInit();
         ResumeLayout(false);
     }
 
@@ -582,7 +594,6 @@ sealed partial class FormFlash
     private Button buttonClearFlash;
     private Button buttonWriteBinImage;
     private Button buttonImpulseRC;
-    private Button buttonWebCam;
     private Label labelHex;
     private Label labelFpl;
     private Label labelComBeta;
@@ -606,4 +617,6 @@ sealed partial class FormFlash
     private Button buttonFullFlash;
     private ComboBox comboBoxFirmware;
     private Label labelTimer;
+    private PictureBox pictureBoxMain;
+    private Button buttonBadDrone;
 }

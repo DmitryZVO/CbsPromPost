@@ -42,6 +42,7 @@ public partial class FormDroneConfig : Form
         buttonD4Inv.Click += Motor4SpinInv;
         buttonInverseAll.Click += MotorsInvAll;
         button1010.Click += MotorMinimum;
+        buttonB
     }
 
     private async void MotorsInvAll(object? sender, EventArgs e)
