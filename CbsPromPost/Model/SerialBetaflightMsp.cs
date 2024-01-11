@@ -96,16 +96,15 @@ public partial class SerialBetaflight
         var answ = ms.ToArray();
         if (answ[4] != commandV2) return;
         var i = 8;
-        const float oneVal = 1f / 4096f;
         AccX = BitConverter.ToInt16(answ, i); i += 2;
         AccY = BitConverter.ToInt16(answ, i); i += 2;
         AccZ = BitConverter.ToInt16(answ, i); i += 2;
-        GyroX = BitConverter.ToInt16(answ, i) * oneVal; i += 2;
-        GyroY = BitConverter.ToInt16(answ, i) * oneVal; i += 2;
-        GyroZ = BitConverter.ToInt16(answ, i) * oneVal; i += 2;
-        MagX = BitConverter.ToInt16(answ, i) * oneVal; i += 2;
-        MagY = BitConverter.ToInt16(answ, i) * oneVal; i += 2;
-        MagZ = BitConverter.ToInt16(answ, i) * oneVal; i += 2;
+        GyroX = BitConverter.ToInt16(answ, i); i += 2;
+        GyroY = BitConverter.ToInt16(answ, i); i += 2;
+        GyroZ = BitConverter.ToInt16(answ, i); i += 2;
+        MagX = BitConverter.ToInt16(answ, i); i += 2;
+        MagY = BitConverter.ToInt16(answ, i); i += 2;
+        MagZ = BitConverter.ToInt16(answ, i); i += 2;
     }
 
     public async Task MspUpdateMotors(int msWait)

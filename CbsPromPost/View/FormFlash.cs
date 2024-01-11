@@ -154,6 +154,7 @@ public sealed partial class FormFlash : Form
             _formDrone.Dispose();
         }
 
+        buttonDroneConfig.Enabled = false;
         richTextBoxMain.Clear();
         richTextBoxMain.AppendText("СТАНДАРТИЗАЦИЯ ИЗДЕЛИЯ\r\n");
         richTextBoxMain.ScrollToCaret();
@@ -175,6 +176,7 @@ public sealed partial class FormFlash : Form
             richTextBoxMain.SelectionBackColor = Color.White;
             richTextBoxMain.ScrollToCaret();
         }
+        buttonDroneConfig.Enabled = true;
     }
 
     private async Task<int> FullFlash()
@@ -284,7 +286,6 @@ public sealed partial class FormFlash : Form
             _formDrone.Close();
             _formDrone.Dispose();
         }
-
         if (!_betaflight.IsAliveDfu())
         {
             richTextBoxMain.SelectionBackColor = Color.LightPink;
@@ -305,7 +306,9 @@ public sealed partial class FormFlash : Form
             return;
         }
 
+        buttonDroneConfig.Enabled = false;
         await WriteBinAsync(data);
+        buttonDroneConfig.Enabled = true;
     }
 
     private async Task<bool> WriteBinAsync(byte[] data)
@@ -341,10 +344,13 @@ public sealed partial class FormFlash : Form
             richTextBoxMain.ScrollToCaret();
             return;
         }
+
+        buttonDroneConfig.Enabled = false;
         richTextBoxMain.AppendText(
             $"DFU: ОЧИСТКА ПРОШИКИ, ОБЛАСТЬ 0x{SerialBetaflight.DfuStartAddress:x8} - 0x{SerialBetaflight.DfuStartAddress + SerialBetaflight.DfuFlashSize:x8} [{SerialBetaflight.DfuFlashSize:0} байт]\r\n");
         var res = await _betaflight.DfuMassErase(60000);
         richTextBoxMain.AppendText(res >= 0 ? "DFU: УСПЕХ\r\n" : "DFU: ОШИБКА!!!\r\n");
+        buttonDroneConfig.Enabled = true;
     }
 
     private async void ButtonFplReadClick(object? sender, EventArgs e)

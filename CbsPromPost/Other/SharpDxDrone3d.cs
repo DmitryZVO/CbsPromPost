@@ -25,8 +25,10 @@ internal class SharpDxDrone3d : SharpDx3D
     {
         lock (this)
         {
-            if (Context.IsDisposed) return;
-            Context.ClearRenderTargetView(RenderView, new RawColor4(0.0f, 0.0f, 0.0f, 1.0f));
+            Rt?.BeginDraw();
+            Rt?.Clear(new RawColor4(0.0f, 0.0f, 0.0f, 1.0f));
+            Rt?.EndDraw();
+
             if (Context.IsDisposed) return;
             Context.ClearDepthStencilView(D3dDepthView, DepthStencilClearFlags.Depth, 1.0f,0); // Очистка буфера глубины
 
@@ -138,9 +140,42 @@ internal class SharpDxDrone3d : SharpDx3D
                 new RawRectangleF(xR, y, BaseWidth, BaseHeight), Brushes.SysTextBrushWhite);
             Rt?.DrawText($"Pitch={_betaflight.Pitch:0.0}", Brushes.SysText34,
                 new RawRectangleF(xP, y, BaseWidth, BaseHeight), Brushes.SysTextBrushWhite);
-            Rt?.DrawBitmap(FrameVideo,
-                new RawRectangleF(BaseWidth - 310f, BaseHeight - 235f, BaseWidth - 10f, BaseHeight - 10f), 1.0f,
+            var video = new RawRectangleF(BaseWidth - 310f, BaseHeight - 235f, BaseWidth - 10f, BaseHeight - 10f);
+            Rt?.DrawBitmap(FrameVideo, video, 1.0f,
                 BitmapInterpolationMode.Linear);
+            Rt?.DrawRectangle(video, Brushes.SysTextBrushGray, 2);
+
+            var posCx = BaseWidth * 0.05f;
+            var posCy = BaseHeight * 0.85f;
+            const float wC = 30f;
+            const float hC = 60f;
+            var aX = (Math.Min(Math.Max(_betaflight.AccX, -1000), 1000) / 1000f) * hC;
+            var aY = (Math.Min(Math.Max(_betaflight.AccY, -1000), 1000) / 1000f) * hC;
+            var aZ = (Math.Min(Math.Max(_betaflight.AccZ, -1000), 1000) / 1000f) * hC;
+                Rt?.FillRectangle(new RawRectangleF(
+                    posCx + wC * 0, posCy - aX, posCx + wC * (0 + 1), posCy), Brushes.RoiGreen03);
+                Rt?.DrawRectangle(new RawRectangleF(
+                    posCx + wC * 0, posCy - hC, posCx + wC * (0 + 1), posCy + hC), Brushes.SysTextBrushGray, 2);
+                Rt?.FillRectangle(new RawRectangleF(
+                    posCx + wC * 1, posCy - aY, posCx + wC * (1 + 1), posCy), Brushes.RoiGreen03);
+                Rt?.DrawRectangle(new RawRectangleF(
+                    posCx + wC * 1, posCy - hC, posCx + wC * (1 + 1), posCy + hC), Brushes.SysTextBrushGray, 2);
+                Rt?.FillRectangle(new RawRectangleF(
+                    posCx + wC * 2, posCy - aZ, posCx + wC * (2 + 1), posCy), Brushes.RoiGreen03);
+                Rt?.DrawRectangle(new RawRectangleF(
+                    posCx + wC * 2, posCy - hC, posCx + wC * (2 + 1), posCy + hC), Brushes.SysTextBrushGray, 2);
+                Rt?.DrawLine(new RawVector2(posCx, posCy), new RawVector2(posCx + wC * 3, posCy),
+                    Brushes.SysTextBrushGray, 3);
+                /*
+                Rt?.DrawText(
+                    $"CH{i:00}", Brushes.SysText14,
+                    new RawRectangleF(posCx + wC * i + 12f, posCy + hC - 20f, BaseWidth, BaseHeight),
+                    Brushes.SysTextBrushYellow);
+                Rt?.DrawText(
+                    $"{_betaflight.RcPwm[i]:0000}", Brushes.SysText14,
+                    new RawRectangleF(posCx + wC * i + 12f, posCy + 5f, BaseWidth, BaseHeight),
+                    Brushes.SysTextBrushWhite);
+                */
             if (!_betaflight.IsAlive())
             {
                 Rt?.FillRectangle(new RawRectangleF(0, 0, BaseWidth, BaseHeight), Brushes.RoiRed02);
