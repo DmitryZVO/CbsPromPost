@@ -225,7 +225,15 @@ public partial class SerialBetaflight
         var p2 = Motor2;
         var p3 = Motor3;
         var p4 = Motor4;
-        MspSetMotor(motor == 0 ? 1000 : p1, motor == 1 ? 1000 : p2, motor == 2 ? 1000 : p3, motor == 3 ? 1000 : p4);
+
+        if (motor == 255)
+        {
+            MspSetMotor(1000, 1000, 1000, 1000);
+        }
+        else
+        {
+            MspSetMotor(motor == 0 ? 1000 : p1, motor == 1 ? 1000 : p2, motor == 2 ? 1000 : p3, motor == 3 ? 1000 : p4);
+        }
 
         _portPause = true;
         await Task.Delay(400);

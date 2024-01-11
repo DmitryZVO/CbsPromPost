@@ -65,10 +65,9 @@ sealed partial class FormFlash
         button3 = new Button();
         buttonWriteFpl = new Button();
         groupBoxButtons = new GroupBox();
-        buttonBf = new Button();
         buttonFullFlash = new Button();
         groupBoxCli = new GroupBox();
-        button4 = new Button();
+        labelTimer = new Label();
         comboBoxFirmware = new ComboBox();
         groupBoxButtons.SuspendLayout();
         groupBoxCli.SuspendLayout();
@@ -199,7 +198,7 @@ sealed partial class FormFlash
         // buttonLoadBinImage
         // 
         buttonLoadBinImage.Font = new Font("Segoe UI", 14F, FontStyle.Regular, GraphicsUnit.Point);
-        buttonLoadBinImage.Location = new Point(6, 178);
+        buttonLoadBinImage.Location = new Point(6, 222);
         buttonLoadBinImage.Name = "buttonLoadBinImage";
         buttonLoadBinImage.Size = new Size(230, 38);
         buttonLoadBinImage.TabIndex = 22;
@@ -209,7 +208,7 @@ sealed partial class FormFlash
         // buttonLoadFpl
         // 
         buttonLoadFpl.Font = new Font("Segoe UI", 14F, FontStyle.Regular, GraphicsUnit.Point);
-        buttonLoadFpl.Location = new Point(6, 222);
+        buttonLoadFpl.Location = new Point(6, 266);
         buttonLoadFpl.Name = "buttonLoadFpl";
         buttonLoadFpl.Size = new Size(230, 38);
         buttonLoadFpl.TabIndex = 23;
@@ -232,7 +231,7 @@ sealed partial class FormFlash
         // buttonClearFlash
         // 
         buttonClearFlash.Font = new Font("Segoe UI", 14F, FontStyle.Regular, GraphicsUnit.Point);
-        buttonClearFlash.Location = new Point(6, 266);
+        buttonClearFlash.Location = new Point(6, 310);
         buttonClearFlash.Name = "buttonClearFlash";
         buttonClearFlash.Size = new Size(230, 38);
         buttonClearFlash.TabIndex = 26;
@@ -242,7 +241,7 @@ sealed partial class FormFlash
         // buttonWriteBinImage
         // 
         buttonWriteBinImage.Font = new Font("Segoe UI", 14F, FontStyle.Regular, GraphicsUnit.Point);
-        buttonWriteBinImage.Location = new Point(6, 310);
+        buttonWriteBinImage.Location = new Point(6, 354);
         buttonWriteBinImage.Name = "buttonWriteBinImage";
         buttonWriteBinImage.Size = new Size(230, 38);
         buttonWriteBinImage.TabIndex = 27;
@@ -383,7 +382,7 @@ sealed partial class FormFlash
         // button7
         // 
         button7.BackColor = Color.MistyRose;
-        button7.Location = new Point(1262, 16);
+        button7.Location = new Point(1173, 16);
         button7.Name = "button7";
         button7.Size = new Size(45, 25);
         button7.TabIndex = 42;
@@ -423,7 +422,7 @@ sealed partial class FormFlash
         // 
         // button11
         // 
-        button11.Location = new Point(1197, 16);
+        button11.Location = new Point(1108, 16);
         button11.Name = "button11";
         button11.Size = new Size(59, 25);
         button11.TabIndex = 46;
@@ -455,7 +454,7 @@ sealed partial class FormFlash
         // buttonWriteFpl
         // 
         buttonWriteFpl.Font = new Font("Segoe UI", 14F, FontStyle.Regular, GraphicsUnit.Point);
-        buttonWriteFpl.Location = new Point(6, 354);
+        buttonWriteFpl.Location = new Point(6, 398);
         buttonWriteFpl.Name = "buttonWriteFpl";
         buttonWriteFpl.Size = new Size(230, 38);
         buttonWriteFpl.TabIndex = 49;
@@ -464,7 +463,6 @@ sealed partial class FormFlash
         // 
         // groupBoxButtons
         // 
-        groupBoxButtons.Controls.Add(buttonBf);
         groupBoxButtons.Controls.Add(buttonFullFlash);
         groupBoxButtons.Controls.Add(buttonWriteFpl);
         groupBoxButtons.Controls.Add(buttonLoadBinImage);
@@ -478,21 +476,11 @@ sealed partial class FormFlash
         groupBoxButtons.TabIndex = 50;
         groupBoxButtons.TabStop = false;
         // 
-        // buttonBf
-        // 
-        buttonBf.Font = new Font("Segoe UI", 14F, FontStyle.Regular, GraphicsUnit.Point);
-        buttonBf.Location = new Point(7, 398);
-        buttonBf.Name = "buttonBf";
-        buttonBf.Size = new Size(230, 38);
-        buttonBf.TabIndex = 52;
-        buttonBf.Text = "BetaFlight";
-        buttonBf.UseVisualStyleBackColor = true;
-        // 
         // buttonFullFlash
         // 
         buttonFullFlash.BackColor = Color.FromArgb(192, 255, 192);
         buttonFullFlash.Font = new Font("Segoe UI", 14F, FontStyle.Regular, GraphicsUnit.Point);
-        buttonFullFlash.Location = new Point(7, 17);
+        buttonFullFlash.Location = new Point(7, 13);
         buttonFullFlash.Name = "buttonFullFlash";
         buttonFullFlash.Size = new Size(230, 38);
         buttonFullFlash.TabIndex = 51;
@@ -501,7 +489,7 @@ sealed partial class FormFlash
         // 
         // groupBoxCli
         // 
-        groupBoxCli.Controls.Add(button4);
+        groupBoxCli.Controls.Add(labelTimer);
         groupBoxCli.Controls.Add(button12);
         groupBoxCli.Controls.Add(progressBarMain);
         groupBoxCli.Controls.Add(textBoxCli);
@@ -520,14 +508,14 @@ sealed partial class FormFlash
         groupBoxCli.TabIndex = 51;
         groupBoxCli.TabStop = false;
         // 
-        // button4
+        // labelTimer
         // 
-        button4.Location = new Point(1039, 17);
-        button4.Name = "button4";
-        button4.Size = new Size(152, 23);
-        button4.TabIndex = 49;
-        button4.Text = "button4";
-        button4.UseVisualStyleBackColor = true;
+        labelTimer.Location = new Point(1224, 16);
+        labelTimer.Name = "labelTimer";
+        labelTimer.Size = new Size(83, 25);
+        labelTimer.TabIndex = 49;
+        labelTimer.Text = "00:00:00.000";
+        labelTimer.TextAlign = ContentAlignment.MiddleCenter;
         // 
         // comboBoxFirmware
         // 
@@ -617,6 +605,5 @@ sealed partial class FormFlash
     private GroupBox groupBoxCli;
     private Button buttonFullFlash;
     private ComboBox comboBoxFirmware;
-    private Button buttonBf;
-    private Button button4;
+    private Label labelTimer;
 }

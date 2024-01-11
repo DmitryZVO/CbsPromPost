@@ -84,7 +84,6 @@ public sealed partial class FormFlash : Form
         buttonWriteFpl.Click += ButtonWriteFplClick;
         buttonFullFlash.Click += ButtonFullFlashClick;
         buttonDroneConfig.Click += ButtonDroneConfigClick;
-        buttonBf.Click += StartBf;
         comboBoxFirmware.SelectedValueChanged += FlashChanged;
     }
 
@@ -120,6 +119,12 @@ public sealed partial class FormFlash : Form
 
     private async void ButtonFullFlashClick(object? sender, EventArgs e)
     {
+        if (_formDrone.Visible)
+        {
+            _formDrone.Close();
+            _formDrone.Dispose();
+        }
+
         richTextBoxMain.Clear();
         richTextBoxMain.AppendText("СТАНДАРТИЗАЦИЯ ИЗДЕЛИЯ\r\n");
         richTextBoxMain.ScrollToCaret();
@@ -178,6 +183,12 @@ public sealed partial class FormFlash : Form
 
     private async void ButtonWriteFplClick(object? sender, EventArgs e)
     {
+        if (_formDrone.Visible)
+        {
+            _formDrone.Close();
+            _formDrone.Dispose();
+        }
+
         if (!_betaflight.IsAlive())
         {
             richTextBoxMain.SelectionBackColor = Color.LightPink;
@@ -228,6 +239,8 @@ public sealed partial class FormFlash : Form
                     ok = !ret.Contains("ERROR");
                 }
 
+                if (labelDroneId.Text.Equals(@"TT000000")) labelDroneId.Text = string.Empty;
+
                 richTextBoxMain.AppendText(ok ? "CLI: УСПЕХ\r\n" : "CLI: ОШИБКА!!!\r\n");
                 if (ok) await WriteToCliAsync("save", 100);
                 return ok;
@@ -237,6 +250,12 @@ public sealed partial class FormFlash : Form
 
     private async void ButtonWriteRawImageClick(object? sender, EventArgs e)
     {
+        if (_formDrone.Visible)
+        {
+            _formDrone.Close();
+            _formDrone.Dispose();
+        }
+
         if (!_betaflight.IsAliveDfu())
         {
             richTextBoxMain.SelectionBackColor = Color.LightPink;
@@ -279,6 +298,12 @@ public sealed partial class FormFlash : Form
 
     private async void ButtonClearFlashClick(object? sender, EventArgs e)
     {
+        if (_formDrone.Visible)
+        {
+            _formDrone.Close();
+            _formDrone.Dispose();
+        }
+
         if (!_betaflight.IsAliveDfu())
         {
             richTextBoxMain.SelectionBackColor = Color.LightPink;
@@ -295,6 +320,12 @@ public sealed partial class FormFlash : Form
 
     private async void ButtonFplReadClick(object? sender, EventArgs e)
     {
+        if (_formDrone.Visible)
+        {
+            _formDrone.Close();
+            _formDrone.Dispose();
+        }
+
         if (!_betaflight.IsAlive())
         {
             richTextBoxMain.SelectionBackColor = Color.LightPink;
@@ -318,6 +349,12 @@ public sealed partial class FormFlash : Form
 
     private async void ButtonImageBinReadClick(object? sender, EventArgs e)
     {
+        if (_formDrone.Visible)
+        {
+            _formDrone.Close();
+            _formDrone.Dispose();
+        }
+
         if (!_betaflight.IsAliveDfu())
         {
             richTextBoxMain.SelectionBackColor = Color.LightPink;
@@ -449,14 +486,16 @@ public sealed partial class FormFlash : Form
                 return;
             }
 
-            var answ = await Core.IoC.Services.GetRequiredService<Station>()
-                .FinishBodyAsync(labelDroneId.Text, default);
+            var answ = await Core.IoC.Services.GetRequiredService<Station>().FinishBodyAsync(labelDroneId.Text, default);
             if (answ.Equals(string.Empty))
             {
                 _counts++;
                 new FormInfo(@"РАБОТА ЗАВЕРШЕНА", Color.LightGreen, Color.DarkGreen, 3000, new Size(600, 400))
                     .Show(this);
                 labelDroneId.Text = string.Empty; // Финиш работы
+                if (!_formDrone.Visible) return;
+                _formDrone.Close();
+                _formDrone.Dispose();
                 return;
             }
 
@@ -482,7 +521,7 @@ public sealed partial class FormFlash : Form
     {
         if ((DateTime.Now - _counterClickTime).TotalMilliseconds > 1000) _counterClick = 0;
 
-        button4.Text = DateTime.Now.Ticks.ToString();
+        labelTimer.Text = DateTime.Now.ToString("HH:mm:ss.fff");
         ProgressChange(_betaflight.ProgressValue);
 
         var works = Core.IoC.Services.GetRequiredService<Works>();
@@ -497,7 +536,7 @@ public sealed partial class FormFlash : Form
         {
             labelDroneId.Text = string.Empty;
             labelUser.Text = string.Empty;
-            //groupBoxButtons.Enabled = false;
+            groupBoxButtons.Enabled = false;
             buttonPause.Enabled = false;
             buttonFinish.Enabled = false;
             _startTime = DateTime.Now;
@@ -521,9 +560,9 @@ public sealed partial class FormFlash : Form
             _lastPaused = DateTime.Now;
             _paused = DateTime.MinValue;
         }
-        /*
+
         groupBoxButtons.Enabled = !labelDroneId.Text.Equals(string.Empty);
-        */
+
         var sec = (DateTime.Now - s.WorkStart).TotalSeconds;
         if (_paused != DateTime.MinValue)
         {

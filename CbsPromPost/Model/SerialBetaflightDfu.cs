@@ -31,7 +31,7 @@ public partial class SerialBetaflight
         var start = DateTime.Now;
         while (true)
         {
-            await Task.Delay(20);
+            await Task.Delay(1);
             await DfuClearStatus();
             if ((await DfuGetStatus()).BState == state) break;
             if ((DateTime.Now - start).TotalMilliseconds > timeoutMs) return -1;

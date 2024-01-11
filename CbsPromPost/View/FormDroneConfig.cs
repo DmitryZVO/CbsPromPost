@@ -10,12 +10,14 @@ public partial class FormDroneConfig : Form
     private readonly SharpDxDrone3d _dx3;
     private readonly SharpDxDrone2d _dx2;
     private readonly bool[] _reverseSpin;
+    private bool _reverseSpinAll;
 
     public FormDroneConfig(SerialBetaflight bf)
     {
         InitializeComponent();
 
         _reverseSpin = new[] { false, false, false, false };
+        _reverseSpinAll = false;
         _betaflight = bf;
         _dx3 = new SharpDxDrone3d(pictureBox3d, 100, bf);
         _dx2 = new SharpDxDrone2d(pictureBox2d, 100, bf);
@@ -28,7 +30,6 @@ public partial class FormDroneConfig : Form
         buttonMotors1100.Click += MotorsSet1100;
         buttonMotors1250.Click += MotorsSet1250;
         buttonMotors1500.Click += MotorsSet1500;
-        buttonMotors2000.Click += MotorsSet2000;
         trackBarMotors.ValueChanged += ValuesMotorsChanged;
         trackBarD1.ValueChanged += ValueMotorD1Changed;
         trackBarD2.ValueChanged += ValueMotorD2Changed;
@@ -39,7 +40,18 @@ public partial class FormDroneConfig : Form
         buttonD2Inv.Click += Motor2SpinInv;
         buttonD3Inv.Click += Motor3SpinInv;
         buttonD4Inv.Click += Motor4SpinInv;
-        buttonMinimalSpeed.Click += MotorMinimum;
+        buttonInverseAll.Click += MotorsInvAll;
+        button1010.Click += MotorMinimum;
+    }
+
+    private async void MotorsInvAll(object? sender, EventArgs e)
+    {
+        await _betaflight.MspSetReverse(255, _reverseSpinAll);
+        _reverseSpinAll = !_reverseSpinAll;
+        _reverseSpin[0] = !_reverseSpin[0];
+        _reverseSpin[1] = !_reverseSpin[1];
+        _reverseSpin[2] = !_reverseSpin[2];
+        _reverseSpin[3] = !_reverseSpin[3];
     }
 
     private void MotorMinimum(object? sender, EventArgs e)
@@ -172,11 +184,6 @@ public partial class FormDroneConfig : Form
     private void MotorsSet1500(object? sender, EventArgs e)
     {
         _dx2.Motors.ToList().ForEach(x => x.ValuePwm = 1500);
-        TrackBarsUpdate();
-    }
-    private void MotorsSet2000(object? sender, EventArgs e)
-    {
-        _dx2.Motors.ToList().ForEach(x => x.ValuePwm = 2000);
         TrackBarsUpdate();
     }
 }
