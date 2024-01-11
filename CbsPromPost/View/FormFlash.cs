@@ -46,7 +46,17 @@ public sealed partial class FormFlash : Form
         {
             comboBoxFirmware.Items.Add(f.Name);
         }
-        comboBoxFirmware.SelectedIndex = 0;
+
+        if (comboBoxFirmware.Items.Contains(Core.Config.LastFirmware))
+        {
+            comboBoxFirmware.SelectedItem = Core.Config.LastFirmware;
+        }
+        else
+        {
+            comboBoxFirmware.SelectedIndex = 0;
+            Core.Config.LastFirmware = comboBoxFirmware.Items[0]?.ToString() ?? string.Empty;
+            Core.Config.Save();
+        }
 
         _webCam = new WebCam();
         _dx = new SharpDxMain(pictureBoxMain, -1);
@@ -132,6 +142,8 @@ public sealed partial class FormFlash : Form
     {
         labelFpl.Text = Core.Config.Firmwares.Find(x => x.Name.Equals(comboBoxFirmware.Items[comboBoxFirmware.SelectedIndex]!.ToString()))!.FileFpl;
         labelHex.Text = Core.Config.Firmwares.Find(x => x.Name.Equals(comboBoxFirmware.Items[comboBoxFirmware.SelectedIndex]!.ToString()))!.FileBin;
+        Core.Config.LastFirmware = comboBoxFirmware.Items[comboBoxFirmware.SelectedIndex]?.ToString() ?? string.Empty;
+        Core.Config.Save();
     }
 
     private void ButtonDroneConfigClick(object? sender, EventArgs e)

@@ -15,6 +15,7 @@ public struct ConfigApp
     public string ComBeta { get; set; } = "COM3";
     public string UsbDfuVid { get; set; } = "0483";
     public string UsbDfuPid { get; set; } = "DF11";
+    public string LastFirmware { get; set; } = string.Empty;
 
     public List<Firmware> Firmwares { get; set; } = new()
     {

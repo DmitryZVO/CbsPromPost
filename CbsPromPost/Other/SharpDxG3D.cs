@@ -8,8 +8,8 @@ public static class SharpDxG3D // Класс описывающий 3D сцен�
     public static float CamAngleX { get; set; } = 1.0f; // Угол обзора камеры по оси X (для Raspberry PI)
     public static float CamAngleY { get; set; } = 1.0f; // Угол обзора камеры по оси Y
     public static float CamG3Dx { get; set; } = 0.0f; // Позиция камеры по оси Х
-    public static float CamG3Dy { get; set; } = 0.1f; // Позиция камеры по оси Y
-    public static float CamG3Dz { get; set; } = -20.0f; // Позиция камеры по оси Z
+    public static float CamG3Dy { get; set; } = 3.5f; // Позиция камеры по оси Y
+    public static float CamG3Dz { get; set; } = -21.0f; // Позиция камеры по оси Z
     public static float CamG3Dsx { get; set; } = 0.0f; // Точка в которую смотрит камера по Х
     public static float CamG3Dsy { get; set; } = 0.0f; // Точка в которую смотрит камера по Y
     public static float CamG3Dsz { get; set; } = 0.0f; // Точка в которую смотрит камера по Z
