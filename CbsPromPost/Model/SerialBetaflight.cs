@@ -55,7 +55,7 @@ public partial class SerialBetaflight
                 if ((await DfuGetStatus()).BwPollTimeout < 0)
                 {
                     errorsCount++;
-                    if (errorsCount >= 5) break;
+                    if (errorsCount > 6) break;
                 }
                 else
                 {
