@@ -150,7 +150,7 @@ partial class FormDroneConfig
         button1010.Size = new Size(59, 36);
         button1010.TabIndex = 17;
         button1010.TabStop = false;
-        button1010.Text = "1010";
+        button1010.Text = "1020";
         button1010.UseVisualStyleBackColor = false;
         // 
         // buttonD3Inv

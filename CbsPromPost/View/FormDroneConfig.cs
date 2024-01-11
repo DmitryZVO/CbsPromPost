@@ -56,7 +56,7 @@ public partial class FormDroneConfig : Form
 
     private void MotorMinimum(object? sender, EventArgs e)
     {
-        _dx2.Motors.ToList().ForEach(x => x.ValuePwm = 1010);
+        _dx2.Motors.ToList().ForEach(x => x.ValuePwm = 1020);
         TrackBarsUpdate();
     }
 
@@ -166,8 +166,22 @@ public partial class FormDroneConfig : Form
 
         _betaflight.MspSetMotor(_dx2.Motors[0].ValuePwm, _dx2.Motors[1].ValuePwm, _dx2.Motors[2].ValuePwm, _dx2.Motors[3].ValuePwm);
     }
-    private void MotorsSet1000(object? sender, EventArgs e)
+    private async void MotorsSet1000(object? sender, EventArgs e)
     {
+        var max = _dx2.Motors.ToList().Max(x => x.ValuePwm);
+        if (max <= 1000)
+        {
+            _dx2.Motors.ToList().ForEach(x => x.ValuePwm = 1000);
+            TrackBarsUpdate();
+        }
+
+        for (var ii = max; ii > 1000; ii -= 10)
+        {
+            _dx2.Motors.ToList().ForEach(x => x.ValuePwm = ii);
+            TrackBarsUpdate();
+            await Task.Delay(20);
+        }
+
         _dx2.Motors.ToList().ForEach(x => x.ValuePwm = 1000);
         TrackBarsUpdate();
     }
@@ -184,7 +198,7 @@ public partial class FormDroneConfig : Form
         {
             _dx2.Motors.ToList().ForEach(x => x.ValuePwm = i);
             TrackBarsUpdate();
-            await Task.Delay(50);
+            await Task.Delay(20);
         }
     }
     private async void MotorsSet1250(object? sender, EventArgs e)
@@ -200,7 +214,7 @@ public partial class FormDroneConfig : Form
         {
             _dx2.Motors.ToList().ForEach(x => x.ValuePwm = i);
             TrackBarsUpdate();
-            await Task.Delay(50);
+            await Task.Delay(20);
         }
     }
     private async void MotorsSet1500(object? sender, EventArgs e)
@@ -216,7 +230,7 @@ public partial class FormDroneConfig : Form
         {
             _dx2.Motors.ToList().ForEach(x => x.ValuePwm = i);
             TrackBarsUpdate();
-            await Task.Delay(50);
+            await Task.Delay(20);
         }
     }
 }

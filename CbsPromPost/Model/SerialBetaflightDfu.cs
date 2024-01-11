@@ -118,7 +118,10 @@ public partial class SerialBetaflight
         {
             var blockData = Enumerable.Repeat((byte)0xFF, DfuBlockSize).ToArray();
             Array.Copy(hex, seek, blockData, 0, Math.Min(DfuBlockSize, hex.Length - seek));
-            if (await DfuWrite(blockData, blockNumber + 2) <= 0) return -1;
+            if (await DfuWrite(blockData, blockNumber + 2) <= 0)
+                if (await DfuWrite(blockData, blockNumber + 2) <= 0)
+                    if (await DfuWrite(blockData, blockNumber + 2) <= 0)
+                        return -1;
             if ((await DfuGetStatus()).BState is not DfuState.DfuDownloadBusy) return -1;
             if (await DfuWaitState(DfuState.DfuIdle, 3000) < 0) return -2;
             if ((DateTime.Now - start).TotalMilliseconds > timeotMs) return -1;

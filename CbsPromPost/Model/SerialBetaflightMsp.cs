@@ -172,6 +172,7 @@ public partial class SerialBetaflight
     {
         if (!_port.IsOpen) return;
         if (_portPause) return;
+
         const ushort lenV2 = 8 * 2;
         const ushort commandV2 = 214;
         var data = new byte[9 + lenV2];
@@ -193,8 +194,15 @@ public partial class SerialBetaflight
         Array.Copy(BitConverter.GetBytes((ushort)1000), 0, data, i, 2); i += 2;
         data[i] = MspGetCrcV2(data); // CRC v2
 
-        _port.ReadExisting();
-        _port.Write(data, 0, data.Length);
+        try
+        {
+            _port.ReadExisting();
+            _port.Write(data, 0, data.Length);
+        }
+        catch
+        {
+            //
+        }
     }
 
     private static byte MspGetCrcV2(IReadOnlyList<byte> data)
