@@ -40,7 +40,7 @@ public sealed partial class FormFlash : Form
         _formDrone = new FormDroneConfig(_betaflight);
         labelName.Text = $@"ПОСТ №{Core.Config.PostNumber:0}";
         _counts = 0;
-        _timer.Interval = 1000;
+        _timer.Interval = 100;
         foreach (var f in Core.Config.Firmwares)
         {
             comboBoxFirmware.Items.Add(f.Name);
@@ -70,7 +70,6 @@ public sealed partial class FormFlash : Form
 
         _timer.Tick += TimerTick;
         _scanner.OnReadValue += ComReadString;
-        _betaflight.OnProgressChange += ProgressChange;
         labelName.MouseClick += NameClick;
         textBoxCli.KeyDown += CliKeyDown;
         Closed += OnClose;
@@ -291,7 +290,6 @@ public sealed partial class FormFlash : Form
         richTextBoxMain.AppendText(
             $"DFU: ОЧИСТКА ПРОШИКИ, ОБЛАСТЬ 0x{SerialBetaflight.DfuStartAddress:x8} - 0x{SerialBetaflight.DfuStartAddress + SerialBetaflight.DfuFlashSize:x8} [{SerialBetaflight.DfuFlashSize:0} байт]\r\n");
         var res = await _betaflight.DfuMassErase(60000);
-        await _betaflight.DfuExit();
         richTextBoxMain.AppendText(res >= 0 ? "DFU: УСПЕХ\r\n" : "DFU: ОШИБКА!!!\r\n");
     }
 
@@ -406,16 +404,9 @@ public sealed partial class FormFlash : Form
         _timer.Start();
     }
 
-    private async void ProgressChange(int value)
+    private void ProgressChange(int value)
     {
-        await Task.Run(() =>
-        {
-            Invoke(() =>
-            {
-                progressBarMain.Value =
-                    Math.Min(Math.Max(progressBarMain.Minimum, value), progressBarMain.Maximum);
-            });
-        });
+        progressBarMain.Value = Math.Min(Math.Max(progressBarMain.Minimum, value), progressBarMain.Maximum);
     }
 
     private async void CliKeyDown(object? sender, KeyEventArgs e)
@@ -490,6 +481,9 @@ public sealed partial class FormFlash : Form
     private async void TimerTick(object? sender, EventArgs e)
     {
         if ((DateTime.Now - _counterClickTime).TotalMilliseconds > 1000) _counterClick = 0;
+
+        button4.Text = DateTime.Now.Ticks.ToString();
+        ProgressChange(_betaflight.ProgressValue);
 
         var works = Core.IoC.Services.GetRequiredService<Works>();
         var work = works.Get(Core.Config.Type);

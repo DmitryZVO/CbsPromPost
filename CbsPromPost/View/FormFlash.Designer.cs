@@ -65,10 +65,11 @@ sealed partial class FormFlash
         button3 = new Button();
         buttonWriteFpl = new Button();
         groupBoxButtons = new GroupBox();
+        buttonBf = new Button();
         buttonFullFlash = new Button();
         groupBoxCli = new GroupBox();
+        button4 = new Button();
         comboBoxFirmware = new ComboBox();
-        buttonBf = new Button();
         groupBoxButtons.SuspendLayout();
         groupBoxCli.SuspendLayout();
         SuspendLayout();
@@ -477,6 +478,16 @@ sealed partial class FormFlash
         groupBoxButtons.TabIndex = 50;
         groupBoxButtons.TabStop = false;
         // 
+        // buttonBf
+        // 
+        buttonBf.Font = new Font("Segoe UI", 14F, FontStyle.Regular, GraphicsUnit.Point);
+        buttonBf.Location = new Point(7, 398);
+        buttonBf.Name = "buttonBf";
+        buttonBf.Size = new Size(230, 38);
+        buttonBf.TabIndex = 52;
+        buttonBf.Text = "BetaFlight";
+        buttonBf.UseVisualStyleBackColor = true;
+        // 
         // buttonFullFlash
         // 
         buttonFullFlash.BackColor = Color.FromArgb(192, 255, 192);
@@ -490,6 +501,7 @@ sealed partial class FormFlash
         // 
         // groupBoxCli
         // 
+        groupBoxCli.Controls.Add(button4);
         groupBoxCli.Controls.Add(button12);
         groupBoxCli.Controls.Add(progressBarMain);
         groupBoxCli.Controls.Add(textBoxCli);
@@ -508,6 +520,15 @@ sealed partial class FormFlash
         groupBoxCli.TabIndex = 51;
         groupBoxCli.TabStop = false;
         // 
+        // button4
+        // 
+        button4.Location = new Point(1039, 17);
+        button4.Name = "button4";
+        button4.Size = new Size(152, 23);
+        button4.TabIndex = 49;
+        button4.Text = "button4";
+        button4.UseVisualStyleBackColor = true;
+        // 
         // comboBoxFirmware
         // 
         comboBoxFirmware.DropDownStyle = ComboBoxStyle.DropDownList;
@@ -517,16 +538,6 @@ sealed partial class FormFlash
         comboBoxFirmware.Name = "comboBoxFirmware";
         comboBoxFirmware.Size = new Size(355, 28);
         comboBoxFirmware.TabIndex = 52;
-        // 
-        // buttonBf
-        // 
-        buttonBf.Font = new Font("Segoe UI", 14F, FontStyle.Regular, GraphicsUnit.Point);
-        buttonBf.Location = new Point(7, 398);
-        buttonBf.Name = "buttonBf";
-        buttonBf.Size = new Size(230, 38);
-        buttonBf.TabIndex = 52;
-        buttonBf.Text = "BetaFlight";
-        buttonBf.UseVisualStyleBackColor = true;
         // 
         // FormFlash
         // 
@@ -607,4 +618,5 @@ sealed partial class FormFlash
     private Button buttonFullFlash;
     private ComboBox comboBoxFirmware;
     private Button buttonBf;
+    private Button button4;
 }
