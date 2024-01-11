@@ -44,7 +44,7 @@ public partial class SerialBetaflight
         using var ret = new MemoryStream();
         const int blocks = DfuFlashSize / DfuBlockSize;
 
-        if (await DfuWaitState(DfuState.DfuIdle, 3000) < 0) return Array.Empty<byte>();
+        if (await DfuWaitState(DfuState.DfuIdle, 6000) < 0) return Array.Empty<byte>();
         if (await DfuSetAddressPointer(DfuStartAddress) < 0) return Array.Empty<byte>();
         if ((await DfuGetStatus()).BState == DfuState.DfuError) return Array.Empty<byte>();
 
@@ -55,7 +55,7 @@ public partial class SerialBetaflight
             if ((await DfuGetStatus()).BState != DfuState.DfuIdle)
             {
                 if (await DfuClearStatus() < 0) return ret.ToArray();
-                if (await DfuWaitState(DfuState.DfuIdle, 3000) < 0) return ret.ToArray();
+                if (await DfuWaitState(DfuState.DfuIdle, 6000) < 0) return ret.ToArray();
             }
             var block = DfuReadPage(page + 2);
             await DfuGetStatus();
@@ -86,9 +86,9 @@ public partial class SerialBetaflight
 
         lock (this)
         {
-            var start = DateTime.Now;
+            //var start = DateTime.Now;
             _usbDfu.ControlTransfer(ref packet, block, block.Length, out var lenRead);
-            _logger.LogWarning($"[DfuReadPage] usb_transfer_time: {(DateTime.Now - start).TotalMilliseconds:0.00}");
+            //_logger.LogWarning($"[DfuReadPage] usb_transfer_time: {(DateTime.Now - start).TotalMilliseconds:0.00}");
             if (lenRead <= 0) return Array.Empty<byte>();
         }
 
@@ -102,12 +102,12 @@ public partial class SerialBetaflight
 
         ProgressValue = 0;
         
-        if (await DfuWaitState(DfuState.DfuIdle, 3000) < 0) return -2; 
+        if (await DfuWaitState(DfuState.DfuIdle, 6000) < 0) return -2; 
         if (await DfuMassErase(timeotMs) < 0) return -2;
 
         ProgressValue += 25;
 
-        if (await DfuWaitState(DfuState.DfuIdle, 3000) < 0) return -2;
+        if (await DfuWaitState(DfuState.DfuIdle, 6000) < 0) return -2;
 
         ProgressValue += 50;
 
@@ -242,10 +242,9 @@ public partial class SerialBetaflight
             {
                 lock (this)
                 {
-                    var start = DateTime.Now;
+                    //var start = DateTime.Now;
                     _usbDfu.ControlTransfer(ref packet, null, 0, out var lenWrite);
-                    _logger.LogWarning(
-                        $"[DfuClearStatus] async_usb_transfer_time: {(DateTime.Now - start).TotalMilliseconds:0.00}");
+                    //_logger.LogWarning($"[DfuClearStatus] async_usb_transfer_time: {(DateTime.Now - start).TotalMilliseconds:0.00}");
                     return lenWrite;
                 }
             }
@@ -278,9 +277,9 @@ public partial class SerialBetaflight
             {
                 lock (this)
                 {
-                    var start = DateTime.Now;
+                    //var start = DateTime.Now;
                     _usbDfu.ControlTransfer(ref packet, buffer, buffer.Length, out var lenWrite);
-                    _logger.LogWarning($"[DfuGetStatus] async_usb_transfer_time: {(DateTime.Now - start).TotalMilliseconds:0.00}");
+                    //_logger.LogWarning($"[DfuGetStatus] async_usb_transfer_time: {(DateTime.Now - start).TotalMilliseconds:0.00}");
                     if (lenWrite <= 0) return ret;
 
                     ret.BStatus = buffer[0]; // state during request
@@ -317,9 +316,9 @@ public partial class SerialBetaflight
             {
                 lock (this)
                 {
-                    var start = DateTime.Now;
+                    //var start = DateTime.Now;
                     _usbDfu.ControlTransfer(ref packet, data, data.Count, out var lenWrite);
-                    _logger.LogWarning($"[DfuWrite] async_usb_transfer_time: {(DateTime.Now - start).TotalMilliseconds:0.00}");
+                    //_logger.LogWarning($"[DfuWrite] async_usb_transfer_time: {(DateTime.Now - start).TotalMilliseconds:0.00}");
                     return lenWrite;
                 }
             }
@@ -350,10 +349,9 @@ public partial class SerialBetaflight
             {
                 lock (this)
                 {
-                    var start = DateTime.Now;
+                    //var start = DateTime.Now;
                     _usbDfu.ControlTransfer(ref packet, data, data.Count, out var lenWrite);
-                    _logger.LogWarning(
-                        $"[DfuWrite] async_usb_transfer_time: {(DateTime.Now - start).TotalMilliseconds:0.00}");
+                    //_logger.LogWarning($"[DfuWrite] async_usb_transfer_time: {(DateTime.Now - start).TotalMilliseconds:0.00}");
                     return lenWrite;
                 }
             }

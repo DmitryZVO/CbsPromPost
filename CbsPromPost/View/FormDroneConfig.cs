@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel;
 using CbsPromPost.Model;
 using CbsPromPost.Other;
+using OpenCvSharp;
 
 namespace CbsPromPost.View;
 
@@ -19,9 +20,8 @@ public partial class FormDroneConfig : Form
         _reverseSpin = new[] { false, false, false, false };
         _reverseSpinAll = false;
         _betaflight = bf;
-        _dx3 = new SharpDxDrone3d(pictureBox3d, 100, bf);
-        _dx2 = new SharpDxDrone2d(pictureBox2d, 100, bf);
-        pictureBox3d.SizeMode = PictureBoxSizeMode.StretchImage;
+        _dx3 = new SharpDxDrone3d(pictureBox3d, 30, bf);
+        _dx2 = new SharpDxDrone2d(pictureBox2d, 30, bf);
 
         Shown += ShownForm;
         Closing += ClosingForm;
@@ -42,7 +42,6 @@ public partial class FormDroneConfig : Form
         buttonD4Inv.Click += Motor4SpinInv;
         buttonInverseAll.Click += MotorsInvAll;
         button1010.Click += MotorMinimum;
-        buttonB
     }
 
     private async void MotorsInvAll(object? sender, EventArgs e)
@@ -91,10 +90,8 @@ public partial class FormDroneConfig : Form
     {
         while (!ct.IsCancellationRequested)
         {
+            await Task.Delay(10, ct);
             if (IsDisposed) break;
-
-            await Task.Delay(20, ct);
-
             splitContainer1.Enabled = _betaflight.IsAlive();
             if ((trackBarD1.Value != _dx2.Motors[0].ValuePwm) |
                 (trackBarD2.Value != _dx2.Motors[1].ValuePwm) |
@@ -102,9 +99,11 @@ public partial class FormDroneConfig : Form
                 (trackBarD4.Value != _dx2.Motors[3].ValuePwm)) TrackBarsUpdate();
             if (!_betaflight.IsAlive()) continue;
 
-            await _betaflight.MspUpdateAttitude(20);
-            await _betaflight.MspUpdateMotors(20);
-            await _betaflight.MspUpdateAnalog(20);
+            await _betaflight.MspUpdateAttitude(50);
+            await _betaflight.MspUpdateMotors(50);
+            await _betaflight.MspUpdateAnalog(50);
+            await _betaflight.MspUpdateRc(50);
+            await _betaflight.MspUpdateImu(50);
         }
     }
 
@@ -143,9 +142,9 @@ public partial class FormDroneConfig : Form
 
     private void ShownForm(object? sender, EventArgs e)
     {
-        _ = StartAsync();
         _ = _dx3.StartAsync();
         _ = _dx2.StartAsync();
+        _ = StartAsync();
     }
 
     private void ValuesMotorsChanged(object? sender, EventArgs e)
@@ -233,5 +232,11 @@ public partial class FormDroneConfig : Form
             TrackBarsUpdate();
             await Task.Delay(20);
         }
+    }
+
+    public void UpdateFrame(Mat mat)
+    {
+        using var mat2 = mat.CvtColor(ColorConversionCodes.BGR2RGB);
+        _dx3.FrameUpdate(mat2);
     }
 }

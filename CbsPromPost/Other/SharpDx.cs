@@ -42,7 +42,7 @@ public abstract class SharpDx : IDisposable
     protected RawMatrix3x2 ZeroTransform = new(1, 0, 0, 1, 0, 0);
     private bool _closed;
 
-    public virtual async Task FrameUpdateAsync(Mat frame)
+    public virtual void FrameUpdateAsync(Mat frame)
     {
         var temp = CreateDxBitmap(frame);
         if (temp is null) return;
@@ -55,7 +55,7 @@ public abstract class SharpDx : IDisposable
 
         FpsOcvC++;
 
-        await RenderCallback();
+        RenderCallback();
     }
 
     protected void TransformSet(RawMatrix3x2 matrix)
@@ -275,7 +275,8 @@ public abstract class SharpDx : IDisposable
         while (!cancellationToken.IsCancellationRequested)
         {
             if (_closed) break;
-            await RenderCallback(cancellationToken);
+            await Task.Delay(1000 / FpsTarget, cancellationToken);
+            RenderCallback();
         }
     }
 
@@ -421,10 +422,8 @@ public abstract class SharpDx : IDisposable
         GC.SuppressFinalize(this);
     }
 
-    public async Task RenderCallback(CancellationToken cancellationToken = default) // Цикл отрисовки изображений в окне камеры
+    public void RenderCallback() // Цикл отрисовки изображений в окне камеры
     {
-        var startFrameTime = DateTime.Now;
-
         lock (this)
         {
             Rt?.BeginDraw();
@@ -442,9 +441,6 @@ public abstract class SharpDx : IDisposable
                 //
             }
         }
-
-        await Task.Delay((int)Math.Max(1, 1000d / FpsTarget - (DateTime.Now - startFrameTime).TotalMilliseconds), cancellationToken);
-
         FpsScrC++;
     }
 

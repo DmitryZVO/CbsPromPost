@@ -90,14 +90,16 @@ public sealed partial class FormFlash : Form
         buttonDroneConfig.Click += ButtonDroneConfigClick;
         comboBoxFirmware.SelectedValueChanged += FlashChanged;
         buttonBadDrone.Click += BadDrone;
+        buttonOkDrone.Click += OkDrone;
     }
 
-    private async void BadDrone(object? sender, EventArgs e)
+    private async void OkDrone(object? sender, EventArgs e)
     {
         var answ = await Core.IoC.Services.GetRequiredService<Station>().FinishBodyAsync(labelDroneId.Text, default);
         if (answ.Equals(string.Empty))
         {
-            new FormInfo(@"ПЕРЕВЕДЕНО В БРАК", Color.Orange, Color.DarkRed, 3000, new Size(600, 400))
+            _counts++;
+            new FormInfo(@"РАБОТА ЗАВЕРШЕНА", Color.LightGreen, Color.DarkGreen, 3000, new Size(600, 400))
                 .Show(this);
             labelDroneId.Text = string.Empty; // Финиш работы
             if (!_formDrone.Visible) return;
@@ -105,7 +107,25 @@ public sealed partial class FormFlash : Form
             _formDrone.Dispose();
             return;
         }
+
         new FormInfo(@$"{answ}", Color.LightPink, Color.DarkRed, 3000, new Size(600, 400)).Show(this);
+    }
+
+    private async void BadDrone(object? sender, EventArgs e)
+    {
+        // КОСТЫЛЬ
+        var answ = await Core.IoC.Services.GetRequiredService<Station>().FinishBodyAsync(labelDroneId.Text, default);
+        //if (answ.Equals(string.Empty))
+        //{
+        new FormInfo(@"ПЕРЕВЕДЕНО В БРАК", Color.LightPink, Color.DarkRed, 3000, new Size(600, 400))
+            .Show(this);
+        labelDroneId.Text = string.Empty; // Финиш работы
+        if (!_formDrone.Visible) return;
+        _formDrone.Close();
+        _formDrone.Dispose();
+        //    return;
+        //}
+        //new FormInfo(@$"{answ}", Color.LightPink, Color.DarkRed, 3000, new Size(600, 400)).Show(this);
     }
 
     private void FlashChanged(object? sender, EventArgs e)
@@ -503,10 +523,11 @@ public sealed partial class FormFlash : Form
         });
     }
 
-    private async void NewFrame(Mat mat)
+    private void NewFrame(Mat mat)
     {
         if (mat.Empty()) return;
-        await _dx.FrameUpdateAsync(mat);
+        _dx.FrameUpdateAsync(mat);
+        if (_formDrone.Visible) _formDrone.UpdateFrame(mat);
         //if (labelDroneId.Text.Equals(string.Empty)) return;
         //Cv2.ImWrite($"CAPTURE\\_{DateTime.Now.Ticks:0}.jpg", mat);
     }
@@ -559,6 +580,8 @@ public sealed partial class FormFlash : Form
             buttonPause.Text = @"ОТДЫХ";
             label1.Text = string.Empty;
             labelCount.Text = string.Empty;
+            buttonBadDrone.Enabled = false;
+            buttonOkDrone.Enabled = false;
             _counts = 0;
             return;
         }
@@ -572,6 +595,8 @@ public sealed partial class FormFlash : Form
             _paused = DateTime.MinValue;
         }
 
+        buttonBadDrone.Enabled = !labelDroneId.Text.Equals(string.Empty);
+        buttonOkDrone.Enabled = !labelDroneId.Text.Equals(string.Empty);
         if (!Core.Config.TestMode) groupBoxButtons.Enabled = !labelDroneId.Text.Equals(string.Empty);
 
         var sec = (DateTime.Now - s.WorkStart).TotalSeconds;

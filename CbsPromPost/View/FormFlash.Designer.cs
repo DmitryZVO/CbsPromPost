@@ -70,6 +70,7 @@ sealed partial class FormFlash
         comboBoxFirmware = new ComboBox();
         pictureBoxMain = new PictureBox();
         buttonBadDrone = new Button();
+        buttonOkDrone = new Button();
         groupBoxButtons.SuspendLayout();
         groupBoxCli.SuspendLayout();
         ((System.ComponentModel.ISupportInitialize)pictureBoxMain).BeginInit();
@@ -135,9 +136,9 @@ sealed partial class FormFlash
         labelUser.BorderStyle = BorderStyle.FixedSingle;
         labelUser.Font = new Font("Segoe UI", 20F, FontStyle.Regular, GraphicsUnit.Point);
         labelUser.ForeColor = Color.FromArgb(0, 0, 64);
-        labelUser.Location = new Point(671, 75);
+        labelUser.Location = new Point(730, 75);
         labelUser.Name = "labelUser";
-        labelUser.Size = new Size(654, 61);
+        labelUser.Size = new Size(595, 61);
         labelUser.TabIndex = 12;
         labelUser.TextAlign = ContentAlignment.MiddleCenter;
         // 
@@ -170,7 +171,7 @@ sealed partial class FormFlash
         labelDroneId.ForeColor = Color.FromArgb(0, 0, 64);
         labelDroneId.Location = new Point(248, 75);
         labelDroneId.Name = "labelDroneId";
-        labelDroneId.Size = new Size(247, 61);
+        labelDroneId.Size = new Size(232, 61);
         labelDroneId.TabIndex = 18;
         labelDroneId.TextAlign = ContentAlignment.MiddleCenter;
         // 
@@ -530,18 +531,30 @@ sealed partial class FormFlash
         // 
         buttonBadDrone.Font = new Font("Segoe UI", 24F, FontStyle.Regular, GraphicsUnit.Point);
         buttonBadDrone.ForeColor = Color.Maroon;
-        buttonBadDrone.Location = new Point(501, 75);
+        buttonBadDrone.Location = new Point(608, 75);
         buttonBadDrone.Name = "buttonBadDrone";
-        buttonBadDrone.Size = new Size(164, 61);
+        buttonBadDrone.Size = new Size(116, 61);
         buttonBadDrone.TabIndex = 54;
         buttonBadDrone.Text = "БРАК";
         buttonBadDrone.UseVisualStyleBackColor = true;
+        // 
+        // buttonOkDrone
+        // 
+        buttonOkDrone.Font = new Font("Segoe UI", 28F, FontStyle.Regular, GraphicsUnit.Point);
+        buttonOkDrone.ForeColor = Color.FromArgb(0, 64, 64);
+        buttonOkDrone.Location = new Point(486, 75);
+        buttonOkDrone.Name = "buttonOkDrone";
+        buttonOkDrone.Size = new Size(116, 61);
+        buttonOkDrone.TabIndex = 55;
+        buttonOkDrone.Text = "ОК";
+        buttonOkDrone.UseVisualStyleBackColor = true;
         // 
         // FormFlash
         // 
         AutoScaleDimensions = new SizeF(7F, 15F);
         AutoScaleMode = AutoScaleMode.Font;
         ClientSize = new Size(1584, 923);
+        Controls.Add(buttonOkDrone);
         Controls.Add(buttonBadDrone);
         Controls.Add(pictureBoxMain);
         Controls.Add(comboBoxFirmware);
@@ -619,4 +632,5 @@ sealed partial class FormFlash
     private Label labelTimer;
     private PictureBox pictureBoxMain;
     private Button buttonBadDrone;
+    private Button buttonOkDrone;
 }

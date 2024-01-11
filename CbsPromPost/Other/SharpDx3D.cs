@@ -2,16 +2,12 @@
 using OpenCvSharp;
 using SharpDX;
 using SharpDX.DXGI;
-using SharpDX.IO;
 using SharpDX.Direct2D1;
 using SharpDX.Direct3D;
 using SharpDX.Direct3D11;
 using SharpDX.D3DCompiler;
 using SharpDX.DirectWrite;
-using SharpDX.Mathematics;
 using SharpDX.Mathematics.Interop;
-using SharpDX.WIC;
-using SharpDX.Text;
 using Rectangle = System.Drawing.Rectangle;
 using Bitmap = SharpDX.Direct2D1.Bitmap;
 using PixelFormat = SharpDX.Direct2D1.PixelFormat;
@@ -54,7 +50,7 @@ public abstract class SharpDx3D : IDisposable
     protected RawMatrix3x2 ZeroTransform = new(1, 0, 0, 1, 0, 0);
     private bool _closed;
 
-    public virtual async Task FrameUpdateAsync(Mat frame)
+    public virtual void FrameUpdate(Mat frame)
     {
         var temp = CreateDxBitmap(frame);
         if (temp is null) return;
@@ -66,8 +62,7 @@ public abstract class SharpDx3D : IDisposable
         }
 
         FpsOcvC++;
-
-        await RenderCallback();
+        RenderCallback();
     }
 
     protected void TransformSet(RawMatrix3x2 matrix)
@@ -353,7 +348,8 @@ public abstract class SharpDx3D : IDisposable
         while (!cancellationToken.IsCancellationRequested)
         {
             if (_closed) break;
-            await RenderCallback(cancellationToken);
+            await Task.Delay(1000 / FpsTarget, cancellationToken);
+            RenderCallback();
         }
     }
 
@@ -517,16 +513,14 @@ public abstract class SharpDx3D : IDisposable
         GC.SuppressFinalize(this);
     }
 
-    public async Task RenderCallback(CancellationToken cancellationToken = default) // Цикл отрисовки изображений в окне камеры
+    public void RenderCallback() // Цикл отрисовки изображений в окне камеры
     {
-        var startFrameTime = DateTime.Now;
-
         lock (this)
         {
-            DrawUser(); // Вывод пользовательской графики
-            DrawInfo(); // Вывод статистики
             try
             {
+                DrawUser(); // Вывод пользовательской графики
+                DrawInfo(); // Вывод статистики
                 SwapChain?.Present(0, PresentFlags.None);
             }
             catch
@@ -534,9 +528,6 @@ public abstract class SharpDx3D : IDisposable
                 //
             }
         }
-
-        await Task.Delay((int)Math.Max(1, 1000d / FpsTarget - (DateTime.Now - startFrameTime).TotalMilliseconds), cancellationToken);
-
         FpsScrC++;
     }
 

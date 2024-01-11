@@ -1,9 +1,9 @@
-﻿using System.ComponentModel.Design.Serialization;
-using SharpDX.Mathematics.Interop;
+﻿using SharpDX.Mathematics.Interop;
 using CbsPromPost.Model;
 using CbsPromPost.Resources;
 using SharpDX.Direct3D11;
 using SharpDX;
+using SharpDX.Direct2D1;
 
 namespace CbsPromPost.Other;
 
@@ -25,11 +25,9 @@ internal class SharpDxDrone3d : SharpDx3D
     {
         lock (this)
         {
-            Rt?.BeginDraw();
-            Rt?.Clear(new RawColor4(0.0f, 0.0f, 0.0f, 1.0f));
-            Rt?.EndDraw();
-
-            //Context.ClearRenderTargetView(RenderView, new RawColor4(0.0f, 0.0f, 0.0f, 1.0f));
+            if (Context.IsDisposed) return;
+            Context.ClearRenderTargetView(RenderView, new RawColor4(0.0f, 0.0f, 0.0f, 1.0f));
+            if (Context.IsDisposed) return;
             Context.ClearDepthStencilView(D3dDepthView, DepthStencilClearFlags.Depth, 1.0f,0); // Очистка буфера глубины
 
             // Дрон
@@ -47,11 +45,10 @@ internal class SharpDxDrone3d : SharpDx3D
             var o0 = Sprites.Objects["VT40"];
             Context.PixelShader.SetShaderResource(0, o0.Texture);
             Context.PixelShader.SetShaderResource(1, o0.TextureN);
-            var b0 = SharpDX.Direct3D11.Buffer.Create(Device, BindFlags.VertexBuffer, o0.VertexM);
+            using var b0 = SharpDX.Direct3D11.Buffer.Create(Device, BindFlags.VertexBuffer, o0.VertexM);
             Context.InputAssembler.SetVertexBuffers(0, new VertexBufferBinding(b0, Utilities.SizeOf<SharpDxG3D.VertexPc>(), 0));
             Context.UpdateSubresource(ref p0, D3dshParBuf);
             Context.Draw(o0.VertexM.Length, 0);
-            b0.Dispose();
 
             // Мотор 1
             var obj1 = new SharpDxG3D.Obj3D
@@ -68,11 +65,10 @@ internal class SharpDxDrone3d : SharpDx3D
             var o1 = Sprites.Objects["Сфера"];
             Context.PixelShader.SetShaderResource(0, o1.Texture);
             Context.PixelShader.SetShaderResource(1, o1.TextureN);
-            var b1 = SharpDX.Direct3D11.Buffer.Create(Device, BindFlags.VertexBuffer, o1.VertexM);
+            using var b1 = SharpDX.Direct3D11.Buffer.Create(Device, BindFlags.VertexBuffer, o1.VertexM);
             Context.InputAssembler.SetVertexBuffers(0, new VertexBufferBinding(b1, Utilities.SizeOf<SharpDxG3D.VertexPc>(), 0));
             Context.UpdateSubresource(ref p1, D3dshParBuf);
             Context.Draw(o1.VertexM.Length, 0);
-            b1.Dispose();
 
             // Мотор 2
             var obj2 = new SharpDxG3D.Obj3D
@@ -89,11 +85,10 @@ internal class SharpDxDrone3d : SharpDx3D
             var o2 = Sprites.Objects["Сфера"];
             Context.PixelShader.SetShaderResource(0, o2.Texture);
             Context.PixelShader.SetShaderResource(1, o2.TextureN);
-            var b2 = SharpDX.Direct3D11.Buffer.Create(Device, BindFlags.VertexBuffer, o2.VertexM);
+            using var b2 = SharpDX.Direct3D11.Buffer.Create(Device, BindFlags.VertexBuffer, o2.VertexM);
             Context.InputAssembler.SetVertexBuffers(0, new VertexBufferBinding(b2, Utilities.SizeOf<SharpDxG3D.VertexPc>(), 0));
             Context.UpdateSubresource(ref p2, D3dshParBuf);
             Context.Draw(o2.VertexM.Length, 0);
-            b2.Dispose();
 
             // Мотор 3
             var obj3 = new SharpDxG3D.Obj3D
@@ -110,11 +105,10 @@ internal class SharpDxDrone3d : SharpDx3D
             var o3 = Sprites.Objects["Сфера"];
             Context.PixelShader.SetShaderResource(0, o3.Texture);
             Context.PixelShader.SetShaderResource(1, o3.TextureN);
-            var b3 = SharpDX.Direct3D11.Buffer.Create(Device, BindFlags.VertexBuffer, o3.VertexM);
+            using var b3 = SharpDX.Direct3D11.Buffer.Create(Device, BindFlags.VertexBuffer, o3.VertexM);
             Context.InputAssembler.SetVertexBuffers(0, new VertexBufferBinding(b3, Utilities.SizeOf<SharpDxG3D.VertexPc>(), 0));
             Context.UpdateSubresource(ref p3, D3dshParBuf);
             Context.Draw(o3.VertexM.Length, 0);
-            b3.Dispose();
 
             // Мотор 4
             var obj4 = new SharpDxG3D.Obj3D
@@ -131,11 +125,10 @@ internal class SharpDxDrone3d : SharpDx3D
             var o4 = Sprites.Objects["Сфера"];
             Context.PixelShader.SetShaderResource(0, o4.Texture);
             Context.PixelShader.SetShaderResource(1, o4.TextureN);
-            var b4 = SharpDX.Direct3D11.Buffer.Create(Device, BindFlags.VertexBuffer, o4.VertexM);
+            using var b4 = SharpDX.Direct3D11.Buffer.Create(Device, BindFlags.VertexBuffer, o4.VertexM);
             Context.InputAssembler.SetVertexBuffers(0, new VertexBufferBinding(b4, Utilities.SizeOf<SharpDxG3D.VertexPc>(), 0));
             Context.UpdateSubresource(ref p4, D3dshParBuf);
             Context.Draw(o4.VertexM.Length, 0);
-            b4.Dispose();
 
             Rt?.BeginDraw();
             var xR = BaseWidth * 0.2f;
@@ -145,6 +138,9 @@ internal class SharpDxDrone3d : SharpDx3D
                 new RawRectangleF(xR, y, BaseWidth, BaseHeight), Brushes.SysTextBrushWhite);
             Rt?.DrawText($"Pitch={_betaflight.Pitch:0.0}", Brushes.SysText34,
                 new RawRectangleF(xP, y, BaseWidth, BaseHeight), Brushes.SysTextBrushWhite);
+            Rt?.DrawBitmap(FrameVideo,
+                new RawRectangleF(BaseWidth - 310f, BaseHeight - 235f, BaseWidth - 10f, BaseHeight - 10f), 1.0f,
+                BitmapInterpolationMode.Linear);
             if (!_betaflight.IsAlive())
             {
                 Rt?.FillRectangle(new RawRectangleF(0, 0, BaseWidth, BaseHeight), Brushes.RoiRed02);
