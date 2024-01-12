@@ -310,7 +310,7 @@ public abstract class SharpDx3D : IDisposable
         description.DepthComparison = Comparison.LessEqual;
         description.IsDepthEnabled = true;
         description.DepthWriteMask = DepthWriteMask.All;
-        var depthState = new DepthStencilState(Device, description);
+        using var depthState = new DepthStencilState(Device, description);
         Context.OutputMerger.SetDepthStencilState(depthState);
 
         var bD = new BlendStateDescription();
@@ -323,7 +323,7 @@ public abstract class SharpDx3D : IDisposable
         bD.RenderTarget[0].AlphaBlendOperation = SharpDX.Direct3D11.BlendOperation.Add;
         bD.RenderTarget[0].RenderTargetWriteMask = ColorWriteMaskFlags.All; //All
         Context.Rasterizer.SetViewport(new Viewport(0, 0, BaseWidth, BaseHeight, 0.0f, 1.0f));
-        var d3DblendState = new BlendState(Device, bD);
+        using var d3DblendState = new BlendState(Device, bD);
         Context.OutputMerger.SetBlendState(d3DblendState);
         /////////////// ================ ////////////////////////
 
@@ -492,22 +492,23 @@ public abstract class SharpDx3D : IDisposable
         lock (this)
         {
             _closed = true;
-            Brushes.Dispose();
-            RenderView.Dispose();
-            BackBuffer.Dispose();
-            Device.Dispose();
-            D3DVertexShader.Dispose();
-            D3DPixelShader.Dispose();
-            D3dDepthView.Dispose();
-            Context.Dispose();
+            Sprites.Items.ToList().ForEach(x=>x.Value?.Dispose());
+            Brushes?.Dispose();
+            RenderView?.Dispose();
+            BackBuffer?.Dispose();
+            Device?.Dispose();
+            D3DVertexShader?.Dispose();
+            D3DPixelShader?.Dispose();
+            D3dDepthView?.Dispose();
+            D3dshParBuf?.Dispose();
+            Context?.Dispose();
             SwapChain?.Dispose();
-            SwapChain = null;
-            D2dSurface.Dispose();
-            D2DFactory.Dispose();
-            D2dFactory.Dispose();
+            FrameVideo?.Dispose();
+            D2dSurface?.Dispose();
+            D2DFactory?.Dispose();
+            D2dFactory?.Dispose();
             Rt?.Dispose();
-            Rt = null;
-            DWf.Dispose();
+            DWf?.Dispose();
         }
 
         GC.SuppressFinalize(this);

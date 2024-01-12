@@ -113,8 +113,7 @@ public sealed partial class FormFlash : Form
                 .Show(this);
             labelDroneId.Text = string.Empty; // Финиш работы
             if (!_formDrone.Visible) return;
-            _formDrone.Close();
-            _formDrone.Dispose();
+            _formDrone.Visible = false;
             return;
         }
 
@@ -131,8 +130,7 @@ public sealed partial class FormFlash : Form
             .Show(this);
         labelDroneId.Text = string.Empty; // Финиш работы
         if (!_formDrone.Visible) return;
-        _formDrone.Close();
-        _formDrone.Dispose();
+        _formDrone.Visible = false;
         //    return;
         //}
         //new FormInfo(@$"{answ}", Color.LightPink, Color.DarkRed, 3000, new Size(600, 400)).Show(this);
@@ -154,16 +152,23 @@ public sealed partial class FormFlash : Form
             return;
         }
 
-        if (_formDrone.IsDisposed) _formDrone = new FormDroneConfig(_betaflight);
-        _formDrone.Show();
+        if (_formDrone.IsDisposed)
+        {
+            _formDrone = new FormDroneConfig(_betaflight);
+            _formDrone.Show();
+        }
+        else
+        {
+            _formDrone.Visible = true;
+            _formDrone.Activate();
+        }
     }
 
     private async void ButtonFullFlashClick(object? sender, EventArgs e)
     {
         if (_formDrone.Visible)
         {
-            _formDrone.Close();
-            _formDrone.Dispose();
+            _formDrone.Visible = false;
         }
 
         buttonDroneConfig.Enabled = false;
@@ -228,8 +233,7 @@ public sealed partial class FormFlash : Form
     {
         if (_formDrone.Visible)
         {
-            _formDrone.Close();
-            _formDrone.Dispose();
+            _formDrone.Visible = false;
         }
 
         if (!_betaflight.IsAlive())
@@ -295,8 +299,7 @@ public sealed partial class FormFlash : Form
     {
         if (_formDrone.Visible)
         {
-            _formDrone.Close();
-            _formDrone.Dispose();
+            _formDrone.Visible = false; 
         }
         if (!_betaflight.IsAliveDfu())
         {
@@ -344,8 +347,7 @@ public sealed partial class FormFlash : Form
     {
         if (_formDrone.Visible)
         {
-            _formDrone.Close();
-            _formDrone.Dispose();
+            _formDrone.Visible = false;
         }
 
         if (!_betaflight.IsAliveDfu())
@@ -369,8 +371,7 @@ public sealed partial class FormFlash : Form
     {
         if (_formDrone.Visible)
         {
-            _formDrone.Close();
-            _formDrone.Dispose();
+            _formDrone.Visible = false;
         }
 
         if (!_betaflight.IsAlive())
@@ -398,8 +399,7 @@ public sealed partial class FormFlash : Form
     {
         if (_formDrone.Visible)
         {
-            _formDrone.Close();
-            _formDrone.Dispose();
+            _formDrone.Visible = false;
         }
 
         if (!_betaflight.IsAliveDfu())
@@ -532,8 +532,7 @@ public sealed partial class FormFlash : Form
                     .Show(this);
                 labelDroneId.Text = string.Empty; // Финиш работы
                 if (!_formDrone.Visible) return;
-                _formDrone.Close();
-                _formDrone.Dispose();
+                _formDrone.Visible = false;
                 return;
             }
 

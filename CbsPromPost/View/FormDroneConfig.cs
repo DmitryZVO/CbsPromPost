@@ -91,6 +91,8 @@ public partial class FormDroneConfig : Form
         while (!ct.IsCancellationRequested)
         {
             await Task.Delay(10, ct);
+            if (!Visible) continue;
+
             if (IsDisposed) break;
             splitContainer1.Enabled = _betaflight.IsAlive();
             if ((trackBarD1.Value != _dx2.Motors[0].ValuePwm) |
@@ -135,9 +137,10 @@ public partial class FormDroneConfig : Form
     {
         _dx2.Motors.ToList().ForEach(x => x.ValuePwm = 1000);
         _betaflight.MspSetMotor(1000, 1000, 1000, 1000);
-
-        _dx3.Dispose();
-        _dx2.Dispose();
+        Visible = false;
+        e.Cancel = true;
+        //_dx3.Dispose();
+        //_dx2.Dispose();
     }
 
     private void ShownForm(object? sender, EventArgs e)

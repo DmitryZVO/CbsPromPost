@@ -29,9 +29,7 @@ public abstract class SharpDx : IDisposable
     protected readonly SharpDX.DirectWrite.Factory DWf;
     protected readonly PixelFormat PixelFormat;
     protected readonly PictureBox FormTarget;
-
     protected readonly DefBrushes Brushes;
-
     protected double FpsScr; // текущая FPS экрана
     protected double FpsOcv; // текущая FPS экрана
     protected readonly SpritesDb Sprites; // Спрайты
@@ -414,6 +412,8 @@ public abstract class SharpDx : IDisposable
             D2dSurface.Dispose();
             D2DFactory.Dispose();
             D2dFactory.Dispose();
+            FrameVideo.Dispose();
+            Sprites.Items.ToList().ForEach(x=>x.Value.Dispose());
             Rt?.Dispose();
             Rt = null;
             DWf.Dispose();
