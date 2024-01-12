@@ -1,4 +1,5 @@
-﻿using CbsPromPost.Model;
+﻿using System.Text;
+using CbsPromPost.Model;
 using CbsPromPost.Other;
 using CbsPromPost.Resources;
 using Microsoft.Extensions.DependencyInjection;
@@ -23,6 +24,7 @@ public sealed partial class FormFlash : Form
     private DateTime _paused;
     private int _counts;
     private FormDroneConfig _formDrone;
+    private string _lastCliMessage = string.Empty;
 
     private int _counterClick;
     private DateTime _counterClickTime;
@@ -146,9 +148,9 @@ public sealed partial class FormFlash : Form
 
     private async void ButtonDroneConfigClick(object? sender, EventArgs e)
     {
-        await _betaflight.CliWrite("#\r\nexit\r\n");
-        await _betaflight.CliWrite("#\r\nexit\r\n");
-        await _betaflight.CliWrite("#\r\nexit\r\n");
+        await _betaflight.CliWrite("#\r\nexit");
+        await _betaflight.CliWrite("#\r\nexit");
+        await _betaflight.CliWrite("#\r\nexit");
 
         if (_formDrone.Visible)
         {
@@ -210,16 +212,16 @@ public sealed partial class FormFlash : Form
         var dataFpl = await File.ReadAllLinesAsync(pf);
 
         // Переводим в CLI
-        await WriteToCliAsync("#\r\n");
-        await WriteToCliAsync("#\r\n");
-        await WriteToCliAsync("#\r\n");
+        await _betaflight.CliWrite("#");
+        await _betaflight.CliWrite("#");
+        await _betaflight.CliWrite("#");
         await Task.Delay(1000);
         // Переводим в CLI
 
         // Переводим в DFU
-        await WriteToCliAsync("#\r\nbl\r\n");
-        await WriteToCliAsync("#\r\nbl\r\n");
-        await WriteToCliAsync("#\r\nbl\r\n");
+        await _betaflight.CliWrite("#\r\nbl");
+        await _betaflight.CliWrite("#\r\nbl");
+        await _betaflight.CliWrite("#\r\nbl");
         await Task.Delay(5000);
 
         if (!_betaflight.IsAliveDfu()) return -4;
@@ -258,14 +260,13 @@ public sealed partial class FormFlash : Form
         {
             return await Invoke(async () =>
             {
-                await WriteToCliAsync("#\r\n");
-                await WriteToCliAsync("#\r\n");
-                await WriteToCliAsync("#\r\n");
+                await _betaflight.CliWrite("#");
+                await _betaflight.CliWrite("#");
+                await _betaflight.CliWrite("#");
                 await Task.Delay(1000);
 
                 richTextBoxMain.AppendText($"CLI: ЗАПИСЬ FPL ЛИСТА, файл fpl [{data.Count:0} строк]\r\n");
                 if (labelDroneId.Text.Equals(string.Empty)) labelDroneId.Text = @"TT000000";
-                var ok = true;
                 var containName = false;
                 foreach (var s in data)
                 {
@@ -278,29 +279,25 @@ public sealed partial class FormFlash : Form
                         sw = $"set name = SUDVT40 {labelDroneId.Text}";
                     }
 
-                    var ret = await WriteToCliAsync(sw, 0);
-                    if (!ret.Contains("ERROR")) continue;
-                    ok = false;
-                    break;
+                    await _betaflight.CliWrite(sw);
                 }
 
-                if (ok && !containName)
+                if (!containName)
                 {
-                    var ret = await WriteToCliAsync($"set name = SUDVT40 {labelDroneId.Text}", 0);
-                    ok = !ret.Contains("ERROR");
+                    await _betaflight.CliWrite($"set name = SUDVT40 {labelDroneId.Text}");
                 }
+
+                await Task.Delay(1000);
 
                 if (labelDroneId.Text.Equals(@"TT000000")) labelDroneId.Text = string.Empty;
-
+                var ok = !richTextBoxMain.Text.Contains("ERROR");
                 richTextBoxMain.AppendText(ok ? "CLI: УСПЕХ\r\n" : "CLI: ОШИБКА!!!\r\n");
-                if (ok)
-                {
-                    await WriteToCliAsync("save", 100);
-                    await WriteToCliAsync("save", 100);
-                    await WriteToCliAsync("save", 100);
-                }
+                if (!ok) return false;
 
-                return ok;
+                await _betaflight.CliWrite("save");
+                await _betaflight.CliWrite("save");
+                await _betaflight.CliWrite("save");
+                return true;
             });
         });
     }
@@ -394,15 +391,20 @@ public sealed partial class FormFlash : Form
         }
 
         richTextBoxMain.AppendText("CLI: СЧИТЫВАНИЕ FPL\r\n");
-        await _betaflight.CliWrite("#\r\n");
+        await _betaflight.CliWrite("#");
+        await _betaflight.CliWrite("#");
+        await _betaflight.CliWrite("#");
         await Task.Delay(2000);
-        var values = await _betaflight.CliWrite("dump\r\n");
+        await _betaflight.CliWrite("dump");
+        await Task.Delay(2000);
+        /* КОСТЫЛЬ
         richTextBoxMain.AppendText(values.Count > 0 ? "CLI: УСПЕХ\r\n" : "CLI: ОШИБКА!!!\r\n");
         if (values.Count <= 0) return;
         var res = string.Join(string.Empty, values);
         var fd = new SaveFileDialog { Title = @"FPL", FileName = "_fpl_betafly.txt" };
         fd.ShowDialog(this);
         await File.WriteAllTextAsync(fd.FileName, res.Replace("dump\r\n", string.Empty));
+        */
     }
 
     private async void ButtonImageBinReadClick(object? sender, EventArgs e)
@@ -458,9 +460,9 @@ public sealed partial class FormFlash : Form
             return;
         }
 
-        await WriteToCliAsync("#");
+        await _betaflight.CliWrite("#");
         await Task.Delay(500);
-        await WriteToCliAsync("exit");
+        await _betaflight.CliWrite("exit");
     }
 
     private void FormShown(object? sender, EventArgs e)
@@ -468,8 +470,8 @@ public sealed partial class FormFlash : Form
         _scanner.StartAsync(Core.Config.ComScanner);
         _ = _betaflight.StartAsync(Core.Config.ComBeta);
         _ = _betaflight.StartUsbAsync(int.Parse(Core.Config.UsbDfuVid, System.Globalization.NumberStyles.HexNumber), int.Parse(Core.Config.UsbDfuPid, System.Globalization.NumberStyles.HexNumber));
-
-        _webCam.StartAsync(-1);
+        _betaflight.OnNewCliMessage += OnNewCliMessage;
+        _webCam.StartAsync(20);
         _webCam.OnNewVideoFrame += NewFrame;
 
         var s = Core.IoC.Services.GetRequiredService<Station>();
@@ -489,6 +491,22 @@ public sealed partial class FormFlash : Form
         _timer.Start();
     }
 
+    private async void OnNewCliMessage(string message)
+    {
+        _lastCliMessage = message;
+
+        await Task.Run(() =>
+        {
+            Invoke(() =>
+            {
+                if (message.Contains("ERROR")) richTextBoxMain.SelectionColor = Color.Red;
+                richTextBoxMain.AppendText(message);
+                richTextBoxMain.SelectionColor = Color.Black;
+                richTextBoxMain.ScrollToCaret();
+            });
+        });
+    }
+
     private void ProgressChange(int value)
     {
         progressBarMain.Value = Math.Min(Math.Max(progressBarMain.Minimum, value), progressBarMain.Maximum);
@@ -500,7 +518,7 @@ public sealed partial class FormFlash : Form
         e.SuppressKeyPress = true;
         var txt = textBoxCli.Text;
         textBoxCli.Text = string.Empty;
-        await WriteToCliAsync(txt);
+        await _betaflight.CliWrite(txt);
     }
 
     private void ComReadString(string com, string text)
@@ -690,6 +708,7 @@ public sealed partial class FormFlash : Form
         await s.GetStateAsync(default);
     }
 
+    /*
     private async Task<string> WriteToCliAsync(string text, int waitMs = 200)
     {
         var ret = await Task.Run(async () =>
@@ -705,15 +724,16 @@ public sealed partial class FormFlash : Form
         richTextBoxMain.ScrollToCaret();
         return retStr;
     }
+    */
 
-    private void Button1_Click(object sender, EventArgs e) => _ = WriteToCliAsync("#\r\n");
-    private void Button2_Click(object sender, EventArgs e) => _ = WriteToCliAsync("help\r\n");
-    private void Button3_Click(object sender, EventArgs e) => _ = WriteToCliAsync("get name\r\n");
-    private void Button6_Click(object sender, EventArgs e) => _ = WriteToCliAsync("version\r\n");
-    private void Button7_Click(object sender, EventArgs e) => _ = WriteToCliAsync("exit\r\n");
-    private void Button8_Click(object sender, EventArgs e) => _ = WriteToCliAsync("status\r\n");
-    private void Button9_Click(object sender, EventArgs e) => _ = WriteToCliAsync("bl\r\n");
-    private void Button10_Click(object sender, EventArgs e) => _ = WriteToCliAsync("dump\r\n");
-    private void Button11_Click(object sender, EventArgs e) => _ = WriteToCliAsync("save\r\n");
+    private void Button1_Click(object sender, EventArgs e) => _ = _betaflight.CliWrite("#");
+    private void Button2_Click(object sender, EventArgs e) => _ = _betaflight.CliWrite("help");
+    private void Button3_Click(object sender, EventArgs e) => _ = _betaflight.CliWrite("get name");
+    private void Button6_Click(object sender, EventArgs e) => _ = _betaflight.CliWrite("version");
+    private void Button7_Click(object sender, EventArgs e) => _ = _betaflight.CliWrite("exit");
+    private void Button8_Click(object sender, EventArgs e) => _ = _betaflight.CliWrite("status");
+    private void Button9_Click(object sender, EventArgs e) => _ = _betaflight.CliWrite("bl");
+    private void Button10_Click(object sender, EventArgs e) => _ = _betaflight.CliWrite("dump");
+    private void Button11_Click(object sender, EventArgs e) => _ = _betaflight.CliWrite("save");
     private void Button12_Click(object sender, EventArgs e) => richTextBoxMain.Clear();
 }

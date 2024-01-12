@@ -140,11 +140,11 @@ public partial class SerialBetaflight
         {
             var blockData = Enumerable.Repeat((byte)0xFF, DfuBlockSize).ToArray();
             Array.Copy(hex, seek, blockData, 0, Math.Min(DfuBlockSize, hex.Length - seek));
-            if (await DfuWrite(blockData, blockNumber + 2) <= 0)
-                if (await DfuWrite(blockData, blockNumber + 2) <= 0)
-                    if (await DfuWrite(blockData, blockNumber + 2) <= 0)
+            if (DfuWriteBlock(blockData, blockNumber + 2) <= 0)
+                if (DfuWriteBlock(blockData, blockNumber + 2) <= 0)
+                    if (DfuWriteBlock(blockData, blockNumber + 2) <= 0)
                     {
-                        _logger.LogError("DfuRawBinWrite error: DfuWrite<0");
+                        _logger.LogError("DfuRawBinWrite error: DfuWriteBlock<0");
                         return -1;
                     }
             if ((await DfuGetStatus()).BState is not DfuState.DfuDownloadBusy)
@@ -403,7 +403,7 @@ public partial class SerialBetaflight
                 {
                     //var start = DateTime.Now;
                     _usbDfu.ControlTransfer(ref packet, data, data.Count, out var lenWrite);
-                    //_logger.LogWarning($"[DfuWrite] async_usb_transfer_time: {(DateTime.Now - start).TotalMilliseconds:0.00}");
+                    //_logger.LogWarning($"[DfuWriteBlock] async_usb_transfer_time: {(DateTime.Now - start).TotalMilliseconds:0.00}");
                     return lenWrite;
                 }
             }
@@ -415,45 +415,42 @@ public partial class SerialBetaflight
         });
     }
 
-    private async Task<int> DfuWrite(IReadOnlyCollection<byte> data, int block) //throws Exception
+    private int DfuWriteBlock(IReadOnlyCollection<byte> data, int block)
     {
+        var start = DateTime.Now;
         if (!_aliveDfu)
         {
-            _logger.LogError("DfuWrite error: _notAliveDfu block=" + block.ToString("0"));
+            _logger.LogError($"{nameof(DfuWriteBlock)} error: _notAliveDfu block={block:0}");
             return -1;
         }
 
         if (_usbDfu == null)
         {
-            _logger.LogError("DfuWrite error: _notAliveUsb block="+block.ToString("0"));
+            _logger.LogError($"{nameof(DfuWriteBlock)} error: _notAliveUsb block={block}");
             return -1;
         }
 
-        return await Task.Run(() =>
+        var packet = new UsbSetupPacket
         {
-            var packet = new UsbSetupPacket
-            {
-                RequestType = 0x21, // '2' => Class request ; '1' => to interface
-                Request = 0x01, // DFU_DNLOAD
-                Value = (short)block,
-                Index = 0
-            };
+            RequestType = 0x21, // '2' => Class request ; '1' => to interface
+            Request = 0x01, // DFU_DNLOAD
+            Value = (short)block,
+            Index = 0
+        };
 
-            try
+        try
+        {
+            lock (this)
             {
-                lock (this)
-                {
-                    //var start = DateTime.Now;
-                    _usbDfu.ControlTransfer(ref packet, data, data.Count, out var lenWrite);
-                    //_logger.LogWarning($"[DfuWrite] async_usb_transfer_time: {(DateTime.Now - start).TotalMilliseconds:0.00}");
-                    return lenWrite;
-                }
+                _usbDfu.ControlTransfer(ref packet, data, data.Count, out var lenWrite);
+                if (lenWrite<=0) _logger.LogWarning($"[DfuWriteBlock] async_usb_transfer_time error! lenWrite=0: time {(DateTime.Now - start).TotalMilliseconds:0.00} ms");
+                return lenWrite;
             }
-            catch
-            {
-                //
-            }
-            return -1;
-        });
+        }
+        catch
+        {
+            _logger.LogWarning($"[DfuWriteBlock] async_usb_transfer_time error! try/catch: time {(DateTime.Now - start).TotalMilliseconds:0.00} ms");
+        }
+        return -1;
     }
 }

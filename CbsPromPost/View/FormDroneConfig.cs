@@ -84,7 +84,7 @@ public partial class FormDroneConfig : Form
         _reverseSpin[3] = !_reverseSpin[3];
     }
 
-    private void AccelCalibrate(object? sender, EventArgs e) => _betaflight.MspCalibrateAcel();
+    private void AccelCalibrate(object? sender, EventArgs e) => _betaflight.MspSetCalibrateAcel();
 
     private async Task StartAsync(CancellationToken ct = default)
     {
@@ -101,11 +101,11 @@ public partial class FormDroneConfig : Form
                 (trackBarD4.Value != _dx2.Motors[3].ValuePwm)) TrackBarsUpdate();
             if (!_betaflight.IsAlive()) continue;
 
-            await _betaflight.MspUpdateAttitude(50);
-            await _betaflight.MspUpdateMotors(50);
-            await _betaflight.MspUpdateAnalog(50);
-            await _betaflight.MspUpdateRc(50);
-            await _betaflight.MspUpdateImu(50);
+            _betaflight.MspGetAttitude();
+            _betaflight.MspGetMotors();
+            _betaflight.MspGetAnalog();
+            _betaflight.MspUpdateRc();
+            _betaflight.MspGetImu();
         }
     }
 

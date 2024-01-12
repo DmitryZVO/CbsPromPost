@@ -23,7 +23,79 @@ public partial class SerialBetaflight
 
     private bool _portPause;
 
-    public async Task MspUpdateAttitude(int msWait)
+    public void UpdateValuesFromMsp(byte[] packet)
+    {
+        if (packet.Length < 8) return; // Пакет слишком мал
+        var i = 8;
+        switch (packet[4])
+        {
+            case 108: // Attitude
+            {
+                if (packet.Length < 15) break;
+                Roll = -BitConverter.ToInt16(packet, i) / 10f; i += 2;
+                Pitch = BitConverter.ToInt16(packet, i) / 10f; i += 2;
+                Yaw = BitConverter.ToInt16(packet, i) / 1f;
+                break;
+            }
+            case 102: // Imu
+            {
+                if (packet.Length < 27) break;
+                AccX = BitConverter.ToInt16(packet, i); i += 2;
+                AccY = BitConverter.ToInt16(packet, i); i += 2;
+                AccZ = BitConverter.ToInt16(packet, i); i += 2;
+                GyroX = BitConverter.ToInt16(packet, i); i += 2;
+                GyroY = BitConverter.ToInt16(packet, i); i += 2;
+                GyroZ = BitConverter.ToInt16(packet, i); i += 2;
+                MagX = BitConverter.ToInt16(packet, i); i += 2;
+                MagY = BitConverter.ToInt16(packet, i); i += 2;
+                MagZ = BitConverter.ToInt16(packet, i);
+                break;
+            }
+            case 104: // Motors
+            {
+                if (packet.Length < 25) break;
+                MotorsPwm[0] = BitConverter.ToInt16(packet, i); i += 2;
+                MotorsPwm[1] = BitConverter.ToInt16(packet, i); i += 2;
+                MotorsPwm[2] = BitConverter.ToInt16(packet, i); i += 2;
+                MotorsPwm[3] = BitConverter.ToInt16(packet, i);
+                break;
+            }
+            case 105:
+            {
+                if (packet.Length < 41) break;
+                RcPwm[0] = BitConverter.ToUInt16(packet, i); i += 2;
+                RcPwm[1] = BitConverter.ToUInt16(packet, i); i += 2;
+                RcPwm[2] = BitConverter.ToUInt16(packet, i); i += 2;
+                RcPwm[3] = BitConverter.ToUInt16(packet, i); i += 2;
+                RcPwm[4] = BitConverter.ToUInt16(packet, i); i += 2;
+                RcPwm[5] = BitConverter.ToUInt16(packet, i); i += 2;
+                RcPwm[6] = BitConverter.ToUInt16(packet, i); i += 2;
+                RcPwm[7] = BitConverter.ToUInt16(packet, i); i += 2;
+                RcPwm[8] = BitConverter.ToUInt16(packet, i); i += 2;
+                RcPwm[9] = BitConverter.ToUInt16(packet, i); i += 2;
+                RcPwm[10] = BitConverter.ToUInt16(packet, i); i += 2;
+                RcPwm[11] = BitConverter.ToUInt16(packet, i); i += 2;
+                RcPwm[12] = BitConverter.ToUInt16(packet, i); i += 2;
+                RcPwm[13] = BitConverter.ToUInt16(packet, i); i += 2;
+                RcPwm[14] = BitConverter.ToUInt16(packet, i); i += 2;
+                RcPwm[15] = BitConverter.ToUInt16(packet, i);
+                break;
+            }
+            case 110: // Analog
+            {
+                if (packet.Length < 18) break;
+                BatteryV = packet[i] / 10f; i += 1;
+                var pm = BitConverter.ToInt16(packet, i) / 10f; i += 2;
+                var rssi = BitConverter.ToInt16(packet, i); i += 2;
+                Amperage = BitConverter.ToInt16(packet, i) / 100f;
+                break;
+            }
+            default:
+                break;
+        }
+    }
+
+    public void MspGetAttitude()
     {
         if (!_port.IsOpen) return;
         if (_portPause) return;
@@ -39,32 +111,10 @@ public partial class SerialBetaflight
         data[8] = MspGetCrcV2(data); // CRC v2
 
         _port.Write(data, 0, data.Length);
-        var start = DateTime.Now;
-        using var ms = new MemoryStream();
-        while (true)
-        {
-            await Task.Delay(TimeSpan.FromMilliseconds(1));
-            if ((DateTime.Now - start).TotalMilliseconds > msWait) return;
-            if (_port.BytesToRead <= 0) continue;
-            var read = new byte[_port.BytesToRead];
-            _port.Read(read, 0, read.Length);
-            ms.Write(read);
-            if (ms.ToArray().Length >= 15) break;
-        }
-
-        var answ = ms.ToArray();
-        if (answ[4] != commandV2) return;
-
-        var i = 8;
-        var angleX = BitConverter.ToInt16(answ, i); i += 2;
-        var angleY = BitConverter.ToInt16(answ, i); i += 2;
-        var angleZ = BitConverter.ToInt16(answ, i); i += 2;
-        Roll = -angleX / 10f;
-        Pitch = angleY / 10f;
-        Yaw = angleZ / 1f;
+        _spinWait.SpinOnce();
     }
 
-    public async Task MspUpdateImu(int msWait)
+    public void MspGetImu()
     {
         if (!_port.IsOpen) return;
         if (_portPause) return;
@@ -80,34 +130,10 @@ public partial class SerialBetaflight
         data[8] = MspGetCrcV2(data); // CRC v2
 
         _port.Write(data, 0, data.Length);
-        var start = DateTime.Now;
-        using var ms = new MemoryStream();
-        while (true)
-        {
-            await Task.Delay(TimeSpan.FromMilliseconds(1));
-            if ((DateTime.Now - start).TotalMilliseconds > msWait) return;
-            if (_port.BytesToRead <= 0) continue;
-            var read = new byte[_port.BytesToRead];
-            _port.Read(read, 0, read.Length);
-            ms.Write(read);
-            if (ms.ToArray().Length >= 27) break;
-        }
-
-        var answ = ms.ToArray();
-        if (answ[4] != commandV2) return;
-        var i = 8;
-        AccX = BitConverter.ToInt16(answ, i); i += 2;
-        AccY = BitConverter.ToInt16(answ, i); i += 2;
-        AccZ = BitConverter.ToInt16(answ, i); i += 2;
-        GyroX = BitConverter.ToInt16(answ, i); i += 2;
-        GyroY = BitConverter.ToInt16(answ, i); i += 2;
-        GyroZ = BitConverter.ToInt16(answ, i); i += 2;
-        MagX = BitConverter.ToInt16(answ, i); i += 2;
-        MagY = BitConverter.ToInt16(answ, i); i += 2;
-        MagZ = BitConverter.ToInt16(answ, i); i += 2;
+        _spinWait.SpinOnce();
     }
 
-    public async Task MspUpdateMotors(int msWait)
+    public void MspGetMotors()
     {
         if (!_port.IsOpen) return;
         if (_portPause) return;
@@ -123,29 +149,10 @@ public partial class SerialBetaflight
         data[8] = MspGetCrcV2(data); // CRC v2
 
         _port.Write(data, 0, data.Length);
-        var start = DateTime.Now;
-        using var ms = new MemoryStream();
-        while (true)
-        {
-            await Task.Delay(TimeSpan.FromMilliseconds(1));
-            if ((DateTime.Now - start).TotalMilliseconds > msWait) return;
-            if (_port.BytesToRead <= 0) continue;
-            var read = new byte[_port.BytesToRead];
-            _port.Read(read, 0, read.Length);
-            ms.Write(read);
-            if (ms.ToArray().Length >= 25) break;
-        }
-
-        var answ = ms.ToArray();
-        if (answ[4] != commandV2) return;
-        var i = 8;
-        MotorsPwm[0] = BitConverter.ToInt16(answ, i); i += 2;
-        MotorsPwm[1] = BitConverter.ToInt16(answ, i); i += 2;
-        MotorsPwm[2] = BitConverter.ToInt16(answ, i); i += 2;
-        MotorsPwm[3] = BitConverter.ToInt16(answ, i); i += 2;
+        _spinWait.SpinOnce();
     }
 
-    public async Task MspUpdateAnalog(int msWait)
+    public void MspGetAnalog()
     {
         if (!_port.IsOpen) return;
         if (_portPause) return;
@@ -161,29 +168,10 @@ public partial class SerialBetaflight
         data[8] = MspGetCrcV2(data); // CRC v2
 
         _port.Write(data, 0, data.Length);
-        var start = DateTime.Now;
-        using var ms = new MemoryStream();
-        while (true)
-        {
-            await Task.Delay(TimeSpan.FromMilliseconds(1));
-            if ((DateTime.Now - start).TotalMilliseconds > msWait) return;
-            if (_port.BytesToRead <= 0) continue;
-            var read = new byte[_port.BytesToRead];
-            _port.Read(read, 0, read.Length);
-            ms.Write(read);
-            if (ms.ToArray().Length >= 18) break;
-        }
-
-        var answ = ms.ToArray();
-        if (answ[4] != commandV2) return;
-        var i = 8;
-        BatteryV = answ[i] / 10f; i += 1;
-        var pm = BitConverter.ToInt16(answ, i) / 10f; i += 2;
-        var rssi = BitConverter.ToInt16(answ, i); i += 2;
-        Amperage = BitConverter.ToInt16(answ, i) / 100f;
+        _spinWait.SpinOnce();
     }
 
-    public async Task MspUpdateRc(int msWait)
+    public void MspUpdateRc()
     {
         if (!_port.IsOpen) return;
         if (_portPause) return;
@@ -200,38 +188,7 @@ public partial class SerialBetaflight
         data[8] = MspGetCrcV2(data); // CRC v2
 
         _port.Write(data, 0, data.Length);
-        var start = DateTime.Now;
-        using var ms = new MemoryStream();
-        while (true)
-        {
-            await Task.Delay(TimeSpan.FromMilliseconds(1));
-            if ((DateTime.Now - start).TotalMilliseconds > msWait) return;
-            if (_port.BytesToRead <= 0) continue;
-            var read = new byte[_port.BytesToRead];
-            _port.Read(read, 0, read.Length);
-            ms.Write(read);
-            if (ms.ToArray().Length >= 41) break;
-        }
-
-        var answ = ms.ToArray();
-        if (answ[4] != commandV2) return;
-        var i = 8;
-        RcPwm[0] = BitConverter.ToUInt16(answ, i); i += 2;
-        RcPwm[1] = BitConverter.ToUInt16(answ, i); i += 2;
-        RcPwm[2] = BitConverter.ToUInt16(answ, i); i += 2;
-        RcPwm[3] = BitConverter.ToUInt16(answ, i); i += 2;
-        RcPwm[4] = BitConverter.ToUInt16(answ, i); i += 2;
-        RcPwm[5] = BitConverter.ToUInt16(answ, i); i += 2;
-        RcPwm[6] = BitConverter.ToUInt16(answ, i); i += 2;
-        RcPwm[7] = BitConverter.ToUInt16(answ, i); i += 2;
-        RcPwm[8] = BitConverter.ToUInt16(answ, i); i += 2;
-        RcPwm[9] = BitConverter.ToUInt16(answ, i); i += 2;
-        RcPwm[10] = BitConverter.ToUInt16(answ, i); i += 2;
-        RcPwm[11] = BitConverter.ToUInt16(answ, i); i += 2;
-        RcPwm[12] = BitConverter.ToUInt16(answ, i); i += 2;
-        RcPwm[13] = BitConverter.ToUInt16(answ, i); i += 2;
-        RcPwm[14] = BitConverter.ToUInt16(answ, i); i += 2;
-        RcPwm[15] = BitConverter.ToUInt16(answ, i); i += 2;
+        _spinWait.SpinOnce();
     }
 
     public void MspSetMotor(int pwm1, int pwm2, int pwm3, int pwm4)
@@ -260,14 +217,8 @@ public partial class SerialBetaflight
         Array.Copy(BitConverter.GetBytes((ushort)1000), 0, data, i, 2); i += 2;
         data[i] = MspGetCrcV2(data); // CRC v2
 
-        try
-        {
-            _port.Write(data, 0, data.Length);
-        }
-        catch
-        {
-            //
-        }
+        _port.Write(data, 0, data.Length);
+        _spinWait.SpinOnce();
     }
 
     private static byte MspGetCrcV2(IReadOnlyList<byte> data)
@@ -329,12 +280,13 @@ public partial class SerialBetaflight
         data[i] = MspGetCrcV2(data); // CRC v2
 
         _port.Write(data, 0, data.Length);
+        _spinWait.SpinOnce();
         _portPause = false;
 
         MspSetMotor(p1, p2, p3, p4);
     }
 
-    public void MspCalibrateAcel()
+    public void MspSetCalibrateAcel()
     {
         if (!_port.IsOpen) return;
         if (_portPause) return;
@@ -350,6 +302,7 @@ public partial class SerialBetaflight
         data[8] = MspGetCrcV2(data); // CRC v2
 
         _port.Write(data, 0, data.Length);
+        _spinWait.SpinOnce();
     }
 }
 

@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using System.IO.Ports;
+using System.Text;
 using LibUsbDotNet;
 using LibUsbDotNet.Main;
 
@@ -13,15 +14,19 @@ public partial class SerialBetaflight
     private SerialPort _port = new();
 
     public int ProgressValue { get; private set; }
+    private SpinWait _spinWait;
 
     public bool IsAlive() => _alive;
 
     private bool _aliveDfu;
     public bool IsAliveDfu() => _aliveDfu;
     private UsbDevice? _usbDfu;
+    public Action<string> OnNewCliMessage = delegate { };
+    private StringBuilder _cliStr;
 
     public SerialBetaflight(ILogger<SerialBetaflight> logger)
     {
+        _cliStr = new StringBuilder();
         _logger = logger;
         _serial = string.Empty;
     }
@@ -77,6 +82,11 @@ public partial class SerialBetaflight
     {
         _serial = com;
         _port = new SerialPort(_serial, 115200, Parity.None, 8, StopBits.One);
+        _port.ReadBufferSize = 655350;
+        _port.WriteBufferSize = 655350;
+        _port.WriteTimeout = 5000;
+        _port.ReadTimeout = 5000;
+        _port.DataReceived += ComDataReceive;
 
         while (!cancellationToken.IsCancellationRequested)
         {
@@ -99,29 +109,37 @@ public partial class SerialBetaflight
 
             _alive = false;
         }
+
+        _port.DataReceived -= ComDataReceive;
     }
 
-    public async Task<List<string>> CliWrite(string text, int waitMs=200)
+    private async void ComDataReceive(object sender, SerialDataReceivedEventArgs e)
     {
-        var ret = new List<string>();
-        if (!_port.IsOpen) return ret;
-
-        ProgressValue = 0;
-
-        _port.WriteLine(text);
-        do
+        var buffer = new byte[_port.BytesToRead];
+        _ = await _port.BaseStream.ReadAsync(buffer);
+        var data = Encoding.ASCII.GetString(buffer);
+        if (data.Equals(string.Empty)) return;
+        if (data.Length > 3 && data[..3].Equals("$X>")) // это пакет Msp
         {
-            ret.Add(_port.ReadExisting());
-            await Task.Delay(TimeSpan.FromMilliseconds(waitMs));
-            ProgressValue += 20;
+            UpdateValuesFromMsp(buffer);
+            return;
+        }
+        if (_cliStr.Length == 0 && !data.Contains('#')) return; // Это остаток от пакета Msp
 
-            if (_port.IsOpen) continue;
-            ret.Add("\r\n***RESTART***\r\n");
-            break;
-        } while (_port is { IsOpen: true, BytesToRead: > 0 });
+        _cliStr.Append(data);
+        var str = _cliStr.ToString();
+        if (str.Length < 6) return;
+        if (!str[^6..].Equals("\r\n\r\n# ")) return; // Конец сообщения CLI
+        OnNewCliMessage(str);
+        _cliStr = new StringBuilder();
+    }
 
-        ProgressValue = 0;
-        return ret;
+    public async Task CliWrite(string text)
+    {
+        if (!_port.IsOpen) return;
+        var buffer = Encoding.ASCII.GetBytes($"{text}\r\n");
+        await _port.BaseStream.WriteAsync(buffer);
+        _spinWait.SpinOnce();
     }
 
     public class DfuStatus
