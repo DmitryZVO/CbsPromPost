@@ -14,7 +14,7 @@ public partial class SerialBetaflight
     {
         var ret = new List<string>();
         await DfuSetAddressPointer(DfuStartAddress);
-        for (var i = 0; i < 5; i++)
+        for (var i = 0; i < 10; i++)
         {
             await DfuClearStatus();
             await DfuWrite(Array.Empty<byte>());
@@ -97,17 +97,39 @@ public partial class SerialBetaflight
 
     public async Task<int> DfuRawBinWrite(byte[] hex, int timeotMs)
     {
-        if (!_aliveDfu) return -1;
-        if (_usbDfu == null) return -1;
+        if (!_aliveDfu)
+        {
+            _logger.LogError("DfuRawBinWrite error: _notAliveDfu");
+            return -1;
+        }
+
+        if (_usbDfu == null)
+        {
+            _logger.LogError("DfuRawBinWrite error: _notAliveUsb");
+            return -1;
+        }
 
         ProgressValue = 0;
         
-        if (await DfuWaitState(DfuState.DfuIdle, 6000) < 0) return -2; 
-        if (await DfuMassErase(timeotMs) < 0) return -2;
+        if (await DfuWaitState(DfuState.DfuIdle, 10000) < 0)
+        {
+            _logger.LogError("DfuRawBinWrite error: DfuWaitState #1, state=" + (await DfuGetStatus()).BState);
+            return -2;
+        }
+
+        if (await DfuMassErase(timeotMs) < 0)
+        {
+            _logger.LogError("DfuRawBinWrite error: DfuMassErase<0");
+            return -3;
+        }
 
         ProgressValue += 25;
 
-        if (await DfuWaitState(DfuState.DfuIdle, 6000) < 0) return -2;
+        if (await DfuWaitState(DfuState.DfuIdle, 10000) < 0)
+        {
+            _logger.LogError("DfuRawBinWrite error: DfuWaitState #2, state=" + (await DfuGetStatus()).BState);
+            return -2;
+        }
 
         ProgressValue += 50;
 
@@ -121,10 +143,28 @@ public partial class SerialBetaflight
             if (await DfuWrite(blockData, blockNumber + 2) <= 0)
                 if (await DfuWrite(blockData, blockNumber + 2) <= 0)
                     if (await DfuWrite(blockData, blockNumber + 2) <= 0)
+                    {
+                        _logger.LogError("DfuRawBinWrite error: DfuWrite<0");
                         return -1;
-            if ((await DfuGetStatus()).BState is not DfuState.DfuDownloadBusy) return -1;
-            if (await DfuWaitState(DfuState.DfuIdle, 3000) < 0) return -2;
-            if ((DateTime.Now - start).TotalMilliseconds > timeotMs) return -1;
+                    }
+            if ((await DfuGetStatus()).BState is not DfuState.DfuDownloadBusy)
+                if ((await DfuGetStatus()).BState is not DfuState.DfuDownloadBusy)
+                    if ((await DfuGetStatus()).BState is not DfuState.DfuDownloadBusy)
+                    {
+                        _logger.LogError("DfuRawBinWrite error: not DfuDownloadBusy");
+                        return -5;
+                    }
+
+            if (await DfuWaitState(DfuState.DfuIdle, 10000) < 0)
+            {
+                _logger.LogError("DfuRawBinWrite error: DfuWaitState #3, state="+(await DfuGetStatus()).BState);
+                return -2;
+            }
+            if ((DateTime.Now - start).TotalMilliseconds > timeotMs)
+            {
+                _logger.LogError("DfuRawBinWrite error: Timeout!");
+                return -1;
+            }
 
             ProgressValue += 5;
 
@@ -138,42 +178,87 @@ public partial class SerialBetaflight
 
     public async Task<int> DfuMassErase(int timeotMs)
     {
-        if (!_aliveDfu) return -1;
-        if (_usbDfu == null) return -1;
+        if (!_aliveDfu)
+        {
+            _logger.LogError("DfuMassErase error: _notAliveDfu");
+            return -1;
+        }
+
+        if (_usbDfu == null)
+        {
+            _logger.LogError("DfuMassErase error: _notAliveUsb");
+            return -1;
+        }
 
         ProgressValue = 0;
 
-        if (await DfuWaitState(DfuState.DfuIdle, 3000) < 0) return -2;
+        if (await DfuWaitState(DfuState.DfuIdle, 10000) < 0)
+        {
+            _logger.LogError("DfuMassErase error: DfuWaitState #1, state=" + (await DfuGetStatus()).BState);
+            return -2;
+        }
+
         ProgressValue += 10;
 
-        switch (await DfuCheckProtected())
+        var ret = await DfuCheckProtected();
+        if (ret < 0) ret = await DfuCheckProtected();
+        if (ret < 0) ret = await DfuCheckProtected();
+
+        switch (ret)
         {
             case < 0:
+                _logger.LogError("DfuMassErase error: DfuCheckProtectes<0");
                 return -1;
             case 1:
             {
-                return await DfuRemoveReadProtection() < 0 ? -1 : -3;
+                if (await DfuRemoveReadProtection() < 0)
+                    if (await DfuRemoveReadProtection() < 0)
+                        if (await DfuRemoveReadProtection() < 0)
+                        {
+                            _logger.LogError("DfuMassErase error: DfuRemoveReadProtection<0");
+                            return -1;
+                        }
+                break;
             }
         }
 
-        if (await DfuMassEraseCommand() < 0) return -1;
+        if (await DfuMassEraseCommand() < 0)
+            if (await DfuMassEraseCommand() < 0)
+                if (await DfuMassEraseCommand() < 0)
+                {
+                    _logger.LogError("DfuMassErase error: DfuMassEraseCommand<0");
+                    return -1;
+                }
         var time = (await DfuGetStatus()).BwPollTimeout;
+        if (time < 0) time = (await DfuGetStatus()).BwPollTimeout;
+        if (time < 0) time = (await DfuGetStatus()).BwPollTimeout;
+
         if (time > 0) // initiate erase command, returns 'download busy' even if invalid address or ROP
         {
             await Task.Delay(time);
         }
         else
         {
+            _logger.LogError("DfuMassErase error: BwPollTimeout<0");
             return -2;
         }
 
         var startFlash = DateTime.Now;
         while (true)
         {
-            if (await DfuClearStatus() < 0) return -3;
-            var waitState = await DfuGetStatus();
-            if (waitState.BState == DfuState.DfuIdle) break;
-            if ((DateTime.Now - startFlash).TotalMilliseconds > timeotMs) return -1;
+            if (await DfuClearStatus() < 0)
+                if (await DfuClearStatus() < 0)
+                    if (await DfuClearStatus() < 0)
+                    {
+                        _logger.LogError("DfuMassErase error: DfuClearStatus<0");
+                        return -3;
+                    }
+            if ((await DfuGetStatus()).BState == DfuState.DfuIdle) break;
+            if ((DateTime.Now - startFlash).TotalMilliseconds > timeotMs)
+            {
+                _logger.LogError("DfuMassErase error: Timeout!");
+                return -1;
+            }
             ProgressValue += 5;
         }
 
@@ -332,8 +417,17 @@ public partial class SerialBetaflight
 
     private async Task<int> DfuWrite(IReadOnlyCollection<byte> data, int block) //throws Exception
     {
-        if (!_aliveDfu) return -1;
-        if (_usbDfu == null) return -1;
+        if (!_aliveDfu)
+        {
+            _logger.LogError("DfuWrite error: _notAliveDfu block=" + block.ToString("0"));
+            return -1;
+        }
+
+        if (_usbDfu == null)
+        {
+            _logger.LogError("DfuWrite error: _notAliveUsb block="+block.ToString("0"));
+            return -1;
+        }
 
         return await Task.Run(() =>
         {

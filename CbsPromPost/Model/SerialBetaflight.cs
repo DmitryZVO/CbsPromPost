@@ -52,7 +52,8 @@ public partial class SerialBetaflight
             {
                 await Task.Delay(TimeSpan.FromMilliseconds(1000), cancellationToken);
 
-                if ((await DfuGetStatus()).BwPollTimeout < 0)
+                _usbDfu.GetConfiguration(out var cfg);
+                if (cfg == 0)
                 {
                     errorsCount++;
                     if (errorsCount > 6) break;

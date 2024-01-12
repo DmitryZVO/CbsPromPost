@@ -144,8 +144,12 @@ public sealed partial class FormFlash : Form
         Core.Config.Save();
     }
 
-    private void ButtonDroneConfigClick(object? sender, EventArgs e)
+    private async void ButtonDroneConfigClick(object? sender, EventArgs e)
     {
+        await _betaflight.CliWrite("#\r\nexit\r\n");
+        await _betaflight.CliWrite("#\r\nexit\r\n");
+        await _betaflight.CliWrite("#\r\nexit\r\n");
+
         if (_formDrone.Visible)
         {
             _formDrone.Activate();
@@ -198,15 +202,6 @@ public sealed partial class FormFlash : Form
 
     private async Task<int> FullFlash()
     {
-        if (!_betaflight.IsAlive())
-        {
-            richTextBoxMain.SelectionBackColor = Color.LightPink;
-            richTextBoxMain.AppendText("Контроллер не в режиме MSP/CLI!\r\n");
-            richTextBoxMain.SelectionBackColor = Color.White;
-            richTextBoxMain.ScrollToCaret();
-            return -1;
-        }
-
         var pb = Application.StartupPath + "DB\\_HEX\\" + Core.Config.Firmwares.Find(x => x.Name.Equals(comboBoxFirmware.Items[comboBoxFirmware.SelectedIndex]!.ToString()))!.FileBin;
         if (!File.Exists(pb)) return -2;
         var dataBin = await File.ReadAllBytesAsync(pb);
@@ -216,10 +211,17 @@ public sealed partial class FormFlash : Form
 
         // Переводим в CLI
         await WriteToCliAsync("#\r\n");
+        await WriteToCliAsync("#\r\n");
+        await WriteToCliAsync("#\r\n");
         await Task.Delay(1000);
+        // Переводим в CLI
+
         // Переводим в DFU
-        await WriteToCliAsync("bl\r\n");
+        await WriteToCliAsync("#\r\nbl\r\n");
+        await WriteToCliAsync("#\r\nbl\r\n");
+        await WriteToCliAsync("#\r\nbl\r\n");
         await Task.Delay(5000);
+
         if (!_betaflight.IsAliveDfu()) return -4;
         if (await WriteBinAsync(dataBin) == false) return -5;
 
@@ -257,6 +259,8 @@ public sealed partial class FormFlash : Form
             return await Invoke(async () =>
             {
                 await WriteToCliAsync("#\r\n");
+                await WriteToCliAsync("#\r\n");
+                await WriteToCliAsync("#\r\n");
                 await Task.Delay(1000);
 
                 richTextBoxMain.AppendText($"CLI: ЗАПИСЬ FPL ЛИСТА, файл fpl [{data.Count:0} строк]\r\n");
@@ -289,7 +293,13 @@ public sealed partial class FormFlash : Form
                 if (labelDroneId.Text.Equals(@"TT000000")) labelDroneId.Text = string.Empty;
 
                 richTextBoxMain.AppendText(ok ? "CLI: УСПЕХ\r\n" : "CLI: ОШИБКА!!!\r\n");
-                if (ok) await WriteToCliAsync("save", 100);
+                if (ok)
+                {
+                    await WriteToCliAsync("save", 100);
+                    await WriteToCliAsync("save", 100);
+                    await WriteToCliAsync("save", 100);
+                }
+
                 return ok;
             });
         });
@@ -585,7 +595,7 @@ public sealed partial class FormFlash : Form
         {
             if (!Core.Config.TestMode) labelDroneId.Text = string.Empty;
             labelUser.Text = string.Empty;
-            groupBoxButtons.Enabled = false;
+            groupBoxButtons.Enabled = Core.Config.TestMode;
             buttonPause.Enabled = false;
             buttonFinish.Enabled = false;
             _startTime = DateTime.Now;
@@ -614,7 +624,7 @@ public sealed partial class FormFlash : Form
 
         buttonBadDrone.Enabled = !labelDroneId.Text.Equals(string.Empty);
         buttonOkDrone.Enabled = !labelDroneId.Text.Equals(string.Empty);
-        if (!Core.Config.TestMode) groupBoxButtons.Enabled = !labelDroneId.Text.Equals(string.Empty);
+        if (!Core.Config.TestMode) groupBoxButtons.Enabled = !labelDroneId.Text.Equals(string.Empty); else groupBoxButtons.Enabled = true;
 
         var sec = (DateTime.Now - s.WorkStart).TotalSeconds;
         if (_paused != DateTime.MinValue)
