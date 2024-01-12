@@ -10,7 +10,7 @@ public partial class FormDroneConfig : Form
     private readonly SerialBetaflight _betaflight;
     private readonly SharpDxDrone3d _dx3;
     private readonly SharpDxDrone2d _dx2;
-    private readonly bool[] _reverseSpin;
+    private bool[] _reverseSpin;
     private bool _reverseSpinAll;
 
     public FormDroneConfig(SerialBetaflight bf)
@@ -135,6 +135,8 @@ public partial class FormDroneConfig : Form
 
     private void ClosingForm(object? sender, CancelEventArgs e)
     {
+        _reverseSpin = new[] { false, false, false, false };
+        _reverseSpinAll = false;
         _dx2.Motors.ToList().ForEach(x => x.ValuePwm = 1000);
         _betaflight.MspSetMotor(1000, 1000, 1000, 1000);
         Visible = false;
