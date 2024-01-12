@@ -110,7 +110,7 @@ public partial class SerialBetaflight
         Array.Copy(BitConverter.GetBytes(lenV2), 0, data, 6, 2);
         data[8] = MspGetCrcV2(data); // CRC v2
 
-        _port.Write(data, 0, data.Length);
+        _port.BaseStream.Write(data, 0, data.Length);
         _spinWait.SpinOnce();
     }
 
@@ -129,7 +129,7 @@ public partial class SerialBetaflight
         Array.Copy(BitConverter.GetBytes(lenV2), 0, data, 6, 2);
         data[8] = MspGetCrcV2(data); // CRC v2
 
-        _port.Write(data, 0, data.Length);
+        _port.BaseStream.Write(data, 0, data.Length);
         _spinWait.SpinOnce();
     }
 
@@ -148,7 +148,7 @@ public partial class SerialBetaflight
         Array.Copy(BitConverter.GetBytes(lenV2), 0, data, 6, 2);
         data[8] = MspGetCrcV2(data); // CRC v2
 
-        _port.Write(data, 0, data.Length);
+        _port.BaseStream.Write(data, 0, data.Length);
         _spinWait.SpinOnce();
     }
 
@@ -167,7 +167,7 @@ public partial class SerialBetaflight
         Array.Copy(BitConverter.GetBytes(lenV2), 0, data, 6, 2);
         data[8] = MspGetCrcV2(data); // CRC v2
 
-        _port.Write(data, 0, data.Length);
+        _port.BaseStream.Write(data, 0, data.Length);
         _spinWait.SpinOnce();
     }
 
@@ -187,7 +187,7 @@ public partial class SerialBetaflight
         Array.Copy(BitConverter.GetBytes(lenV2), 0, data, 6, 2);
         data[8] = MspGetCrcV2(data); // CRC v2
 
-        _port.Write(data, 0, data.Length);
+        _port.BaseStream.Write(data, 0, data.Length);
         _spinWait.SpinOnce();
     }
 
@@ -217,7 +217,7 @@ public partial class SerialBetaflight
         Array.Copy(BitConverter.GetBytes((ushort)1000), 0, data, i, 2); i += 2;
         data[i] = MspGetCrcV2(data); // CRC v2
 
-        _port.Write(data, 0, data.Length);
+        _port.BaseStream.Write(data, 0, data.Length);
         _spinWait.SpinOnce();
     }
 
@@ -279,7 +279,7 @@ public partial class SerialBetaflight
         data[i] = 12; i++; // SAVE_ESC_SETTING
         data[i] = MspGetCrcV2(data); // CRC v2
 
-        _port.Write(data, 0, data.Length);
+        await _port.BaseStream.WriteAsync(data, 0, data.Length, default);
         _spinWait.SpinOnce();
         _portPause = false;
 
@@ -301,7 +301,7 @@ public partial class SerialBetaflight
         Array.Copy(BitConverter.GetBytes(lenV2), 0, data, 6, 2);
         data[8] = MspGetCrcV2(data); // CRC v2
 
-        _port.Write(data, 0, data.Length);
+        _port.BaseStream.Write(data, 0, data.Length);
         _spinWait.SpinOnce();
     }
 }

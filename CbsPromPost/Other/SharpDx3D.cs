@@ -518,10 +518,10 @@ public abstract class SharpDx3D : IDisposable
     {
         lock (this)
         {
+            DrawUser(); // Вывод пользовательской графики
+            DrawInfo(); // Вывод статистики
             try
             {
-                DrawUser(); // Вывод пользовательской графики
-                DrawInfo(); // Вывод статистики
                 SwapChain?.Present(0, PresentFlags.None);
             }
             catch

@@ -390,21 +390,18 @@ public sealed partial class FormFlash : Form
             return;
         }
 
-        richTextBoxMain.AppendText("CLI: СЧИТЫВАНИЕ FPL\r\n");
         await _betaflight.CliWrite("#");
         await _betaflight.CliWrite("#");
         await _betaflight.CliWrite("#");
         await Task.Delay(2000);
+        richTextBoxMain.Clear();
         await _betaflight.CliWrite("dump");
         await Task.Delay(2000);
-        /* КОСТЫЛЬ
-        richTextBoxMain.AppendText(values.Count > 0 ? "CLI: УСПЕХ\r\n" : "CLI: ОШИБКА!!!\r\n");
-        if (values.Count <= 0) return;
-        var res = string.Join(string.Empty, values);
+        var res = richTextBoxMain.Text;
+        if (res.Length <= 0) return;
         var fd = new SaveFileDialog { Title = @"FPL", FileName = "_fpl_betafly.txt" };
         fd.ShowDialog(this);
         await File.WriteAllTextAsync(fd.FileName, res.Replace("dump\r\n", string.Empty));
-        */
     }
 
     private async void ButtonImageBinReadClick(object? sender, EventArgs e)

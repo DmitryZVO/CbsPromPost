@@ -141,12 +141,19 @@ public partial class SerialBetaflight
             var blockData = Enumerable.Repeat((byte)0xFF, DfuBlockSize).ToArray();
             Array.Copy(hex, seek, blockData, 0, Math.Min(DfuBlockSize, hex.Length - seek));
             if (await DfuWriteBlock(blockData, blockNumber + 2) <= 0)
+            {
+                await Task.Delay(1000);
                 if (await DfuWriteBlock(blockData, blockNumber + 2) <= 0)
+                {
+                    await Task.Delay(1000);
                     if (await DfuWriteBlock(blockData, blockNumber + 2) <= 0)
                     {
                         _logger.LogError("DfuRawBinWrite error: DfuWriteBlock<0");
                         return -1;
                     }
+                }
+            }
+
             if ((await DfuGetStatus()).BState is not DfuState.DfuDownloadBusy)
                 if ((await DfuGetStatus()).BState is not DfuState.DfuDownloadBusy)
                     if ((await DfuGetStatus()).BState is not DfuState.DfuDownloadBusy)

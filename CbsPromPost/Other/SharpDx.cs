@@ -427,14 +427,12 @@ public abstract class SharpDx : IDisposable
         lock (this)
         {
             Rt?.BeginDraw();
-
             DrawUser(); // Вывод пользовательской графики
             DrawInfo(); // Вывод статистики
-
             Rt?.EndDraw();
             try
             {
-                SwapChain?.Present(0, PresentFlags.DoNotWait);
+                SwapChain?.Present(0, PresentFlags.None);
             }
             catch
             {
