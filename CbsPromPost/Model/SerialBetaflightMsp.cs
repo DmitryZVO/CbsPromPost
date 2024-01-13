@@ -97,26 +97,23 @@ public partial class SerialBetaflight
 
     public void MspGetAttitude()
     {
-        if (!_port.IsOpen) return;
         if (_portPause) return;
         const ushort lenV2 = 0;
         const ushort commandV2 = 108;
         var data = new byte[9 + lenV2];
-        data[0] = 36;//'$' = 36;
-        data[1] = 88;//'M' = 77;
-        data[2] = 60;//'<' = 60; // '>' = 62 // '|' = 33
+        data[0] = 36; //'$' = 36;
+        data[1] = 88; //'M' = 77;
+        data[2] = 60; //'<' = 60; // '>' = 62 // '|' = 33
         data[3] = 0; // Всегда 0
         Array.Copy(BitConverter.GetBytes(commandV2), 0, data, 4, 2);
         Array.Copy(BitConverter.GetBytes(lenV2), 0, data, 6, 2);
         data[8] = MspGetCrcV2(data); // CRC v2
 
-        _port.BaseStream.Write(data, 0, data.Length);
-        _spinWait.SpinOnce();
+        CliWrite(data);
     }
 
     public void MspGetImu()
     {
-        if (!_port.IsOpen) return;
         if (_portPause) return;
         const ushort lenV2 = 0;
         const ushort commandV2 = 102;
@@ -129,13 +126,11 @@ public partial class SerialBetaflight
         Array.Copy(BitConverter.GetBytes(lenV2), 0, data, 6, 2);
         data[8] = MspGetCrcV2(data); // CRC v2
 
-        _port.BaseStream.Write(data, 0, data.Length);
-        _spinWait.SpinOnce();
+        CliWrite(data);
     }
 
     public void MspGetMotors()
     {
-        if (!_port.IsOpen) return;
         if (_portPause) return;
         const ushort lenV2 = 0;
         const ushort commandV2 = 104;
@@ -148,13 +143,11 @@ public partial class SerialBetaflight
         Array.Copy(BitConverter.GetBytes(lenV2), 0, data, 6, 2);
         data[8] = MspGetCrcV2(data); // CRC v2
 
-        _port.BaseStream.Write(data, 0, data.Length);
-        _spinWait.SpinOnce();
+        CliWrite(data);
     }
 
     public void MspGetAnalog()
     {
-        if (!_port.IsOpen) return;
         if (_portPause) return;
         const ushort lenV2 = 0;
         const ushort commandV2 = 110;
@@ -167,13 +160,11 @@ public partial class SerialBetaflight
         Array.Copy(BitConverter.GetBytes(lenV2), 0, data, 6, 2);
         data[8] = MspGetCrcV2(data); // CRC v2
 
-        _port.BaseStream.Write(data, 0, data.Length);
-        _spinWait.SpinOnce();
+        CliWrite(data);
     }
 
     public void MspUpdateRc()
     {
-        if (!_port.IsOpen) return;
         if (_portPause) return;
 
         const ushort lenV2 = 0;
@@ -187,13 +178,11 @@ public partial class SerialBetaflight
         Array.Copy(BitConverter.GetBytes(lenV2), 0, data, 6, 2);
         data[8] = MspGetCrcV2(data); // CRC v2
 
-        _port.BaseStream.Write(data, 0, data.Length);
-        _spinWait.SpinOnce();
+        CliWrite(data);
     }
 
     public void MspSetMotor(int pwm1, int pwm2, int pwm3, int pwm4)
     {
-        if (!_port.IsOpen) return;
         if (_portPause) return;
 
         const ushort lenV2 = 8 * 2;
@@ -217,8 +206,7 @@ public partial class SerialBetaflight
         Array.Copy(BitConverter.GetBytes((ushort)1000), 0, data, i, 2); i += 2;
         data[i] = MspGetCrcV2(data); // CRC v2
 
-        _port.BaseStream.Write(data, 0, data.Length);
-        _spinWait.SpinOnce();
+        CliWrite(data);
     }
 
     private static byte MspGetCrcV2(IReadOnlyList<byte> data)
@@ -242,7 +230,6 @@ public partial class SerialBetaflight
 
     public async Task MspSetReverse(int motor, bool reverse)
     {
-        if (!_port.IsOpen) return;
         if (_portPause) return;
 
         var p1 = MotorsPwm[0];
@@ -279,8 +266,7 @@ public partial class SerialBetaflight
         data[i] = 12; i++; // SAVE_ESC_SETTING
         data[i] = MspGetCrcV2(data); // CRC v2
 
-        await _port.BaseStream.WriteAsync(data, 0, data.Length, default);
-        _spinWait.SpinOnce();
+        CliWrite(data);
         _portPause = false;
 
         MspSetMotor(p1, p2, p3, p4);
@@ -288,7 +274,6 @@ public partial class SerialBetaflight
 
     public void MspSetCalibrateAcel()
     {
-        if (!_port.IsOpen) return;
         if (_portPause) return;
         const ushort lenV2 = 0;
         const ushort commandV2 = 205;
@@ -301,8 +286,7 @@ public partial class SerialBetaflight
         Array.Copy(BitConverter.GetBytes(lenV2), 0, data, 6, 2);
         data[8] = MspGetCrcV2(data); // CRC v2
 
-        _port.BaseStream.Write(data, 0, data.Length);
-        _spinWait.SpinOnce();
+        CliWrite(data);
     }
 }
 

@@ -81,12 +81,15 @@ public partial class SerialBetaflight
     public async Task StartAsync(string com, CancellationToken cancellationToken = default)
     {
         _serial = com;
-        _port = new SerialPort(_serial, 115200, Parity.None, 8, StopBits.One);
-        _port.ReadBufferSize = 655350;
-        _port.WriteBufferSize = 655350;
-        _port.WriteTimeout = 5000;
-        _port.ReadTimeout = 5000;
-        _port.DataReceived += ComDataReceive;
+        lock (_port)
+        {
+            _port = new SerialPort(_serial, 115200, Parity.None, 8, StopBits.One);
+            _port.ReadBufferSize = 655350;
+            _port.WriteBufferSize = 655350;
+            _port.WriteTimeout = 1000;
+            _port.ReadTimeout = 1000;
+            _port.DataReceived += ComDataReceive;
+        }
 
         while (!cancellationToken.IsCancellationRequested)
         {
@@ -94,29 +97,50 @@ public partial class SerialBetaflight
 
             try
             {
-                _port.Open();
-                _alive = true;
-                while (_port.IsOpen)
+                lock (_port)
                 {
-                    await Task.Delay(TimeSpan.FromMilliseconds(100), cancellationToken);
+                    _port.Open();
                 }
+
+                _alive = true;
+                bool open;
+                do
+                {
+                    lock (_port)
+                    {
+                        open = _port.IsOpen;
+                    }
+                    await Task.Delay(TimeSpan.FromMilliseconds(100), cancellationToken);
+                } while (open);
             }
             catch (Exception ex)
             {
                 _logger.LogInformation("SERIAL_EXEPTION_{Serial}: {Ex}", _serial, ex.Message);
             }
-            _port.Close();
+
+            lock (_port)
+            {
+                _port.Close();
+            }
 
             _alive = false;
         }
 
-        _port.DataReceived -= ComDataReceive;
+        lock (_port)
+        {
+            _port.DataReceived -= ComDataReceive;
+        }
     }
 
-    private async void ComDataReceive(object sender, SerialDataReceivedEventArgs e)
+    private void ComDataReceive(object sender, SerialDataReceivedEventArgs e)
     {
-        var buffer = new byte[_port.BytesToRead];
-        _ = await _port.BaseStream.ReadAsync(buffer);
+        byte[] buffer;
+        lock (_port)
+        {
+            buffer = new byte[_port.BytesToRead];
+            if (_port.BaseStream.Read(buffer, 0, buffer.Length) <= 0) return;
+        }
+
         var data = Encoding.ASCII.GetString(buffer);
         if (data.Equals(string.Empty)) return;
         if (data.Length > 3 && data[..3].Equals("$X>")) // это пакет Msp
@@ -134,12 +158,27 @@ public partial class SerialBetaflight
         _cliStr = new StringBuilder();
     }
 
-    public async Task CliWrite(string text)
+    public void CliWrite(string text)
     {
-        if (!_port.IsOpen) return;
         var buffer = Encoding.ASCII.GetBytes($"{text}\r\n");
-        await _port.BaseStream.WriteAsync(buffer);
-        _spinWait.SpinOnce();
+        CliWrite(buffer);
+    }
+
+    public void CliWrite(ReadOnlySpan<byte> buffer)
+    {
+        lock (_port)
+        {
+            if (!_port.IsOpen) return;
+            try
+            {
+                _port.BaseStream.Write(buffer);
+                _spinWait.SpinOnce(5);
+            }
+            catch
+            {
+                //
+            }
+        }
     }
 
     public class DfuStatus

@@ -31,6 +31,7 @@ partial class FormDroneConfig
         pictureBox3d = new PictureBox();
         pictureBox2d = new PictureBox();
         splitContainer1 = new SplitContainer();
+        buttonPower = new Button();
         buttonAcelCalibrate = new Button();
         buttonInverseAll = new Button();
         button1010 = new Button();
@@ -47,7 +48,6 @@ partial class FormDroneConfig
         trackBarD3 = new TrackBar();
         trackBarD2 = new TrackBar();
         trackBarD1 = new TrackBar();
-        buttonRcBinding = new Button();
         ((System.ComponentModel.ISupportInitialize)pictureBox3d).BeginInit();
         ((System.ComponentModel.ISupportInitialize)pictureBox2d).BeginInit();
         ((System.ComponentModel.ISupportInitialize)splitContainer1).BeginInit();
@@ -93,7 +93,7 @@ partial class FormDroneConfig
         // 
         // splitContainer1.Panel2
         // 
-        splitContainer1.Panel2.Controls.Add(buttonRcBinding);
+        splitContainer1.Panel2.Controls.Add(buttonPower);
         splitContainer1.Panel2.Controls.Add(buttonAcelCalibrate);
         splitContainer1.Panel2.Controls.Add(buttonInverseAll);
         splitContainer1.Panel2.Controls.Add(button1010);
@@ -115,6 +115,19 @@ partial class FormDroneConfig
         splitContainer1.SplitterDistance = 803;
         splitContainer1.TabIndex = 2;
         splitContainer1.TabStop = false;
+        // 
+        // buttonPower
+        // 
+        buttonPower.BackColor = SystemColors.InactiveBorder;
+        buttonPower.FlatStyle = FlatStyle.Flat;
+        buttonPower.Font = new Font("Segoe UI", 12F, FontStyle.Regular, GraphicsUnit.Point);
+        buttonPower.Location = new Point(306, 645);
+        buttonPower.Name = "buttonPower";
+        buttonPower.Size = new Size(189, 36);
+        buttonPower.TabIndex = 19;
+        buttonPower.TabStop = false;
+        buttonPower.Text = "ПИТАНИЕ ИЗДЕЛИЯ";
+        buttonPower.UseVisualStyleBackColor = false;
         // 
         // buttonAcelCalibrate
         // 
@@ -333,19 +346,6 @@ partial class FormDroneConfig
         trackBarD1.TickStyle = TickStyle.Both;
         trackBarD1.Value = 1000;
         // 
-        // buttonRcBinding
-        // 
-        buttonRcBinding.BackColor = SystemColors.InactiveBorder;
-        buttonRcBinding.FlatStyle = FlatStyle.Flat;
-        buttonRcBinding.Font = new Font("Segoe UI", 12F, FontStyle.Regular, GraphicsUnit.Point);
-        buttonRcBinding.Location = new Point(306, 645);
-        buttonRcBinding.Name = "buttonRcBinding";
-        buttonRcBinding.Size = new Size(189, 36);
-        buttonRcBinding.TabIndex = 19;
-        buttonRcBinding.TabStop = false;
-        buttonRcBinding.Text = "БИНДИНГ ПУЛЬТА";
-        buttonRcBinding.UseVisualStyleBackColor = false;
-        // 
         // FormDroneConfig
         // 
         AutoScaleDimensions = new SizeF(7F, 15F);
@@ -391,5 +391,5 @@ partial class FormDroneConfig
     private Button buttonAcelCalibrate;
     private Button button1010;
     private Button buttonInverseAll;
-    private Button buttonRcBinding;
+    private Button buttonPower;
 }

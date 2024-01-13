@@ -40,7 +40,7 @@ public abstract class SharpDx : IDisposable
     protected RawMatrix3x2 ZeroTransform = new(1, 0, 0, 1, 0, 0);
     private bool _closed;
 
-    public virtual void FrameUpdateAsync(Mat frame)
+    public virtual void FrameUpdate(Mat frame)
     {
         var temp = CreateDxBitmap(frame);
         if (temp is null) return;

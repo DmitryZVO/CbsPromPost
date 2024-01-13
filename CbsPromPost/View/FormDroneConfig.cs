@@ -12,6 +12,8 @@ public partial class FormDroneConfig : Form
     private readonly SharpDxDrone2d _dx2;
     private bool[] _reverseSpin;
     private bool _reverseSpinAll;
+    private bool _firstOpen = true;
+    private bool _motorNotChecked = true;
 
     public FormDroneConfig(SerialBetaflight bf)
     {
@@ -90,10 +92,16 @@ public partial class FormDroneConfig : Form
     {
         while (!ct.IsCancellationRequested)
         {
-            await Task.Delay(10, ct);
-            if (!Visible) continue;
+            await Task.Delay(50, ct);
+            if (!Visible)
+            {
+                _firstOpen = true;
+                _motorNotChecked = true;
+                continue;
+            }
 
             if (IsDisposed) break;
+
             splitContainer1.Enabled = _betaflight.IsAlive();
             if ((trackBarD1.Value != _dx2.Motors[0].ValuePwm) |
                 (trackBarD2.Value != _dx2.Motors[1].ValuePwm) |
@@ -106,6 +114,16 @@ public partial class FormDroneConfig : Form
             _betaflight.MspGetAnalog();
             _betaflight.MspUpdateRc();
             _betaflight.MspGetImu();
+
+            if (!_firstOpen) continue;
+
+            _betaflight.MspSetCalibrateAcel();
+            await Task.Delay(100, ct);
+            _betaflight.MspSetCalibrateAcel();
+            await Task.Delay(100, ct);
+            _betaflight.MspSetCalibrateAcel();
+            await Task.Delay(100, ct);
+            _firstOpen = false;
         }
     }
 
@@ -135,14 +153,19 @@ public partial class FormDroneConfig : Form
 
     private void ClosingForm(object? sender, CancelEventArgs e)
     {
+        e.Cancel = true;
+
+        if (_motorNotChecked)
+        {
+            if (MessageBox.Show(@"ВЫ НЕ ПРОВЕРЯЛИ ДВИГАТЕЛИ! УВЕРЕНЫ, ЧТО ХОТИТЕ ЗАВЕРШИТЬ ТЕСТЫ?", @"ВНИМАНИЕ!!!!",
+                MessageBoxButtons.YesNoCancel,
+                MessageBoxIcon.Warning, MessageBoxDefaultButton.Button3)!= DialogResult.Yes) return;
+        }
         _reverseSpin = new[] { false, false, false, false };
         _reverseSpinAll = false;
         _dx2.Motors.ToList().ForEach(x => x.ValuePwm = 1000);
         _betaflight.MspSetMotor(1000, 1000, 1000, 1000);
         Visible = false;
-        e.Cancel = true;
-        //_dx3.Dispose();
-        //_dx2.Dispose();
     }
 
     private void ShownForm(object? sender, EventArgs e)
@@ -192,6 +215,7 @@ public partial class FormDroneConfig : Form
     }
     private async void MotorsSet1100(object? sender, EventArgs e)
     {
+        _motorNotChecked = false;
         var min = _dx2.Motors.ToList().Min(x => x.ValuePwm);
         if (min >= 1100)
         {
@@ -208,6 +232,7 @@ public partial class FormDroneConfig : Form
     }
     private async void MotorsSet1250(object? sender, EventArgs e)
     {
+        _motorNotChecked = false;
         var min = _dx2.Motors.ToList().Min(x => x.ValuePwm);
         if (min >= 1250)
         {
@@ -224,6 +249,7 @@ public partial class FormDroneConfig : Form
     }
     private async void MotorsSet1500(object? sender, EventArgs e)
     {
+        _motorNotChecked = false;
         var min = _dx2.Motors.ToList().Min(x => x.ValuePwm);
         if (min >= 1500)
         {
