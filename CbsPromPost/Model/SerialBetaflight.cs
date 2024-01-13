@@ -2,7 +2,6 @@
 using System.IO.Ports;
 using System.Text;
 using LibUsbDotNet;
-using LibUsbDotNet.LibUsb;
 using LibUsbDotNet.Main;
 
 namespace CbsPromPost.Model;
@@ -13,6 +12,7 @@ public partial class SerialBetaflight
     private readonly ILogger<SerialBetaflight> _logger;
     private bool _alive;
     private SerialPort _port = new();
+    public bool FinishWork { get; set; }
 
     public int ProgressValue { get; private set; }
     private SpinWait _spinWait;
@@ -21,6 +21,7 @@ public partial class SerialBetaflight
 
     private bool _aliveDfu;
     public bool IsAliveDfu() => _aliveDfu;
+    private readonly object _lockDfu = new();
     private UsbDevice? _usbDfu;
     public Action<string> OnNewCliMessage = delegate { };
     private StringBuilder _cliStr;
@@ -35,102 +36,102 @@ public partial class SerialBetaflight
 
     public async Task StartUsbAsync(int vid, int pid, CancellationToken cancellationToken = default)
     {
-
-        var usbFinder = new UsbDeviceFinder(vid, pid);
-        while (!cancellationToken.IsCancellationRequested)
+        await Task.Run(async () =>
         {
-            await Task.Delay(TimeSpan.FromMilliseconds(1000), cancellationToken);
-
-            lock (this)
-            {
-                _usbDfu = UsbDevice.OpenUsbDevice(usbFinder);
-                if (_usbDfu == null)
-                {
-                    _aliveDfu = false;
-                    continue;
-                }
-            }
-
-            _aliveDfu = true;
-
-            var errorsCount = 0;
-            while (true)
+            var usbFinder = new UsbDeviceFinder(vid, pid);
+            while (!FinishWork)
             {
                 await Task.Delay(TimeSpan.FromMilliseconds(1000), cancellationToken);
 
-                _usbDfu.GetConfiguration(out var cfg);
-                if (cfg == 0)
+                lock (_lockDfu)
                 {
-                    errorsCount++;
-                    if (errorsCount > 6) break;
+                    _usbDfu = UsbDevice.OpenUsbDevice(usbFinder);
+                    if (_usbDfu == null)
+                    {
+                        _aliveDfu = false;
+                        continue;
+                    }
                 }
-                else
+
+                _aliveDfu = true;
+
+                while (!FinishWork)
                 {
-                    errorsCount = 0;
+                    await Task.Delay(TimeSpan.FromMilliseconds(1000), cancellationToken);
+
+                    lock (_lockDfu)
+                    {
+                        _usbDfu.GetConfiguration(out var cfg);
+                        if (cfg == 0) break;
+                    }
                 }
-            }
 
-            lock (this)
-            {
-                _usbDfu.Close();
-            }
+                lock (_lockDfu)
+                {
+                    _usbDfu.Close();
+                }
 
-            _aliveDfu = false;
-        }
+                _aliveDfu = false;
+            }
+        }, cancellationToken);
     }
 
     public async Task StartAsync(string com, CancellationToken cancellationToken = default)
     {
-        _serial = com;
-        lock (_port)
+        await Task.Run(async () =>
         {
-            _port = new SerialPort(_serial, 115200, Parity.None, 8, StopBits.One);
-            _port.ReadBufferSize = 655350;
-            _port.WriteBufferSize = 655350;
-            _port.WriteTimeout = 1000;
-            _port.ReadTimeout = 1000;
-            _port.DataReceived += ComDataReceive;
-        }
-
-        while (!cancellationToken.IsCancellationRequested)
-        {
-            await Task.Delay(TimeSpan.FromMilliseconds(1000), cancellationToken);
-
-            try
+            _serial = com;
+            lock (_port)
             {
-                lock (_port)
-                {
-                    _port.Open();
-                }
+                _port = new SerialPort(_serial, 115200, Parity.None, 8, StopBits.One);
+                _port.ReadBufferSize = 655350;
+                _port.WriteBufferSize = 655350;
+                _port.WriteTimeout = 1000;
+                _port.ReadTimeout = 1000;
+                _port.DataReceived += ComDataReceive;
+            }
 
-                _alive = true;
-                bool open;
-                do
+            while (!FinishWork)
+            {
+                await Task.Delay(TimeSpan.FromMilliseconds(1000), cancellationToken);
+
+                try
                 {
                     lock (_port)
                     {
-                        open = _port.IsOpen;
+                        _port.Open();
                     }
-                    await Task.Delay(TimeSpan.FromMilliseconds(100), cancellationToken);
-                } while (open);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogInformation("SERIAL_EXEPTION_{Serial}: {Ex}", _serial, ex.Message);
+
+                    _alive = true;
+                    bool open;
+                    do
+                    {
+                        lock (_port)
+                        {
+                            open = _port.IsOpen;
+                        }
+
+                        await Task.Delay(TimeSpan.FromMilliseconds(100), cancellationToken);
+                    } while (open && !FinishWork);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogInformation("SERIAL_EXEPTION_{Serial}: {Ex}", _serial, ex.Message);
+                }
+
+                lock (_port)
+                {
+                    _port.Close();
+                }
+
+                _alive = false;
             }
 
             lock (_port)
             {
-                _port.Close();
+                _port.DataReceived -= ComDataReceive;
             }
-
-            _alive = false;
-        }
-
-        lock (_port)
-        {
-            _port.DataReceived -= ComDataReceive;
-        }
+        }, cancellationToken);
     }
 
     private void ComDataReceive(object sender, SerialDataReceivedEventArgs e)

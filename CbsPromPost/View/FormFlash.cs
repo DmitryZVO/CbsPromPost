@@ -24,12 +24,12 @@ public sealed partial class FormFlash : Form
     private DateTime _paused;
     private int _counts;
     private FormDroneConfig _formDrone;
-    private string _lastCliMessage = string.Empty;
 
     private int _counterClick;
     private DateTime _counterClickTime;
     private readonly SerialScanner _scanner;
     private readonly SerialBetaflight _betaflight;
+    private bool _workFullFlash;
 
     public FormFlash()
     {
@@ -174,13 +174,11 @@ public sealed partial class FormFlash : Form
 
     private async void ButtonFullFlashClick(object? sender, EventArgs e)
     {
-        buttonFullFlash.Enabled = false;
+        _workFullFlash = true;
         if (_formDrone.Visible)
         {
             _formDrone.Visible = false;
         }
-
-        buttonDroneConfig.Enabled = false;
 
         // Переводим в CLI
         _betaflight.CliWrite("#");
@@ -200,15 +198,14 @@ public sealed partial class FormFlash : Form
         _betaflight.CliWrite("#\r\nbl");
         await Task.Delay(1000);
 
-        richTextBoxMain.AppendText("СТАНДАРТИЗАЦИЯ ИЗДЕЛИЯ\r\n");
-        richTextBoxMain.ScrollToCaret();
+        PrintText("СТАНДАРТИЗАЦИЯ ИЗДЕЛИЯ");
         var start = DateTime.Now;
 
         var pb = Application.StartupPath + "DB\\_HEX\\" + Core.Config.Firmwares.Find(x =>
             x.Name.Equals(comboBoxFirmware.Items[comboBoxFirmware.SelectedIndex]!.ToString()))!.FileBin;
         if (!File.Exists(pb))
         {
-            PrintError("СТАНДАРТИЗАЦИЯ НЕ УДАЛАСЬ! НЕ НАЙДЕН ФАЙЛ BIN");
+            PrintTextFinalError("СТАНДАРТИЗАЦИЯ НЕ УДАЛАСЬ! НЕ НАЙДЕН ФАЙЛ BIN");
             return;
         }
 
@@ -217,7 +214,7 @@ public sealed partial class FormFlash : Form
             x.Name.Equals(comboBoxFirmware.Items[comboBoxFirmware.SelectedIndex]!.ToString()))!.FileFpl;
         if (!File.Exists(pf))
         {
-            PrintError("СТАНДАРТИЗАЦИЯ НЕ УДАЛАСЬ! НЕ НАЙДЕН ФАЙЛ FPL");
+            PrintTextFinalError("СТАНДАРТИЗАЦИЯ НЕ УДАЛАСЬ! НЕ НАЙДЕН ФАЙЛ FPL");
             return;
         }
 
@@ -225,26 +222,26 @@ public sealed partial class FormFlash : Form
 
         if (!_betaflight.IsAliveDfu())
         {
-            PrintError("СТАНДАРТИЗАЦИЯ НЕ УДАЛАСЬ! НЕ ЗАПУСТИЛСЯ РЕЖИМ DFU!");
+            PrintTextFinalError("СТАНДАРТИЗАЦИЯ НЕ УДАЛАСЬ! НЕ ЗАПУСТИЛСЯ РЕЖИМ DFU!");
             return;
         }
 
         if (await WriteBinAsync(dataBin) == false)
         {
-            PrintError("СТАНДАРТИЗАЦИЯ НЕ УДАЛАСЬ! НЕ ПРОШЛА ОЧИСТКА EEPROM И ЗАЛИВКА BIN");
+            PrintTextFinalError("СТАНДАРТИЗАЦИЯ НЕ УДАЛАСЬ! НЕ ПРОШЛА ОЧИСТКА EEPROM И ЗАЛИВКА BIN");
             return;
         }
 
         if (await WriteFplAsync(dataFpl) == false)
         {
-            PrintError("СТАНДАРТИЗАЦИЯ НЕ УДАЛАСЬ! НЕ УДАЛОСЬ ЗАЛИТЬ КОНФИГУРАЦИЮ FPL");
+            PrintTextFinalError("СТАНДАРТИЗАЦИЯ НЕ УДАЛАСЬ! НЕ УДАЛОСЬ ЗАЛИТЬ КОНФИГУРАЦИЮ FPL");
             return;
         }
 
-        PrintGood($"СТАНДАРТИЗАЦИЯ УСПЕШНА! ЗАТРАЧЕНО {(DateTime.Now - start).TotalSeconds:0} СЕК.");
+        PrintTextFinalGood($"СТАНДАРТИЗАЦИЯ УСПЕШНА! ЗАТРАЧЕНО {(DateTime.Now - start).TotalSeconds:0} СЕК.");
     }
 
-    public void PrintTextBox(string text)
+    public void PrintText(string text)
     {
         Invoke(() =>
         {
@@ -253,23 +250,21 @@ public sealed partial class FormFlash : Form
         });
     }
 
-    public void PrintError(string text)
+    public void PrintTextFinalError(string text)
     {
         richTextBoxMain.SelectionBackColor = Color.LightPink;
         richTextBoxMain.AppendText(text+"\r\n");
         richTextBoxMain.SelectionBackColor = Color.White;
         richTextBoxMain.ScrollToCaret();
-        buttonDroneConfig.Enabled = true;
-        buttonFullFlash.Enabled = true;
+        _workFullFlash = false;
     }
-    public void PrintGood(string text)
+    public void PrintTextFinalGood(string text)
     {
         richTextBoxMain.SelectionBackColor = Color.LightGreen;
         richTextBoxMain.AppendText(text+"\r\n");
         richTextBoxMain.SelectionBackColor = Color.White;
         richTextBoxMain.ScrollToCaret();
-        buttonDroneConfig.Enabled = true;
-        buttonFullFlash.Enabled = true;
+        _workFullFlash = false;
     }
 
     private async void ButtonWriteFplClick(object? sender, EventArgs e)
@@ -281,10 +276,7 @@ public sealed partial class FormFlash : Form
 
         if (!_betaflight.IsAlive())
         {
-            richTextBoxMain.SelectionBackColor = Color.LightPink;
-            richTextBoxMain.AppendText("Контроллер не в режиме MSP/CLI!\r\n");
-            richTextBoxMain.SelectionBackColor = Color.White;
-            richTextBoxMain.ScrollToCaret();
+            PrintText("Контроллер не в режиме MSP/CLI!");
             return;
         }
         var fw = new OpenFileDialog { Title = @"Выберите FPL лист", Filter = @"(*.txt)|*.txt" };
@@ -306,7 +298,7 @@ public sealed partial class FormFlash : Form
                 _betaflight.CliWrite("#");
                 await Task.Delay(3000);
 
-                richTextBoxMain.AppendText($"CLI: ЗАПИСЬ FPL ЛИСТА, файл fpl [{data.Count:0} строк]\r\n");
+                PrintText($"CLI: ЗАПИСЬ FPL ЛИСТА, файл fpl [{data.Count:0} строк]");
                 if (labelDroneId.Text.Equals(string.Empty)) labelDroneId.Text = @"TT000000";
                 var containName = false;
                 foreach (var s in data)
@@ -332,7 +324,7 @@ public sealed partial class FormFlash : Form
 
                 if (labelDroneId.Text.Equals(@"TT000000")) labelDroneId.Text = string.Empty;
                 var ok = !richTextBoxMain.Text.Contains("ERROR");
-                richTextBoxMain.AppendText(ok ? "CLI: УСПЕХ\r\n" : "CLI: ОШИБКА!!!\r\n");
+                PrintText(ok ? "CLI: УСПЕХ!" : "CLI: ОШИБКА!!!");
                 if (!ok) return false;
 
                 _betaflight.CliWrite("save");
@@ -353,10 +345,7 @@ public sealed partial class FormFlash : Form
         }
         if (!_betaflight.IsAliveDfu())
         {
-            richTextBoxMain.SelectionBackColor = Color.LightPink;
-            richTextBoxMain.AppendText("Контроллер не в режиме DFU!\r\n");
-            richTextBoxMain.SelectionBackColor = Color.White;
-            richTextBoxMain.ScrollToCaret();
+            PrintText("Контроллер не в режиме DFU!");
             return;
         }
 
@@ -378,10 +367,10 @@ public sealed partial class FormFlash : Form
 
     private async Task<bool> WriteBinAsync(byte[] data)
     {
-        PrintTextBox($"DFU: ОЧИСТКА EEPROM И ЗАПИСЬ ПРОШИКИ, ОБЛАСТЬ 0x{SerialBetaflight.DfuStartAddress:x8} - 0x{SerialBetaflight.DfuStartAddress + SerialBetaflight.DfuFlashSize:x8} файл hex [{data.Length:0} байт]");
+        PrintText($"DFU: ОЧИСТКА EEPROM И ЗАПИСЬ ПРОШИКИ, ОБЛАСТЬ 0x{SerialBetaflight.DfuStartAddress:x8} - 0x{SerialBetaflight.DfuStartAddress + SerialBetaflight.DfuFlashSize:x8} файл hex [{data.Length:0} байт]");
         var res = await _betaflight.DfuRawBinWrite(data, 60000);
         await _betaflight.DfuExit();
-        PrintTextBox(res >= 0 ? "DFU: УСПЕХ" : "DFU: ОШИБКА!!!");
+        PrintText(res >= 0 ? "DFU: УСПЕХ" : "DFU: ОШИБКА!!!");
         return res >= 0;
     }
 
@@ -394,18 +383,14 @@ public sealed partial class FormFlash : Form
 
         if (!_betaflight.IsAliveDfu())
         {
-            richTextBoxMain.SelectionBackColor = Color.LightPink;
-            richTextBoxMain.AppendText("Контроллер не в режиме DFU!\r\n");
-            richTextBoxMain.SelectionBackColor = Color.White;
-            richTextBoxMain.ScrollToCaret();
+            PrintText("Контроллер не в режиме DFU!");
             return;
         }
 
         buttonDroneConfig.Enabled = false;
-        richTextBoxMain.AppendText(
-            $"DFU: ОЧИСТКА ПРОШИКИ, ОБЛАСТЬ 0x{SerialBetaflight.DfuStartAddress:x8} - 0x{SerialBetaflight.DfuStartAddress + SerialBetaflight.DfuFlashSize:x8} [{SerialBetaflight.DfuFlashSize:0} байт]\r\n");
+        PrintText($"DFU: ОЧИСТКА ПРОШИКИ, ОБЛАСТЬ 0x{SerialBetaflight.DfuStartAddress:x8} - 0x{SerialBetaflight.DfuStartAddress + SerialBetaflight.DfuFlashSize:x8} [{SerialBetaflight.DfuFlashSize:0} байт]");
         var res = await _betaflight.DfuMassErase(60000);
-        richTextBoxMain.AppendText(res >= 0 ? "DFU: УСПЕХ\r\n" : "DFU: ОШИБКА!!!\r\n");
+        PrintText(res >= 0 ? "DFU: УСПЕХ" : "DFU: ОШИБКА!!!");
         buttonDroneConfig.Enabled = true;
     }
 
@@ -418,10 +403,7 @@ public sealed partial class FormFlash : Form
 
         if (!_betaflight.IsAlive())
         {
-            richTextBoxMain.SelectionBackColor = Color.LightPink;
-            richTextBoxMain.AppendText("Контроллер не в режиме MSP/CLI!\r\n");
-            richTextBoxMain.SelectionBackColor = Color.White;
-            richTextBoxMain.ScrollToCaret();
+            PrintText("Контроллер не в режиме MSP/CLI!");
             return;
         }
 
@@ -448,17 +430,13 @@ public sealed partial class FormFlash : Form
 
         if (!_betaflight.IsAliveDfu())
         {
-            richTextBoxMain.SelectionBackColor = Color.LightPink;
-            richTextBoxMain.AppendText("Контроллер не в режиме DFU!\r\n");
-            richTextBoxMain.SelectionBackColor = Color.White;
-            richTextBoxMain.ScrollToCaret();
+            PrintText("Контроллер не в режиме DFU!");
             return;
         }
 
-        richTextBoxMain.AppendText(
-            $"DFU: СЧИТЫВАНИЕ ПРОШИВКИ, ОБЛАСТЬ 0x{SerialBetaflight.DfuStartAddress:x8} - 0x{SerialBetaflight.DfuStartAddress + SerialBetaflight.DfuFlashSize:x8} [{SerialBetaflight.DfuFlashSize:0} байт]\r\n");
+        PrintText($"DFU: СЧИТЫВАНИЕ ПРОШИВКИ, ОБЛАСТЬ 0x{SerialBetaflight.DfuStartAddress:x8} - 0x{SerialBetaflight.DfuStartAddress + SerialBetaflight.DfuFlashSize:x8} [{SerialBetaflight.DfuFlashSize:0} байт]");
         var image = await _betaflight.DfuRawBinReadAll();
-        richTextBoxMain.AppendText(image.Length > 0 ? "DFU: УСПЕХ\r\n" : "DFU: ОШИБКА!!!\r\n");
+        PrintText(image.Length > 0 ? "DFU: УСПЕХ!" : "DFU: ОШИБКА!!!");
         if (image.Length <= 0) return;
 
         var fd = new SaveFileDialog { Title = @"RAW HEX", FileName = "_raw_betafly.bin" };
@@ -487,8 +465,7 @@ public sealed partial class FormFlash : Form
     {
         if (_betaflight.IsAliveDfu())
         {
-            richTextBoxMain.AppendText(string.Join(string.Empty, await _betaflight.DfuExit()));
-            richTextBoxMain.ScrollToCaret();
+            PrintText(string.Join(string.Empty, await _betaflight.DfuExit()));
             return;
         }
 
@@ -525,8 +502,6 @@ public sealed partial class FormFlash : Form
 
     private async void OnNewCliMessage(string message)
     {
-        _lastCliMessage = message;
-
         await Task.Run(() =>
         {
             Invoke(() =>
@@ -611,6 +586,7 @@ public sealed partial class FormFlash : Form
 
     private void OnClose(object? sender, EventArgs e)
     {
+        _betaflight.FinishWork = true;
         _webCam.OnNewVideoFrame -= NewFrame;
         _webCam.Dispose();
         _dx.Dispose();
@@ -643,9 +619,16 @@ public sealed partial class FormFlash : Form
         var s = Core.IoC.Services.GetRequiredService<Station>();
         if (s.User.Name.Equals(string.Empty) && !labelUser.Text.Equals(string.Empty) | s.User.Name.Equals(string.Empty) && labelUser.Text.Equals(string.Empty)) // Выключение работы
         {
-            if (!Core.Config.TestMode) labelDroneId.Text = string.Empty;
+            if (!Core.Config.TestMode)
+            {
+                labelDroneId.Text = string.Empty;
+            }
+            else
+            {
+                groupBoxButtons.Enabled = !_workFullFlash;
+                buttonDroneConfig.Enabled = !_workFullFlash;
+            }
             labelUser.Text = string.Empty;
-            groupBoxButtons.Enabled = Core.Config.TestMode;
             buttonPause.Enabled = false;
             buttonFinish.Enabled = false;
             _startTime = DateTime.Now;
@@ -665,7 +648,6 @@ public sealed partial class FormFlash : Form
 
         if (!s.User.Name.Equals(string.Empty) && labelUser.Text.Equals(string.Empty))
         {
-            //groupBoxButtons.Enabled = true;
             buttonFinish.Enabled = true;
             _startTime = DateTime.Now;
             _lastPaused = DateTime.Now;
@@ -674,7 +656,16 @@ public sealed partial class FormFlash : Form
 
         buttonBadDrone.Enabled = !labelDroneId.Text.Equals(string.Empty);
         buttonOkDrone.Enabled = !labelDroneId.Text.Equals(string.Empty);
-        if (!Core.Config.TestMode) groupBoxButtons.Enabled = !labelDroneId.Text.Equals(string.Empty); else groupBoxButtons.Enabled = true;
+        if (!Core.Config.TestMode)
+        {
+            groupBoxButtons.Enabled = !labelDroneId.Text.Equals(string.Empty);
+        }
+        else
+        {
+            groupBoxButtons.Enabled = true;
+        }
+        groupBoxButtons.Enabled = !_workFullFlash;
+        buttonDroneConfig.Enabled = !_workFullFlash;
 
         var sec = (DateTime.Now - s.WorkStart).TotalSeconds;
         if (_paused != DateTime.MinValue)
@@ -739,24 +730,6 @@ public sealed partial class FormFlash : Form
         }
         await s.GetStateAsync(default);
     }
-
-    /*
-    private async Task<string> WriteToCliAsync(string text, int waitMs = 200)
-    {
-        var ret = await Task.Run(async () =>
-        {
-            var res = await _betaflight.CliWrite(text, waitMs);
-            return res;
-        });
-
-        if (ret.Any(x => x.Contains("ERROR"))) richTextBoxMain.SelectionColor = Color.Red;
-        var retStr = string.Join(string.Empty, ret);
-        richTextBoxMain.AppendText(retStr);
-        richTextBoxMain.SelectionColor = Color.Black;
-        richTextBoxMain.ScrollToCaret();
-        return retStr;
-    }
-    */
 
     private void Button1_Click(object sender, EventArgs e) => _betaflight.CliWrite("#");
     private void Button2_Click(object sender, EventArgs e) => _betaflight.CliWrite("#\r\nhelp");

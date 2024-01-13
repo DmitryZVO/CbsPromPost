@@ -123,7 +123,24 @@ public partial class FormDroneConfig : Form
             await Task.Delay(100, ct);
             _betaflight.MspSetCalibrateAcel();
             await Task.Delay(100, ct);
-            _firstOpen = false;
+
+            _betaflight.RcPwm = new [] { 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000 };
+            _betaflight.Roll = 0f;
+            _betaflight.Pitch = 0f;
+            _betaflight.Yaw = 0f;
+            _betaflight.BatteryV = 0f;
+            _betaflight.Amperage = 0f;
+            _betaflight.GyroX = 0f;
+            _betaflight.GyroY = 0f;
+            _betaflight.GyroZ = 0f;
+            _betaflight.AccX = 0f;
+            _betaflight.AccY = 0f;
+            _betaflight.AccZ = 0f;
+            _betaflight.MagX = 0f;
+            _betaflight.MagY = 0f;
+            _betaflight.MagZ = 0f;
+
+    _firstOpen = false;
         }
     }
 
@@ -154,13 +171,45 @@ public partial class FormDroneConfig : Form
     private void ClosingForm(object? sender, CancelEventArgs e)
     {
         e.Cancel = true;
+        var finish = false;
 
         if (_motorNotChecked)
         {
             if (MessageBox.Show(@"ВЫ НЕ ПРОВЕРЯЛИ ДВИГАТЕЛИ! УВЕРЕНЫ, ЧТО ХОТИТЕ ЗАВЕРШИТЬ ТЕСТЫ?", @"ВНИМАНИЕ!!!!",
                 MessageBoxButtons.YesNoCancel,
                 MessageBoxIcon.Warning, MessageBoxDefaultButton.Button3)!= DialogResult.Yes) return;
+            finish = true;
         }
+
+        if (!finish && _betaflight is { Roll: 0, Pitch: 0, Yaw: 0 })
+        {
+            if (MessageBox.Show(@"НЕ БЫЛО ДАННЫХ О УГЛАХ НАКЛОНА! УВЕРЕНЫ, ЧТО ХОТИТЕ ЗАВЕРШИТЬ ТЕСТЫ?", @"ВНИМАНИЕ!!!!",
+                    MessageBoxButtons.YesNoCancel,
+                    MessageBoxIcon.Warning, MessageBoxDefaultButton.Button3) != DialogResult.Yes) return;
+            finish = true;
+        }
+        if (!finish && _betaflight.RcPwm.Min() == _betaflight.RcPwm.Max() && _betaflight.RcPwm[0] == 1000)
+        {
+            if (MessageBox.Show(@"НЕ БЫЛО ДАННЫХ ОТ RC ПРИЕМНИКА! УВЕРЕНЫ, ЧТО ХОТИТЕ ЗАВЕРШИТЬ ТЕСТЫ?", @"ВНИМАНИЕ!!!!",
+                    MessageBoxButtons.YesNoCancel,
+                    MessageBoxIcon.Warning, MessageBoxDefaultButton.Button3) != DialogResult.Yes) return;
+            finish = true;
+        }
+        if (!finish && _betaflight is { GyroX: 0, GyroY: 0, GyroZ: 0, AccX: 0, AccY: 0, AccZ: 0, MagX: 0, MagY:0, MagZ: 0 })
+        {
+            if (MessageBox.Show(@"НЕ БЫЛО ДАННЫХ ОТ АКСЕЛЕРОМЕТРА! УВЕРЕНЫ, ЧТО ХОТИТЕ ЗАВЕРШИТЬ ТЕСТЫ?", @"ВНИМАНИЕ!!!!",
+                    MessageBoxButtons.YesNoCancel,
+                    MessageBoxIcon.Warning, MessageBoxDefaultButton.Button3) != DialogResult.Yes) return;
+            finish = true;
+        }
+        if (!finish && _betaflight is { BatteryV: 0, Amperage: 0 })
+        {
+            if (MessageBox.Show(@"НЕ БЫЛО ДАННЫХ О НАПРЯЖЕНИИ! УВЕРЕНЫ, ЧТО ХОТИТЕ ЗАВЕРШИТЬ ТЕСТЫ?", @"ВНИМАНИЕ!!!!",
+                    MessageBoxButtons.YesNoCancel,
+                    MessageBoxIcon.Warning, MessageBoxDefaultButton.Button3) != DialogResult.Yes) return;
+            finish = true;
+        }
+
         _reverseSpin = new[] { false, false, false, false };
         _reverseSpinAll = false;
         _dx2.Motors.ToList().ForEach(x => x.ValuePwm = 1000);

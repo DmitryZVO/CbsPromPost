@@ -84,7 +84,7 @@ public partial class SerialBetaflight
             Index = 0,
         };
 
-        lock (this)
+        lock (_lockDfu)
         {
             //var start = DateTime.Now;
             _usbDfu.ControlTransfer(ref packet, block, block.Length, out var lenRead);
@@ -332,7 +332,7 @@ public partial class SerialBetaflight
 
             try
             {
-                lock (this)
+                lock (_lockDfu)
                 {
                     //var start = DateTime.Now;
                     _usbDfu.ControlTransfer(ref packet, null, 0, out var lenWrite);
@@ -367,7 +367,7 @@ public partial class SerialBetaflight
 
             try
             {
-                lock (this)
+                lock (_lockDfu)
                 {
                     //var start = DateTime.Now;
                     _usbDfu.ControlTransfer(ref packet, buffer, buffer.Length, out var lenWrite);
@@ -406,7 +406,7 @@ public partial class SerialBetaflight
 
             try
             {
-                lock (this)
+                lock (_lockDfu)
                 {
                     //var start = DateTime.Now;
                     _usbDfu.ControlTransfer(ref packet, data, data.Count, out var lenWrite);
@@ -449,7 +449,7 @@ public partial class SerialBetaflight
 
             try
             {
-                lock (this)
+                lock (_lockDfu)
                 {
                     _usbDfu.ControlTransfer(ref packet, data, data.Count, out var lenWrite);
                     if (lenWrite <= 0)

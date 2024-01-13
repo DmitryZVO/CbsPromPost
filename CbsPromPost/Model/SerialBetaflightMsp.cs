@@ -1,14 +1,12 @@
-﻿using Microsoft.Extensions.Logging;
-
-namespace CbsPromPost.Model;
+﻿namespace CbsPromPost.Model;
 
 public partial class SerialBetaflight
 {
+    public int[] MotorsPwm { get; set; } = { 1000, 1000, 1000, 1000 };
+    public int[] RcPwm { get; set; } = { 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000 };
     public float Roll { get; set; }
     public float Pitch { get; set; }
     public float Yaw { get; set; }
-    public int[] MotorsPwm { get; set; } = { 1000, 1000, 1000, 1000 };
-    public int[] RcPwm { get; set; } = { 1500, 1500, 1500, 1500, 1500, 1500, 1500, 1500, 1500, 1500, 1500, 1500, 1500, 1500, 1500, 1500 };
     public float BatteryV { get; set; }
     public float Amperage { get; set; }
     public float GyroX { get; set; }
