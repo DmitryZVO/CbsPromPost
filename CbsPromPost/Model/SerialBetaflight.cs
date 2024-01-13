@@ -13,6 +13,7 @@ public partial class SerialBetaflight
     public bool FinishWork { get; set; }
     public int ProgressValue { get; private set; }
     public Action<string> OnNewCliMessage = delegate { };
+    public bool PowerEnabled { get; set; } 
 
     private readonly ILogger<SerialBetaflight> _logger;
     private SerialPort _port;

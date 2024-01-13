@@ -44,6 +44,12 @@ public partial class FormDroneConfig : Form
         buttonD4Inv.Click += Motor4SpinInv;
         buttonInverseAll.Click += MotorsInvAll;
         button1010.Click += MotorMinimum;
+        buttonPower.Click += PowerClick;
+    }
+
+    private void PowerClick(object? sender, EventArgs e)
+    {
+        _betaflight.PowerEnabled = !_betaflight.PowerEnabled;
     }
 
     private async void MotorsInvAll(object? sender, EventArgs e)
@@ -100,6 +106,11 @@ public partial class FormDroneConfig : Form
                 continue;
             }
 
+            Invoke(() =>
+            {
+                buttonPower.BackColor = _betaflight.PowerEnabled ? Color.LightGreen : Color.LightPink;
+            });
+
             if (IsDisposed) break;
 
             splitContainer1.Enabled = _betaflight.IsAliveCom();
@@ -140,7 +151,7 @@ public partial class FormDroneConfig : Form
             _betaflight.MagY = 0f;
             _betaflight.MagZ = 0f;
 
-    _firstOpen = false;
+            _firstOpen = false;
         }
     }
 

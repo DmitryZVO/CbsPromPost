@@ -71,6 +71,7 @@ sealed partial class FormFlash
         pictureBoxMain = new PictureBox();
         buttonBadDrone = new Button();
         buttonOkDrone = new Button();
+        buttonPower = new Button();
         groupBoxButtons.SuspendLayout();
         groupBoxCli.SuspendLayout();
         ((System.ComponentModel.ISupportInitialize)pictureBoxMain).BeginInit();
@@ -201,7 +202,7 @@ sealed partial class FormFlash
         // buttonLoadBinImage
         // 
         buttonLoadBinImage.Font = new Font("Segoe UI", 14F, FontStyle.Regular, GraphicsUnit.Point);
-        buttonLoadBinImage.Location = new Point(6, 222);
+        buttonLoadBinImage.Location = new Point(7, 227);
         buttonLoadBinImage.Name = "buttonLoadBinImage";
         buttonLoadBinImage.Size = new Size(230, 38);
         buttonLoadBinImage.TabIndex = 22;
@@ -211,7 +212,7 @@ sealed partial class FormFlash
         // buttonLoadFpl
         // 
         buttonLoadFpl.Font = new Font("Segoe UI", 14F, FontStyle.Regular, GraphicsUnit.Point);
-        buttonLoadFpl.Location = new Point(6, 266);
+        buttonLoadFpl.Location = new Point(7, 271);
         buttonLoadFpl.Name = "buttonLoadFpl";
         buttonLoadFpl.Size = new Size(230, 38);
         buttonLoadFpl.TabIndex = 23;
@@ -234,7 +235,7 @@ sealed partial class FormFlash
         // buttonClearFlash
         // 
         buttonClearFlash.Font = new Font("Segoe UI", 14F, FontStyle.Regular, GraphicsUnit.Point);
-        buttonClearFlash.Location = new Point(6, 310);
+        buttonClearFlash.Location = new Point(7, 315);
         buttonClearFlash.Name = "buttonClearFlash";
         buttonClearFlash.Size = new Size(230, 38);
         buttonClearFlash.TabIndex = 26;
@@ -244,7 +245,7 @@ sealed partial class FormFlash
         // buttonWriteBinImage
         // 
         buttonWriteBinImage.Font = new Font("Segoe UI", 14F, FontStyle.Regular, GraphicsUnit.Point);
-        buttonWriteBinImage.Location = new Point(6, 354);
+        buttonWriteBinImage.Location = new Point(7, 359);
         buttonWriteBinImage.Name = "buttonWriteBinImage";
         buttonWriteBinImage.Size = new Size(230, 38);
         buttonWriteBinImage.TabIndex = 27;
@@ -254,7 +255,7 @@ sealed partial class FormFlash
         // buttonImpulseRC
         // 
         buttonImpulseRC.Font = new Font("Segoe UI", 14F, FontStyle.Regular, GraphicsUnit.Point);
-        buttonImpulseRC.Location = new Point(6, 442);
+        buttonImpulseRC.Location = new Point(7, 447);
         buttonImpulseRC.Name = "buttonImpulseRC";
         buttonImpulseRC.Size = new Size(230, 38);
         buttonImpulseRC.TabIndex = 28;
@@ -445,7 +446,7 @@ sealed partial class FormFlash
         // buttonWriteFpl
         // 
         buttonWriteFpl.Font = new Font("Segoe UI", 14F, FontStyle.Regular, GraphicsUnit.Point);
-        buttonWriteFpl.Location = new Point(6, 398);
+        buttonWriteFpl.Location = new Point(7, 403);
         buttonWriteFpl.Name = "buttonWriteFpl";
         buttonWriteFpl.Size = new Size(230, 38);
         buttonWriteFpl.TabIndex = 49;
@@ -463,7 +464,7 @@ sealed partial class FormFlash
         groupBoxButtons.Controls.Add(buttonImpulseRC);
         groupBoxButtons.Location = new Point(1331, 355);
         groupBoxButtons.Name = "groupBoxButtons";
-        groupBoxButtons.Size = new Size(243, 522);
+        groupBoxButtons.Size = new Size(243, 491);
         groupBoxButtons.TabIndex = 50;
         groupBoxButtons.TabStop = false;
         // 
@@ -549,11 +550,24 @@ sealed partial class FormFlash
         buttonOkDrone.Text = "ОК";
         buttonOkDrone.UseVisualStyleBackColor = true;
         // 
+        // buttonPower
+        // 
+        buttonPower.BackColor = Color.White;
+        buttonPower.FlatStyle = FlatStyle.Flat;
+        buttonPower.Font = new Font("Segoe UI", 10F, FontStyle.Regular, GraphicsUnit.Point);
+        buttonPower.Location = new Point(1331, 849);
+        buttonPower.Name = "buttonPower";
+        buttonPower.Size = new Size(241, 28);
+        buttonPower.TabIndex = 56;
+        buttonPower.Text = "ПИТАНИЕ ИЗДЕЛИЯ";
+        buttonPower.UseVisualStyleBackColor = false;
+        // 
         // FormFlash
         // 
         AutoScaleDimensions = new SizeF(7F, 15F);
         AutoScaleMode = AutoScaleMode.Font;
         ClientSize = new Size(1584, 923);
+        Controls.Add(buttonPower);
         Controls.Add(buttonOkDrone);
         Controls.Add(buttonBadDrone);
         Controls.Add(pictureBoxMain);
@@ -633,4 +647,5 @@ sealed partial class FormFlash
     private PictureBox pictureBoxMain;
     private Button buttonBadDrone;
     private Button buttonOkDrone;
+    private Button buttonPower;
 }

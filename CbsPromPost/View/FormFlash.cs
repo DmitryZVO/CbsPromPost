@@ -102,6 +102,12 @@ public sealed partial class FormFlash : Form
         comboBoxFirmware.SelectedValueChanged += FlashChanged;
         buttonBadDrone.Click += BadDrone;
         buttonOkDrone.Click += OkDrone;
+        buttonPower.Click += PowerClick;
+    }
+
+    private void PowerClick(object? sender, EventArgs e)
+    {
+        _betaflight.PowerEnabled = !_betaflight.PowerEnabled;
     }
 
     private async void OkDrone(object? sender, EventArgs e)
@@ -615,6 +621,7 @@ public sealed partial class FormFlash : Form
         labelComScanner.BackColor = _scanner.IsAlive() ? Color.LightGreen : Color.LightPink;
         labelComBeta.BackColor = _betaflight.IsAliveCom() ? Color.LightGreen : Color.LightPink;
         labelDfu.BackColor = _betaflight.IsAliveDfu() ? Color.LightGreen : Color.LightPink;
+        buttonPower.BackColor = _betaflight.PowerEnabled ? Color.LightGreen : Color.LightPink;
 
         var s = Core.IoC.Services.GetRequiredService<Station>();
         if (s.User.Name.Equals(string.Empty) && !labelUser.Text.Equals(string.Empty) | s.User.Name.Equals(string.Empty) && labelUser.Text.Equals(string.Empty)) // Выключение работы

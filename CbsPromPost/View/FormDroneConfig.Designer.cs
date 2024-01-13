@@ -121,7 +121,7 @@ partial class FormDroneConfig
         buttonPower.BackColor = SystemColors.InactiveBorder;
         buttonPower.FlatStyle = FlatStyle.Flat;
         buttonPower.Font = new Font("Segoe UI", 12F, FontStyle.Regular, GraphicsUnit.Point);
-        buttonPower.Location = new Point(306, 645);
+        buttonPower.Location = new Point(306, 561);
         buttonPower.Name = "buttonPower";
         buttonPower.Size = new Size(189, 36);
         buttonPower.TabIndex = 19;
@@ -134,7 +134,7 @@ partial class FormDroneConfig
         buttonAcelCalibrate.BackColor = Color.White;
         buttonAcelCalibrate.FlatStyle = FlatStyle.Flat;
         buttonAcelCalibrate.Font = new Font("Segoe UI", 12F, FontStyle.Regular, GraphicsUnit.Point);
-        buttonAcelCalibrate.Location = new Point(306, 561);
+        buttonAcelCalibrate.Location = new Point(306, 645);
         buttonAcelCalibrate.Name = "buttonAcelCalibrate";
         buttonAcelCalibrate.Size = new Size(189, 36);
         buttonAcelCalibrate.TabIndex = 17;
