@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel;
 using CbsPromPost.Model;
 using CbsPromPost.Other;
+using Microsoft.Extensions.DependencyInjection;
 using OpenCvSharp;
 
 namespace CbsPromPost.View;
@@ -50,6 +51,7 @@ public partial class FormDroneConfig : Form
     private void PowerClick(object? sender, EventArgs e)
     {
         _betaflight.PowerEnabled = !_betaflight.PowerEnabled;
+        Core.IoC.Services.GetRequiredService<RelayPower>().SetValues(_betaflight.PowerEnabled ? 1 : 0, _betaflight.PowerEnabled ? 1 : 0);
     }
 
     private async void MotorsInvAll(object? sender, EventArgs e)

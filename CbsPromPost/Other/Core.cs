@@ -20,6 +20,7 @@ internal static class Core
                 services.AddSingleton<Works>();
                 services.AddSingleton<Stocks>();
                 services.AddSingleton<Users>();
+                services.AddSingleton<RelayPower>();
             })
             .ConfigureLogging(builder =>
             {
@@ -35,6 +36,7 @@ internal static class Core
 
         IoC.Services.GetRequiredService<Server>().StartAsync();
         IoC.Services.GetRequiredService<Station>().StartAsync();
+        IoC.Services.GetRequiredService<RelayPower>().StartAsync();
 
         Config.Save();
 

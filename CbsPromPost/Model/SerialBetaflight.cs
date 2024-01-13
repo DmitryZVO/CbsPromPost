@@ -56,14 +56,25 @@ public partial class SerialBetaflight
 
                 _aliveDfu = true;
 
+                var countFalse = 0;
                 while (!FinishWork)
                 {
+                    byte cfg;
                     await Task.Delay(TimeSpan.FromMilliseconds(1000), cancellationToken);
 
                     lock (_lockDfu)
                     {
-                        _usbDfu.GetConfiguration(out var cfg);
-                        if (cfg == 0) break;
+                        _usbDfu.GetConfiguration(out cfg);
+                    }
+
+                    if (cfg == 0)
+                    {
+                        countFalse++;
+                        if (countFalse >= 10) break;
+                    }
+                    else
+                    {
+                        countFalse = 0;
                     }
                 }
 

@@ -108,6 +108,7 @@ public sealed partial class FormFlash : Form
     private void PowerClick(object? sender, EventArgs e)
     {
         _betaflight.PowerEnabled = !_betaflight.PowerEnabled;
+        Core.IoC.Services.GetRequiredService<RelayPower>().SetValues(_betaflight.PowerEnabled ? 1 : 0, _betaflight.PowerEnabled ? 1 : 0);
     }
 
     private async void OkDrone(object? sender, EventArgs e)
@@ -232,12 +233,31 @@ public sealed partial class FormFlash : Form
             return;
         }
 
+        // Очистка eeprom и запись BIN
         if (await WriteBinAsync(dataBin) == false)
         {
             PrintTextFinalError("СТАНДАРТИЗАЦИЯ НЕ УДАЛАСЬ! НЕ ПРОШЛА ОЧИСТКА EEPROM И ЗАЛИВКА BIN");
             return;
         }
 
+        // Валидация
+        PrintText($"DFU: ВАЛИДАЦИЯ ПРОШИКИ, ОБЛАСТЬ 0x{SerialBetaflight.DfuStartAddress:x8} - 0x{SerialBetaflight.DfuStartAddress + SerialBetaflight.DfuFlashSize:x8} файл hex [{dataBin.Length:0} байт]");
+        var flashWriteBytes = await _betaflight.DfuRawBinReadAll();
+        if (flashWriteBytes.Length <= 0)
+        {
+            PrintText("DFU: ОШИБКА!!!");
+            PrintTextFinalError("СТАНДАРТИЗАЦИЯ НЕ УДАЛАСЬ! НЕ УДАЛОСЬ ВЫЧИТАТЬ ДАННЫЕ ИЗ EEPROM!");
+            return;
+        }
+        if (!dataBin.SequenceEqual(flashWriteBytes))
+        {
+            PrintText("DFU: ОШИБКА!!!");
+            PrintTextFinalError("СТАНДАРТИЗАЦИЯ НЕ УДАЛАСЬ! ЗАПИСАННЫЕ ДАННЫЕ В EEPROM НЕ СОВПАДАЮТ С ФАЙЛОМ BIN!");
+            return;
+        }
+        PrintText("DFU: УСПЕХ");
+
+        // Заливка FPL
         if (await WriteFplAsync(dataFpl) == false)
         {
             PrintTextFinalError("СТАНДАРТИЗАЦИЯ НЕ УДАЛАСЬ! НЕ УДАЛОСЬ ЗАЛИТЬ КОНФИГУРАЦИЮ FPL");
