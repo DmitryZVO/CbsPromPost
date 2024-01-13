@@ -83,13 +83,11 @@ public partial class SerialBetaflight
             {
                 if (packet.Length < 18) break;
                 BatteryV = packet[i] / 10f; i += 1;
-                var pm = BitConverter.ToInt16(packet, i) / 10f; i += 2;
-                var rssi = BitConverter.ToInt16(packet, i); i += 2;
+                _ = BitConverter.ToInt16(packet, i) / 10f; i += 2;
+                _ = BitConverter.ToInt16(packet, i); i += 2;
                 Amperage = BitConverter.ToInt16(packet, i) / 100f;
                 break;
             }
-            default:
-                break;
         }
     }
 
