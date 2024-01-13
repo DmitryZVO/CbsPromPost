@@ -191,7 +191,7 @@ internal class SharpDxDrone2d : SharpDx
                     Brushes.SysTextBrushWhite);
             }
 
-            if (!_betaflight.IsAlive())
+            if (!_betaflight.IsAliveCom())
             {
                 Rt?.FillRectangle(new RawRectangleF(0, 0, BaseWidth, BaseHeight), Brushes.RoiNone);
             }
@@ -200,7 +200,7 @@ internal class SharpDxDrone2d : SharpDx
 
     private void MotorsUpdate()
     {
-        if (!_betaflight.IsAlive())
+        if (!_betaflight.IsAliveCom())
         {
             Motors.ToList().ForEach(x => x.ValuePwm = 1000);
             Motors.ToList().ForEach(x=>x.Angle = 0f);

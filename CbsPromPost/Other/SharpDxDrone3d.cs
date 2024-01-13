@@ -251,7 +251,7 @@ internal class SharpDxDrone3d : SharpDx3D
                 new RawRectangleF(posCx + wC * 2 + 10f, posCy + hC + 4f, BaseWidth, BaseHeight),
                 Brushes.SysTextBrushYellow);
 
-            if (!_betaflight.IsAlive())
+            if (!_betaflight.IsAliveCom())
             {
                 Rt?.FillRectangle(new RawRectangleF(0, 0, BaseWidth, BaseHeight), Brushes.RoiRed02);
                 _betaflight.Roll = 0f;

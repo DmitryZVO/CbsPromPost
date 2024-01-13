@@ -1,5 +1,4 @@
-﻿using System.Text;
-using CbsPromPost.Model;
+﻿using CbsPromPost.Model;
 using CbsPromPost.Other;
 using CbsPromPost.Resources;
 using Microsoft.Extensions.DependencyInjection;
@@ -125,9 +124,10 @@ public sealed partial class FormFlash : Form
     private async void BadDrone(object? sender, EventArgs e)
     {
         // КОСТЫЛЬ
-        var answ = await Core.IoC.Services.GetRequiredService<Station>().FinishBodyAsync(labelDroneId.Text, default);
+        //var answ = await Core.IoC.Services.GetRequiredService<Station>().FinishBodyAsync(labelDroneId.Text, default);
         //if (answ.Equals(string.Empty))
         //{
+        await Core.IoC.Services.GetRequiredService<Station>().FinishBodyAsync(labelDroneId.Text, default);
         new FormInfo(@"ПЕРЕВЕДЕНО В БРАК", Color.LightPink, Color.DarkRed, 3000, new Size(600, 400))
             .Show(this);
         labelDroneId.Text = string.Empty; // Финиш работы
@@ -274,7 +274,7 @@ public sealed partial class FormFlash : Form
             _formDrone.Visible = false;
         }
 
-        if (!_betaflight.IsAlive())
+        if (!_betaflight.IsAliveCom())
         {
             PrintText("Контроллер не в режиме MSP/CLI!");
             return;
@@ -401,7 +401,7 @@ public sealed partial class FormFlash : Form
             _formDrone.Visible = false;
         }
 
-        if (!_betaflight.IsAlive())
+        if (!_betaflight.IsAliveCom())
         {
             PrintText("Контроллер не в режиме MSP/CLI!");
             return;
@@ -613,7 +613,7 @@ public sealed partial class FormFlash : Form
         var work = works.Get(Core.Config.Type);
 
         labelComScanner.BackColor = _scanner.IsAlive() ? Color.LightGreen : Color.LightPink;
-        labelComBeta.BackColor = _betaflight.IsAlive() ? Color.LightGreen : Color.LightPink;
+        labelComBeta.BackColor = _betaflight.IsAliveCom() ? Color.LightGreen : Color.LightPink;
         labelDfu.BackColor = _betaflight.IsAliveDfu() ? Color.LightGreen : Color.LightPink;
 
         var s = Core.IoC.Services.GetRequiredService<Station>();

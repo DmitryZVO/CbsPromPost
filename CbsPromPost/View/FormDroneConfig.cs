@@ -102,12 +102,12 @@ public partial class FormDroneConfig : Form
 
             if (IsDisposed) break;
 
-            splitContainer1.Enabled = _betaflight.IsAlive();
+            splitContainer1.Enabled = _betaflight.IsAliveCom();
             if ((trackBarD1.Value != _dx2.Motors[0].ValuePwm) |
                 (trackBarD2.Value != _dx2.Motors[1].ValuePwm) |
                 (trackBarD3.Value != _dx2.Motors[2].ValuePwm) |
                 (trackBarD4.Value != _dx2.Motors[3].ValuePwm)) TrackBarsUpdate();
-            if (!_betaflight.IsAlive()) continue;
+            if (!_betaflight.IsAliveCom()) continue;
 
             _betaflight.MspGetAttitude();
             _betaflight.MspGetMotors();
@@ -202,12 +202,12 @@ public partial class FormDroneConfig : Form
                     MessageBoxIcon.Warning, MessageBoxDefaultButton.Button3) != DialogResult.Yes) return;
             finish = true;
         }
+
         if (!finish && _betaflight is { BatteryV: 0, Amperage: 0 })
         {
             if (MessageBox.Show(@"НЕ БЫЛО ДАННЫХ О НАПРЯЖЕНИИ! УВЕРЕНЫ, ЧТО ХОТИТЕ ЗАВЕРШИТЬ ТЕСТЫ?", @"ВНИМАНИЕ!!!!",
                     MessageBoxButtons.YesNoCancel,
                     MessageBoxIcon.Warning, MessageBoxDefaultButton.Button3) != DialogResult.Yes) return;
-            finish = true;
         }
 
         _reverseSpin = new[] { false, false, false, false };

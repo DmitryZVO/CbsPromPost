@@ -8,29 +8,29 @@ namespace CbsPromPost.Model;
 
 public partial class SerialBetaflight
 {
-    private string _serial;
-    private readonly ILogger<SerialBetaflight> _logger;
-    private bool _alive;
-    private SerialPort _port = new();
-    public bool FinishWork { get; set; }
-
-    public int ProgressValue { get; private set; }
-    private SpinWait _spinWait;
-
-    public bool IsAlive() => _alive;
-
-    private bool _aliveDfu;
+    public bool IsAliveCom() => _aliveCom;
     public bool IsAliveDfu() => _aliveDfu;
-    private readonly object _lockDfu = new();
-    private UsbDevice? _usbDfu;
+    public bool FinishWork { get; set; }
+    public int ProgressValue { get; private set; }
     public Action<string> OnNewCliMessage = delegate { };
+
+    private readonly ILogger<SerialBetaflight> _logger;
+    private SerialPort _port;
+    private string _serialString;
+    private bool _aliveCom;
+    private SpinWait _spinWait;
+    private bool _aliveDfu;
+    private readonly object _lockDfu = new();
+    private readonly object _lockCom = new();
+    private UsbDevice? _usbDfu;
     private StringBuilder _cliStr;
 
     public SerialBetaflight(ILogger<SerialBetaflight> logger)
     {
         _cliStr = new StringBuilder();
         _logger = logger;
-        _serial = string.Empty;
+        _serialString = string.Empty;
+        _port = new SerialPort();
     }
 
 
@@ -80,10 +80,10 @@ public partial class SerialBetaflight
     {
         await Task.Run(async () =>
         {
-            _serial = com;
-            lock (_port)
+            _serialString = com;
+            lock (_lockCom)
             {
-                _port = new SerialPort(_serial, 115200, Parity.None, 8, StopBits.One);
+                _port = new SerialPort(_serialString, 115200, Parity.None, 8, StopBits.One);
                 _port.ReadBufferSize = 655350;
                 _port.WriteBufferSize = 655350;
                 _port.WriteTimeout = 1000;
@@ -97,16 +97,16 @@ public partial class SerialBetaflight
 
                 try
                 {
-                    lock (_port)
+                    lock (_lockCom)
                     {
                         _port.Open();
                     }
 
-                    _alive = true;
+                    _aliveCom = true;
                     bool open;
                     do
                     {
-                        lock (_port)
+                        lock (_lockCom)
                         {
                             open = _port.IsOpen;
                         }
@@ -116,18 +116,18 @@ public partial class SerialBetaflight
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogInformation("SERIAL_EXEPTION_{Serial}: {Ex}", _serial, ex.Message);
+                    _logger.LogInformation("SERIAL_EXEPTION_{Serial}: {Ex}", _serialString, ex.Message);
                 }
 
-                lock (_port)
+                lock (_lockCom)
                 {
                     _port.Close();
                 }
 
-                _alive = false;
+                _aliveCom = false;
             }
 
-            lock (_port)
+            lock (_lockCom)
             {
                 _port.DataReceived -= ComDataReceive;
             }
@@ -137,7 +137,7 @@ public partial class SerialBetaflight
     private void ComDataReceive(object sender, SerialDataReceivedEventArgs e)
     {
         byte[] buffer;
-        lock (_port)
+        lock (_lockCom)
         {
             buffer = new byte[_port.BytesToRead];
             if (_port.BaseStream.Read(buffer, 0, buffer.Length) <= 0) return;
@@ -168,7 +168,7 @@ public partial class SerialBetaflight
 
     public void CliWrite(ReadOnlySpan<byte> buffer)
     {
-        lock (_port)
+        lock (_lockCom)
         {
             if (!_port.IsOpen) return;
             try
