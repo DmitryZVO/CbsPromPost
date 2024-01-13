@@ -2,6 +2,7 @@
 using System.IO.Ports;
 using System.Text;
 using LibUsbDotNet;
+using LibUsbDotNet.LibUsb;
 using LibUsbDotNet.Main;
 
 namespace CbsPromPost.Model;

@@ -244,6 +244,15 @@ public sealed partial class FormFlash : Form
         PrintGood($"СТАНДАРТИЗАЦИЯ УСПЕШНА! ЗАТРАЧЕНО {(DateTime.Now - start).TotalSeconds:0} СЕК.");
     }
 
+    public void PrintTextBox(string text)
+    {
+        Invoke(() =>
+        {
+            richTextBoxMain.AppendText(text+"\r\n");
+            richTextBoxMain.ScrollToCaret();
+        });
+    }
+
     public void PrintError(string text)
     {
         richTextBoxMain.SelectionBackColor = Color.LightPink;
@@ -308,7 +317,7 @@ public sealed partial class FormFlash : Form
                     if (sw.Contains("set name = "))
                     {
                         containName = true;
-                        sw = $"set name = SUDVT40 {labelDroneId.Text}";
+                        sw = $"set name = VT40 {labelDroneId.Text}";
                     }
 
                     _betaflight.CliWrite(sw);
@@ -316,7 +325,7 @@ public sealed partial class FormFlash : Form
 
                 if (!containName)
                 {
-                    _betaflight.CliWrite($"set name = SUDVT40 {labelDroneId.Text}");
+                    _betaflight.CliWrite($"set name = VT40 {labelDroneId.Text}");
                 }
 
                 await Task.Delay(1000);
@@ -369,19 +378,11 @@ public sealed partial class FormFlash : Form
 
     private async Task<bool> WriteBinAsync(byte[] data)
     {
-        return await Task.Run(async () =>
-        {
-            return await Invoke(async () =>
-            {
-                richTextBoxMain.AppendText(
-                    $"DFU: ОЧИСТКА EEPROM И ЗАПИСЬ ПРОШИКИ, ОБЛАСТЬ 0x{SerialBetaflight.DfuStartAddress:x8} - 0x{SerialBetaflight.DfuStartAddress + SerialBetaflight.DfuFlashSize:x8} файл hex [{data.Length:0} байт]\r\n");
-                var res = await _betaflight.DfuRawBinWrite(data, 60000);
-                await _betaflight.DfuExit();
-                richTextBoxMain.AppendText(res >= 0 ? "DFU: УСПЕХ\r\n" : "DFU: ОШИБКА!!!\r\n");
-                richTextBoxMain.ScrollToCaret();
-                return res >= 0;
-            });
-        });
+        PrintTextBox($"DFU: ОЧИСТКА EEPROM И ЗАПИСЬ ПРОШИКИ, ОБЛАСТЬ 0x{SerialBetaflight.DfuStartAddress:x8} - 0x{SerialBetaflight.DfuStartAddress + SerialBetaflight.DfuFlashSize:x8} файл hex [{data.Length:0} байт]");
+        var res = await _betaflight.DfuRawBinWrite(data, 60000);
+        await _betaflight.DfuExit();
+        PrintTextBox(res >= 0 ? "DFU: УСПЕХ" : "DFU: ОШИБКА!!!");
+        return res >= 0;
     }
 
     private async void ButtonClearFlashClick(object? sender, EventArgs e)
