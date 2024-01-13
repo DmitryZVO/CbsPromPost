@@ -7,8 +7,8 @@ namespace CbsPromPost.Other;
 public class RelayPower
 {
     public bool Alive { get; private set; } // Статус реле
-    private readonly string _ip;
-    private readonly int _port;
+    private readonly string _ip = Core.Config.RelayPowerIp;
+    private const int Port = 8283;
     private int _k1;
     private int _k2;
 
@@ -18,17 +18,11 @@ public class RelayPower
         public int K2;
     }
 
-    public RelayPower()
-    {
-        _ip = Core.Config.RelayPowerIp;
-        _port = 8283;
-    }
-
     public async void StartAsync(CancellationToken cancellationToken = default)
     {
         while (!cancellationToken.IsCancellationRequested)
         {
-            await Task.Delay(TimeSpan.FromMilliseconds(500), cancellationToken);
+            await Task.Delay(TimeSpan.FromMilliseconds(1000), cancellationToken);
 
             var currState = UpdateState();
             if (currState == null)
@@ -50,7 +44,7 @@ public class RelayPower
 
         var udp = new UdpClient();
         var snd = Encoding.ASCII.GetBytes("admin admin k1=" + k1.ToString("0") + " k2=" + k2.ToString("0") + " ");
-        udp.Send(snd, snd.Length, _ip, _port);
+        udp.Send(snd, snd.Length, _ip, Port);
         udp.Close();
         udp.Dispose();
     }

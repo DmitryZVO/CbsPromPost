@@ -186,7 +186,7 @@ public partial class SerialBetaflight
             try
             {
                 _port.BaseStream.Write(buffer);
-                _spinWait.SpinOnce(5);
+                _spinWait.SpinOnce(10);
             }
             catch
             {

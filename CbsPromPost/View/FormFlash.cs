@@ -120,6 +120,10 @@ public sealed partial class FormFlash : Form
             new FormInfo(@"РАБОТА ЗАВЕРШЕНА", Color.LightGreen, Color.DarkGreen, 3000, new Size(600, 400))
                 .Show(this);
             labelDroneId.Text = string.Empty; // Финиш работы
+            await Core.IoC.Services.GetRequiredService<Station>().ChangeWorkTimeAsync(DateTime.Now, default);
+            _betaflight.PowerEnabled = false;
+            Core.IoC.Services.GetRequiredService<RelayPower>().SetValues(0, 0);
+
             if (!_formDrone.Visible) return;
             _formDrone.Visible = false;
             return;
@@ -138,6 +142,10 @@ public sealed partial class FormFlash : Form
         new FormInfo(@"ПЕРЕВЕДЕНО В БРАК", Color.LightPink, Color.DarkRed, 3000, new Size(600, 400))
             .Show(this);
         labelDroneId.Text = string.Empty; // Финиш работы
+        await Core.IoC.Services.GetRequiredService<Station>().ChangeWorkTimeAsync(DateTime.Now, default);
+        _betaflight.PowerEnabled = false;
+
+        Core.IoC.Services.GetRequiredService<RelayPower>().SetValues(0, 0);
         if (!_formDrone.Visible) return;
         _formDrone.Visible = false;
         //    return;
@@ -240,6 +248,16 @@ public sealed partial class FormFlash : Form
             return;
         }
 
+        await Task.Delay(1000);
+
+        // Переводим в DFU
+        _betaflight.CliWrite("#\r\nbl");
+        await Task.Delay(300);
+        _betaflight.CliWrite("#\r\nbl");
+        await Task.Delay(300);
+        _betaflight.CliWrite("#\r\nbl");
+        await Task.Delay(1000);
+
         // Валидация
         PrintText($"DFU: ВАЛИДАЦИЯ ПРОШИКИ, ОБЛАСТЬ 0x{SerialBetaflight.DfuStartAddress:x8} - 0x{SerialBetaflight.DfuStartAddress + SerialBetaflight.DfuFlashSize:x8} файл hex [{dataBin.Length:0} байт]");
         var flashWriteBytes = await _betaflight.DfuRawBinReadAll();
@@ -256,6 +274,9 @@ public sealed partial class FormFlash : Form
             return;
         }
         PrintText("DFU: УСПЕХ");
+
+        await _betaflight.DfuExit();
+        await Task.Delay(1000);
 
         // Заливка FPL
         if (await WriteFplAsync(dataFpl) == false)
@@ -346,7 +367,7 @@ public sealed partial class FormFlash : Form
                     _betaflight.CliWrite($"set name = VT40 {labelDroneId.Text}");
                 }
 
-                await Task.Delay(1000);
+                await Task.Delay(3000);
 
                 if (labelDroneId.Text.Equals(@"TT000000")) labelDroneId.Text = string.Empty;
                 var ok = !richTextBoxMain.Text.Contains("ERROR");
@@ -649,6 +670,8 @@ public sealed partial class FormFlash : Form
             if (!Core.Config.TestMode)
             {
                 labelDroneId.Text = string.Empty;
+                groupBoxButtons.Enabled = false;
+                buttonDroneConfig.Enabled = true;
             }
             else
             {
@@ -681,18 +704,18 @@ public sealed partial class FormFlash : Form
             _paused = DateTime.MinValue;
         }
 
-        buttonBadDrone.Enabled = !labelDroneId.Text.Equals(string.Empty);
-        buttonOkDrone.Enabled = !labelDroneId.Text.Equals(string.Empty);
+        buttonBadDrone.Enabled = !_workFullFlash && !labelDroneId.Text.Equals(string.Empty);
+        buttonOkDrone.Enabled = !_workFullFlash && !labelDroneId.Text.Equals(string.Empty);
         if (!Core.Config.TestMode)
         {
-            groupBoxButtons.Enabled = !labelDroneId.Text.Equals(string.Empty);
+            groupBoxButtons.Enabled = !_workFullFlash && !labelDroneId.Text.Equals(string.Empty);
+            buttonDroneConfig.Enabled = !_workFullFlash;
+            buttonFinish.Enabled = !_workFullFlash;
         }
         else
         {
             groupBoxButtons.Enabled = true;
         }
-        groupBoxButtons.Enabled = !_workFullFlash;
-        buttonDroneConfig.Enabled = !_workFullFlash;
 
         var sec = (DateTime.Now - s.WorkStart).TotalSeconds;
         if (_paused != DateTime.MinValue)

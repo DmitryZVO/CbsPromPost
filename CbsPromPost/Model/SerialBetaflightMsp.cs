@@ -3,7 +3,7 @@
 public partial class SerialBetaflight
 {
     public int[] MotorsPwm { get; set; } = { 1000, 1000, 1000, 1000 };
-    public int[] RcPwm { get; set; } = { 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000 };
+    public int[] RcPwm { get; set; } = { 1500, 1500, 1500, 885, 1675, 1500, 1500, 1500, 1500, 1500, 1500, 1500, 1500, 1500, 1500, 1500 };
     public float Roll { get; set; }
     public float Pitch { get; set; }
     public float Yaw { get; set; }

@@ -44,7 +44,7 @@ public partial class SerialBetaflight
         using var ret = new MemoryStream();
         const int blocks = DfuFlashSize / DfuBlockSize;
 
-        if (await DfuWaitState(DfuState.DfuIdle, 6000) < 0) return Array.Empty<byte>();
+        if (await DfuWaitState(DfuState.DfuIdle, 10000) < 0) return Array.Empty<byte>();
         if (await DfuSetAddressPointer(DfuStartAddress) < 0) return Array.Empty<byte>();
         if ((await DfuGetStatus()).BState == DfuState.DfuError) return Array.Empty<byte>();
 

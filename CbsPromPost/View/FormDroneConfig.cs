@@ -137,7 +137,7 @@ public partial class FormDroneConfig : Form
             _betaflight.MspSetCalibrateAcel();
             await Task.Delay(100, ct);
 
-            _betaflight.RcPwm = new [] { 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000 };
+            _betaflight.RcPwm = new [] { 1500, 1500, 1500, 885, 1675, 1500, 1500, 1500, 1500, 1500, 1500, 1500, 1500, 1500, 1500, 1500 };
             _betaflight.Roll = 0f;
             _betaflight.Pitch = 0f;
             _betaflight.Yaw = 0f;
@@ -201,7 +201,7 @@ public partial class FormDroneConfig : Form
                     MessageBoxIcon.Warning, MessageBoxDefaultButton.Button3) != DialogResult.Yes) return;
             finish = true;
         }
-        if (!finish && _betaflight.RcPwm.Min() == _betaflight.RcPwm.Max() && _betaflight.RcPwm[0] == 1000)
+        if (!finish && _betaflight.RcPwm.Min() == 885 && _betaflight.RcPwm.Max() == 1675 && _betaflight.RcPwm[0] == 1500)
         {
             if (MessageBox.Show(@"НЕ БЫЛО ДАННЫХ ОТ RC ПРИЕМНИКА! УВЕРЕНЫ, ЧТО ХОТИТЕ ЗАВЕРШИТЬ ТЕСТЫ?", @"ВНИМАНИЕ!!!!",
                     MessageBoxButtons.YesNoCancel,
