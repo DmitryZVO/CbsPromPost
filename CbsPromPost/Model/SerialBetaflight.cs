@@ -128,7 +128,7 @@ public partial class SerialBetaflight
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogInformation("SERIAL_EXEPTION_{Serial}: {Ex}", _serialString, ex.Message);
+                    //_logger.LogInformation("SERIAL_EXEPTION_{Serial}: {Ex}", _serialString, ex.Message);
                 }
 
                 lock (_lockCom)

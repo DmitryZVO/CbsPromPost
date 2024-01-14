@@ -22,7 +22,7 @@ public class RelayPower
     {
         while (!cancellationToken.IsCancellationRequested)
         {
-            await Task.Delay(TimeSpan.FromMilliseconds(1000), cancellationToken);
+            await Task.Delay(TimeSpan.FromMilliseconds(100), cancellationToken);
 
             var currState = UpdateState();
             if (currState == null)

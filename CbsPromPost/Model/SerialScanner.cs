@@ -96,7 +96,7 @@ public class SerialScanner
         }
         catch (Exception ex)
         {
-            _logger.LogInformation("SERIAL_EXEPTION_{Serial}: {Ex}", name, ex.Message);
+            //_logger.LogInformation("SERIAL_EXEPTION_{Serial}: {Ex}", name, ex.Message);
         }
         port.Close();
         port.Dispose();
