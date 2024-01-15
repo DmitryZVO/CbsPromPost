@@ -126,7 +126,7 @@ public partial class SerialBetaflight
                         await Task.Delay(TimeSpan.FromMilliseconds(100), cancellationToken);
                     } while (open && !FinishWork);
                 }
-                catch (Exception ex)
+                catch
                 {
                     //_logger.LogInformation("SERIAL_EXEPTION_{Serial}: {Ex}", _serialString, ex.Message);
                 }
@@ -176,6 +176,7 @@ public partial class SerialBetaflight
     {
         var buffer = Encoding.ASCII.GetBytes($"{text}\r\n");
         CliWrite(buffer);
+        _spinWait.SpinOnce(100);
     }
 
     public void CliWrite(ReadOnlySpan<byte> buffer)
@@ -186,7 +187,7 @@ public partial class SerialBetaflight
             try
             {
                 _port.BaseStream.Write(buffer);
-                _spinWait.SpinOnce(10);
+                _spinWait.SpinOnce();
             }
             catch
             {

@@ -94,7 +94,7 @@ public class SerialScanner
                 _logger.LogInformation("SERIAL_{Serial}_READ: {Txt}", text.Com, text.Text);
             }
         }
-        catch (Exception ex)
+        catch
         {
             //_logger.LogInformation("SERIAL_EXEPTION_{Serial}: {Ex}", name, ex.Message);
         }
