@@ -176,7 +176,7 @@ public partial class SerialBetaflight
     {
         var buffer = Encoding.ASCII.GetBytes($"{text}\r\n");
         CliWrite(buffer);
-        _spinWait.SpinOnce(100);
+        _spinWait.SpinOnce();
     }
 
     public void CliWrite(ReadOnlySpan<byte> buffer)

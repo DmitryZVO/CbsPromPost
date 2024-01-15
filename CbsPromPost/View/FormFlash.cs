@@ -1,4 +1,5 @@
-﻿using CbsPromPost.Model;
+﻿using System.Text;
+using CbsPromPost.Model;
 using CbsPromPost.Other;
 using CbsPromPost.Resources;
 using Microsoft.Extensions.DependencyInjection;
@@ -348,6 +349,8 @@ public sealed partial class FormFlash : Form
                 PrintText($"CLI: ЗАПИСЬ FPL ЛИСТА, файл fpl [{data.Count:0} строк]");
                 if (labelDroneId.Text.Equals(string.Empty)) labelDroneId.Text = @"TT000000";
                 var containName = false;
+                var i = 0;
+                var stringWrite = new StringBuilder();
                 foreach (var s in data)
                 {
                     if (s.Equals(string.Empty)) continue;
@@ -359,8 +362,18 @@ public sealed partial class FormFlash : Form
                         sw = $"set name = VT40 {labelDroneId.Text}";
                     }
 
-                    _betaflight.CliWrite(sw);
+                    stringWrite.Append(sw);
+                    stringWrite.Append("\r\n");
+                    i++;
+                    if (i < 10) continue;
+
+                    _betaflight.CliWrite(stringWrite.ToString());
+                    stringWrite = new StringBuilder();
+                    i = 0;
+                    await Task.Delay(10);
                 }
+                _betaflight.CliWrite(stringWrite.ToString());
+                await Task.Delay(10);
 
                 if (!containName)
                 {
