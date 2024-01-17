@@ -542,7 +542,7 @@ public sealed partial class FormFlash : Form
         _ = _betaflight.StartAsync(Core.Config.ComBeta);
         _ = _betaflight.StartUsbAsync(int.Parse(Core.Config.UsbDfuVid, System.Globalization.NumberStyles.HexNumber), int.Parse(Core.Config.UsbDfuPid, System.Globalization.NumberStyles.HexNumber));
         _betaflight.OnNewCliMessage += OnNewCliMessage;
-        _webCam.StartAsync(30);
+        _webCam.StartAsync(20);
         _webCam.OnNewVideoFrame += NewFrame;
 
         var s = Core.IoC.Services.GetRequiredService<Station>();
@@ -640,6 +640,12 @@ public sealed partial class FormFlash : Form
     private void NewFrame(Mat mat)
     {
         if (mat.Empty()) return;
+        /*
+        if (mat.Width != 640 | mat.Height != 480)
+        {
+
+        }
+        */
         _record.FrameAdd(labelDroneId.Text, mat);
         _dx.FrameUpdate(mat);
         if (_formDrone.Visible) _formDrone.UpdateFrame(mat);

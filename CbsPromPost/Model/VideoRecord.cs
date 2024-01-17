@@ -37,7 +37,7 @@ public class VideoRecord
 
                 _wr = new VideoWriter(path + "\\" + DateTime.Now.ToString("yyyy-MM-dd HH-mm-ss_fff") + ".avi",
                     FourCC.FromString("XVID"),
-                    20, new OpenCvSharp.Size(800, 600));
+                    20, new OpenCvSharp.Size(640, 480));
             }
             _wr.Write(mat);
             _lastFrameTime = DateTime.Now;

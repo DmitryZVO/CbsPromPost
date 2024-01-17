@@ -98,7 +98,7 @@ public sealed partial class FormFlyRecord : Form
     private void FormShown(object? sender, EventArgs e)
     {
         _scanner.StartAsync(Core.Config.ComScanner);
-        _webCam.StartAsync(30);
+        _webCam.StartAsync(20);
         _webCam.OnNewVideoFrame += NewFrame;
 
         var s = Core.IoC.Services.GetRequiredService<Station>();

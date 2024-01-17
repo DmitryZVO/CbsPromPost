@@ -14,8 +14,8 @@ public class WebCam
         await Task.Run(async () =>
         {
             using var capture = new VideoCapture(0, VideoCaptureAPIs.ANY);
-            capture.FrameWidth = 800;
-            capture.FrameHeight = 600;
+            capture.FrameWidth = 640;
+            capture.FrameHeight = 480;
 
             while (!cancellationToken.IsCancellationRequested)
             {
