@@ -74,6 +74,9 @@
     <Compile Update="View\FormDroneConfig.cs">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Update="View\FormFlyRecord.cs">
+      <SubType>Form</SubType>
+    </Compile>
   </ItemGroup>
 
   <ItemGroup>

@@ -17,6 +17,7 @@ public struct ConfigApp
     public string UsbDfuPid { get; set; } = "DF11";
     public string LastFirmware { get; set; } = string.Empty;
     public string RelayPowerIp { get; set; } = "192.168.101.91";
+    public string DirRecords { get; set; } = "C:\\#CAPTURE\\";
 
     public List<Firmware> Firmwares { get; set; } = new()
     {

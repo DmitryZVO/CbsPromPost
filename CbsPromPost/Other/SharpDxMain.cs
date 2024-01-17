@@ -6,6 +6,8 @@ namespace CbsPromPost.Other;
 
 internal class SharpDxMain : SharpDx
 {
+    public bool NotActive { get; set; }
+
     public SharpDxMain(PictureBox surfacePtr, int fpsTarget) : base(surfacePtr, fpsTarget, new Sprites(), 800)
     {
     }
@@ -15,6 +17,11 @@ internal class SharpDxMain : SharpDx
         lock (this)
         {
             Rt?.DrawBitmap(FrameVideo, new RawRectangleF(0, 0, BaseWidth, BaseHeight), 1.0f, BitmapInterpolationMode.Linear);
+
+            if (NotActive)
+            {
+                Rt?.FillRectangle(new RawRectangleF(0, 0, BaseWidth, BaseHeight), Brushes.SysTextBrushGray);
+            }
         }
     }
 

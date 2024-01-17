@@ -24,6 +24,9 @@ internal static class Program
             case 3:
                 Application.Run(new FormFlash());
                 break;
+            case 4:
+                Application.Run(new FormFlyRecord());
+                break;
             default:
                 MessageBox.Show(@"Неизвестный тип работы!", @"ОШИБКА", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 break;

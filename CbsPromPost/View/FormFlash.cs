@@ -30,6 +30,7 @@ public sealed partial class FormFlash : Form
     private readonly SerialScanner _scanner;
     private readonly SerialBetaflight _betaflight;
     private bool _workFullFlash;
+    private readonly VideoRecord _record;
 
     public FormFlash()
     {
@@ -62,6 +63,7 @@ public sealed partial class FormFlash : Form
 
         _webCam = new WebCam();
         _dx = new SharpDxMain(pictureBoxMain, -1);
+        _record = new VideoRecord();
         pictureBoxMain.SizeMode = PictureBoxSizeMode.StretchImage;
 
         var works = Core.IoC.Services.GetRequiredService<Works>();
@@ -540,7 +542,7 @@ public sealed partial class FormFlash : Form
         _ = _betaflight.StartAsync(Core.Config.ComBeta);
         _ = _betaflight.StartUsbAsync(int.Parse(Core.Config.UsbDfuVid, System.Globalization.NumberStyles.HexNumber), int.Parse(Core.Config.UsbDfuPid, System.Globalization.NumberStyles.HexNumber));
         _betaflight.OnNewCliMessage += OnNewCliMessage;
-        _webCam.StartAsync(20);
+        _webCam.StartAsync(30);
         _webCam.OnNewVideoFrame += NewFrame;
 
         var s = Core.IoC.Services.GetRequiredService<Station>();
@@ -638,6 +640,7 @@ public sealed partial class FormFlash : Form
     private void NewFrame(Mat mat)
     {
         if (mat.Empty()) return;
+        _record.FrameAdd(labelDroneId.Text, mat);
         _dx.FrameUpdate(mat);
         if (_formDrone.Visible) _formDrone.UpdateFrame(mat);
         //if (labelDroneId.Text.Equals(string.Empty)) return;
@@ -665,6 +668,8 @@ public sealed partial class FormFlash : Form
     private async void TimerTick(object? sender, EventArgs e)
     {
         if ((DateTime.Now - _counterClickTime).TotalMilliseconds > 1000) _counterClick = 0;
+
+        _record.ChangeWriting(!labelDroneId.Text.Equals(string.Empty));
 
         labelTimer.Text = DateTime.Now.ToString("HH:mm:ss.fff");
         ProgressChange(_betaflight.ProgressValue);
