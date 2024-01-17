@@ -28,7 +28,7 @@ public class VideoRecord
         var path = Core.Config.DirRecords + id;
         if (!Directory.Exists(path)) Directory.CreateDirectory(path);
         if (!Writing) return;
-
+        if (mat.Sum().Val0 > 75000000) return; // Проверка на синий цвет
         lock (_wr)
         {
             if ((DateTime.Now - _lastFrameTime).TotalSeconds > MinimalSecondAfterFiles) // Обновляем файл записи
