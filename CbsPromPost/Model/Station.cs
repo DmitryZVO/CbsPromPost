@@ -22,13 +22,13 @@ public class Station
         User = new Users.User();
         TimeStamp = DateTime.Now;
 
-        await StartWorkAsync(new Users.User(), default);
+        //await StartWorkAsync(new Users.User(), default);
 
         while (!ct.IsCancellationRequested)
         {
-            await PingAsync(ct);
-            await Task.Delay(500, ct);
             await GetStateAsync(ct);
+            await Task.Delay(500, ct);
+            await PingAsync(ct);
             await Task.Delay(500, ct);
         }
     }
