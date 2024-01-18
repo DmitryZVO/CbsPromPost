@@ -148,28 +148,35 @@ public partial class SerialBetaflight
 
     private void ComDataReceive(object sender, SerialDataReceivedEventArgs e)
     {
-        byte[] buffer;
-        lock (_lockCom)
+        try
         {
-            buffer = new byte[_port.BytesToRead];
-            if (_port.BaseStream.Read(buffer, 0, buffer.Length) <= 0) return;
-        }
+            byte[] buffer;
+            lock (_lockCom)
+            {
+                buffer = new byte[_port.BytesToRead];
+                if (_port.BaseStream.Read(buffer, 0, buffer.Length) <= 0) return;
+            }
 
-        var data = Encoding.ASCII.GetString(buffer);
-        if (data.Equals(string.Empty)) return;
-        if (data.Length > 3 && data[..3].Equals("$X>")) // это пакет Msp
+            var data = Encoding.ASCII.GetString(buffer);
+            if (data.Equals(string.Empty)) return;
+            if (data.Length > 3 && data[..3].Equals("$X>")) // это пакет Msp
+            {
+                UpdateValuesFromMsp(buffer);
+                return;
+            }
+            if (_cliStr.Length == 0 && !data.Contains('#')) return; // Это остаток от пакета Msp
+
+            _cliStr.Append(data);
+            var str = _cliStr.ToString();
+            if (str.Length < 6) return;
+            if (!str[^6..].Equals("\r\n\r\n# ")) return; // Конец сообщения CLI
+            OnNewCliMessage(str);
+            _cliStr = new StringBuilder();
+        }
+        catch
         {
-            UpdateValuesFromMsp(buffer);
-            return;
+            //
         }
-        if (_cliStr.Length == 0 && !data.Contains('#')) return; // Это остаток от пакета Msp
-
-        _cliStr.Append(data);
-        var str = _cliStr.ToString();
-        if (str.Length < 6) return;
-        if (!str[^6..].Equals("\r\n\r\n# ")) return; // Конец сообщения CLI
-        OnNewCliMessage(str);
-        _cliStr = new StringBuilder();
     }
 
     public void CliWrite(string text)

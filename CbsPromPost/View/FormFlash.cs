@@ -363,6 +363,16 @@ public sealed partial class FormFlash : Form
                         containName = true;
                         sw = $"set name = VT40 {labelDroneId.Text}";
                     }
+                    if (sw.Contains("set pilot_name = "))
+                    {
+                        containName = true;
+                        sw = $"set pilot_name = VT40 {labelDroneId.Text}";
+                    }
+                    if (sw.Contains("set craft_name = "))
+                    {
+                        containName = true;
+                        sw = $"set craft_name = VT40 {labelDroneId.Text}";
+                    }
 
                     stringWrite.Append(sw);
                     stringWrite.Append("\r\n");
