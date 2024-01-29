@@ -23,8 +23,8 @@ public partial class FormDroneConfig : Form
         _reverseSpin = new[] { false, false, false, false };
         _reverseSpinAll = false;
         _betaflight = bf;
-        _dx3 = new SharpDxDrone3d(pictureBox3d, 30, bf);
-        _dx2 = new SharpDxDrone2d(pictureBox2d, 30, bf);
+        _dx3 = new SharpDxDrone3d(pictureBox3d, 10, bf);
+        _dx2 = new SharpDxDrone2d(pictureBox2d, 10, bf);
 
         Shown += ShownForm;
         Closing += ClosingForm;

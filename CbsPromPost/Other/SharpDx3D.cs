@@ -222,7 +222,7 @@ public abstract class SharpDx3D : IDisposable
         {
             Width = BaseWidth, // Ширина
             Height = BaseHeight, // Высота
-            RefreshRate = new Rational(FpsTarget, 1), // Частота обновления изображения
+            RefreshRate = new Rational(FpsTarget, 0), // Частота обновления изображения
             Format = Format.R8G8B8A8_UNorm // Формат пикселей в буфере
         };
         var swapChainDesc = new SwapChainDescription() // Структура которая инициализирует DirectX 11, 

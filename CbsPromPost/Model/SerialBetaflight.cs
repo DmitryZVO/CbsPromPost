@@ -186,14 +186,14 @@ public partial class SerialBetaflight
         _spinWait.SpinOnce();
     }
 
-    public void CliWrite(ReadOnlySpan<byte> buffer)
+    public void CliWrite(ReadOnlyMemory<byte> buffer)
     {
         lock (_lockCom)
         {
             if (!_port.IsOpen) return;
             try
             {
-                _port.BaseStream.Write(buffer);
+                _port.BaseStream.WriteAsync(buffer);
                 _spinWait.SpinOnce();
             }
             catch

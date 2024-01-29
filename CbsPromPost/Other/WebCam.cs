@@ -26,8 +26,16 @@ public class WebCam
                 try
                 {
                     using var grab = new Mat(capture.FrameHeight, capture.FrameWidth, MatType.CV_8UC1, Scalar.Black);
-                    if (capture.Grab()) capture.Read(grab);
-                    OnNewVideoFrame.Invoke(grab);
+                    if (capture.Grab())
+                    {
+                        capture.Read(grab);
+                        OnNewVideoFrame.Invoke(grab);
+                    }
+                    else
+                    {
+                        await Task.Delay(1000);
+                        continue;
+                    }
                 }
                 catch
                 {
