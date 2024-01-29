@@ -15,6 +15,7 @@ public partial class FormDroneConfig : Form
     private bool _reverseSpinAll;
     private bool _firstOpen = true;
     private bool _motorNotChecked = true;
+    private System.Windows.Forms.Timer _timer = new System.Windows.Forms.Timer();
 
     public FormDroneConfig(SerialBetaflight bf)
     {
@@ -23,8 +24,8 @@ public partial class FormDroneConfig : Form
         _reverseSpin = new[] { false, false, false, false };
         _reverseSpinAll = false;
         _betaflight = bf;
-        _dx3 = new SharpDxDrone3d(pictureBox3d, 10, bf);
-        _dx2 = new SharpDxDrone2d(pictureBox2d, 10, bf);
+        _dx3 = new SharpDxDrone3d(pictureBox3d, -1, bf);
+        _dx2 = new SharpDxDrone2d(pictureBox2d, -1, bf);
 
         Shown += ShownForm;
         Closing += ClosingForm;
@@ -46,6 +47,14 @@ public partial class FormDroneConfig : Form
         buttonInverseAll.Click += MotorsInvAll;
         button1010.Click += MotorMinimum;
         buttonPower.Click += PowerClick;
+        _timer.Tick += DxRefresh;
+        _timer.Interval = 100;
+    }
+
+    private void DxRefresh(object? sender, EventArgs e)
+    {
+        _dx2.RenderCallback();
+        _dx3.RenderCallback();
     }
 
     private void PowerClick(object? sender, EventArgs e)
@@ -107,6 +116,8 @@ public partial class FormDroneConfig : Form
                 _motorNotChecked = true;
                 continue;
             }
+
+            if (!_timer.Enabled) _timer.Start();
 
             Invoke(() =>
             {
@@ -227,6 +238,7 @@ public partial class FormDroneConfig : Form
         _reverseSpinAll = false;
         _dx2.Motors.ToList().ForEach(x => x.ValuePwm = 1000);
         _betaflight.MspSetMotor(1000, 1000, 1000, 1000);
+        _timer.Stop();
         Visible = false;
     }
 
