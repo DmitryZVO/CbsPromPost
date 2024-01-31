@@ -116,9 +116,9 @@ public sealed partial class FormFlash : Form
     private async void OkDrone(object? sender, EventArgs e)
     {
         var answ = await Core.IoC.Services.GetRequiredService<Station>().FinishBodyAsync(labelDroneId.Text, default);
+        _counts = await Core.IoC.Services.GetRequiredService<Station>().GetCountsFinishWorks(default);
         if (answ.Equals(string.Empty))
         {
-            _counts++;
             new FormInfo(@"РАБОТА ЗАВЕРШЕНА", Color.LightGreen, Color.DarkGreen, 3000, new Size(600, 400))
                 .Show(this);
             labelDroneId.Text = string.Empty; // Финиш работы
@@ -607,8 +607,6 @@ public sealed partial class FormFlash : Form
         {
             if (labelUser.Text.Equals(string.Empty)) return;
 
-            _counts = await Core.IoC.Services.GetRequiredService<Station>().GetCountsFinishWorks(default);
-
             var notOk = text.Length != 8;
             if (!notOk && text[..2] != "TT") notOk = true;
             if (!notOk && !long.TryParse(text[2..5], out _)) notOk = true;
@@ -635,6 +633,7 @@ public sealed partial class FormFlash : Form
             }
 
             var answ = await Core.IoC.Services.GetRequiredService<Station>().FinishBodyAsync(labelDroneId.Text, default);
+            _counts = await Core.IoC.Services.GetRequiredService<Station>().GetCountsFinishWorks(default);
             if (answ.Equals(string.Empty))
             {
                 new FormInfo(@"РАБОТА ЗАВЕРШЕНА", Color.LightGreen, Color.DarkGreen, 3000, new Size(600, 400))

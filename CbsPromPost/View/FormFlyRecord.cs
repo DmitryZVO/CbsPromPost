@@ -20,7 +20,7 @@ public sealed partial class FormFlyRecord : Form
     private DateTime _startTime;
     private DateTime _lastPaused;
     private DateTime _paused;
-    private int _counts;
+    private long _counts;
 
     private int _counterClick;
     private DateTime _counterClickTime;
@@ -36,7 +36,6 @@ public sealed partial class FormFlyRecord : Form
         buttonPause.Enabled = false;
 
         labelName.Text = $@"ПОСТ №{Core.Config.PostNumber:0}";
-        _counts = 0;
         _timer.Interval = 100;
 
         _webCam = new WebCam();
@@ -66,9 +65,9 @@ public sealed partial class FormFlyRecord : Form
     private async void OkDrone(object? sender, EventArgs e)
     {
         var answ = await Core.IoC.Services.GetRequiredService<Station>().FinishBodyAsync(labelDroneId.Text, default);
+        _counts = await Core.IoC.Services.GetRequiredService<Station>().GetCountsFinishWorks(default);
         if (answ.Equals(string.Empty))
         {
-            _counts++;
             new FormInfo(@"РАБОТА ЗАВЕРШЕНА", Color.LightGreen, Color.DarkGreen, 3000, new Size(600, 400))
                 .Show(this);
             labelDroneId.Text = string.Empty; // Финиш работы
@@ -95,7 +94,7 @@ public sealed partial class FormFlyRecord : Form
         //new FormInfo(@$"{answ}", Color.LightPink, Color.DarkRed, 3000, new Size(600, 400)).Show(this);
     }
 
-    private void FormShown(object? sender, EventArgs e)
+    private async void FormShown(object? sender, EventArgs e)
     {
         _scanner.StartAsync(Core.Config.ComScanner);
         _webCam.StartAsync(20);
@@ -116,6 +115,7 @@ public sealed partial class FormFlyRecord : Form
         }
         _paused = DateTime.MinValue;
         _timer.Start();
+        _counts = await Core.IoC.Services.GetRequiredService<Station>().GetCountsFinishWorks(default);
     }
 
     private void ComReadString(string com, string text)
@@ -150,9 +150,9 @@ public sealed partial class FormFlyRecord : Form
             }
 
             var answ = await Core.IoC.Services.GetRequiredService<Station>().FinishBodyAsync(labelDroneId.Text, default);
+            _counts = await Core.IoC.Services.GetRequiredService<Station>().GetCountsFinishWorks(default);
             if (answ.Equals(string.Empty))
             {
-                _counts++;
                 new FormInfo(@"РАБОТА ЗАВЕРШЕНА", Color.LightGreen, Color.DarkGreen, 3000, new Size(600, 400))
                     .Show(this);
                 labelDroneId.Text = string.Empty; // Финиш работы
