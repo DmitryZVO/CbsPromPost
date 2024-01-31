@@ -127,6 +127,25 @@ public class Station
         return "ПОВТОРИТЕ ПОПЫТКУ";
     }
 
+    public async Task<long> GetCountsFinishWorks(CancellationToken ct)
+    {
+        HttpClient web = new()
+        {
+            BaseAddress = new Uri(Core.Config.ServerUrl),
+        };
+
+        try
+        {
+            using var answ = await web.GetAsync($"WorksGetCounts?userId={User.Id:0}&workId={Core.Config.Type:0}", ct);
+            return answ.IsSuccessStatusCode ? long.Parse(await answ.Content.ReadAsStringAsync(ct)) : 0;
+        }
+        catch
+        {
+            //
+        }
+        return 0;
+    }
+
     public static void ServiceStart(string serviceName)
     {
         var service = new ServiceController(serviceName);

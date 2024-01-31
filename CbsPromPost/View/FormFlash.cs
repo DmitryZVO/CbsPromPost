@@ -22,7 +22,7 @@ public sealed partial class FormFlash : Form
     private DateTime _startTime;
     private DateTime _lastPaused;
     private DateTime _paused;
-    private int _counts;
+    private long _counts;
     private FormDroneConfig _formDrone;
 
     private int _counterClick;
@@ -43,7 +43,6 @@ public sealed partial class FormFlash : Form
 
         _formDrone = new FormDroneConfig(_betaflight);
         labelName.Text = $@"ПОСТ №{Core.Config.PostNumber:0}";
-        _counts = 0;
         _timer.Interval = 100;
         foreach (var f in Core.Config.Firmwares)
         {
@@ -546,7 +545,7 @@ public sealed partial class FormFlash : Form
         _betaflight.CliWrite("exit");
     }
 
-    private void FormShown(object? sender, EventArgs e)
+    private async void FormShown(object? sender, EventArgs e)
     {
         _scanner.StartAsync(Core.Config.ComScanner);
         _ = _betaflight.StartAsync(Core.Config.ComBeta);
@@ -570,6 +569,8 @@ public sealed partial class FormFlash : Form
         }
         _paused = DateTime.MinValue;
         _timer.Start();
+
+        _counts = await Core.IoC.Services.GetRequiredService<Station>().GetCountsFinishWorks(default);
     }
 
     private async void OnNewCliMessage(string message)
@@ -606,6 +607,8 @@ public sealed partial class FormFlash : Form
         {
             if (labelUser.Text.Equals(string.Empty)) return;
 
+            _counts = await Core.IoC.Services.GetRequiredService<Station>().GetCountsFinishWorks(default);
+
             var notOk = text.Length != 8;
             if (!notOk && text[..2] != "TT") notOk = true;
             if (!notOk && !long.TryParse(text[2..5], out _)) notOk = true;
@@ -634,7 +637,6 @@ public sealed partial class FormFlash : Form
             var answ = await Core.IoC.Services.GetRequiredService<Station>().FinishBodyAsync(labelDroneId.Text, default);
             if (answ.Equals(string.Empty))
             {
-                _counts++;
                 new FormInfo(@"РАБОТА ЗАВЕРШЕНА", Color.LightGreen, Color.DarkGreen, 3000, new Size(600, 400))
                     .Show(this);
                 labelDroneId.Text = string.Empty; // Финиш работы

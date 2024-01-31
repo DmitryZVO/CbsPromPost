@@ -10,7 +10,7 @@ internal static class Program
     {
         ApplicationConfiguration.Initialize();
 
-        using var mutex = new Mutex(true, "TULA_CBS", out var createdNew);
+        using var mutex = new Mutex(true, "TULA_CBS_POST", out var createdNew);
         if (!createdNew)
         {
             MessageBox.Show(@"Запущен другой экземпляр программы! Продолженние не возможно....", @"ОШИБКА", MessageBoxButtons.OK, MessageBoxIcon.Error);
