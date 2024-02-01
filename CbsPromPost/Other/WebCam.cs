@@ -13,7 +13,7 @@ public class WebCam
     {
         await Task.Run(async () =>
         {
-            using var capture = new VideoCapture(0, VideoCaptureAPIs.ANY);
+            using var capture = new VideoCapture(-1);
             capture.FrameWidth = 640;
             capture.FrameHeight = 480;
 
@@ -33,7 +33,7 @@ public class WebCam
                     }
                     else
                     {
-                        await Task.Delay(1000);
+                        await Task.Delay(1000, cancellationToken);
                         continue;
                     }
                 }

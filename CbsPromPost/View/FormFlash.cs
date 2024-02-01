@@ -17,11 +17,6 @@ public sealed partial class FormFlash : Form
 
     private readonly WebCam _webCam;
     private readonly SharpDxMain _dx;
-    private double _timePausedMinutes;
-    private double _timeMinWorkMinutes;
-    private DateTime _startTime;
-    private DateTime _lastPaused;
-    private DateTime _paused;
     private long _counts;
     private FormDroneConfig _formDrone;
 
@@ -38,8 +33,6 @@ public sealed partial class FormFlash : Form
 
         _scanner = new SerialScanner(Core.IoC.Services.GetRequiredService<ILogger<SerialScanner>>());
         _betaflight = new SerialBetaflight(Core.IoC.Services.GetRequiredService<ILogger<SerialBetaflight>>());
-
-        buttonPause.Enabled = false;
 
         _formDrone = new FormDroneConfig(_betaflight);
         labelName.Text = $@"ПОСТ №{Core.Config.PostNumber:0}";
@@ -83,7 +76,6 @@ public sealed partial class FormFlash : Form
         menu.Items.Add("ОЧИСТИТЬ", null, OnRichTextBoxClear);
         richTextBoxMain.ContextMenuStrip = menu;
 
-        buttonPause.Click += ButtonPauseClick;
         buttonFinish.Click += ButtonFinishClick;
 
         _timer.Tick += TimerTick;
@@ -559,17 +551,8 @@ public sealed partial class FormFlash : Form
         if (!s.User.Name.Equals(string.Empty))
         {
             labelTime.Text = (DateTime.Now - s.WorkStart).TotalSeconds.ToSecTime();
-            _startTime = s.WorkStart;
-            _lastPaused = s.WorkStart;
         }
-        else
-        {
-            _startTime = DateTime.Now;
-            _lastPaused = DateTime.Now;
-        }
-        _paused = DateTime.MinValue;
         _timer.Start();
-
         _counts = await Core.IoC.Services.GetRequiredService<Station>().GetCountsFinishWorks(default);
     }
 
@@ -682,7 +665,7 @@ public sealed partial class FormFlash : Form
         new FormSettings().ShowDialog(this);
     }
 
-    private async void TimerTick(object? sender, EventArgs e)
+    private void TimerTick(object? sender, EventArgs e)
     {
         if ((DateTime.Now - _counterClickTime).TotalMilliseconds > 1000) _counterClick = 0;
 
@@ -714,15 +697,10 @@ public sealed partial class FormFlash : Form
                 buttonDroneConfig.Enabled = !_workFullFlash;
             }
             labelUser.Text = string.Empty;
-            buttonPause.Enabled = false;
             buttonFinish.Enabled = false;
-            _startTime = DateTime.Now;
-            _lastPaused = DateTime.Now;
-            _paused = DateTime.MinValue;
             labelTime.Text = @"РАБОТА НЕ ВЕДЕТСЯ";
             labelTime.ForeColor = Color.DarkRed;
             labelWork.Text = work.Name;
-            buttonPause.Text = @"ОТДЫХ";
             label1.Text = string.Empty;
             labelCount.Text = string.Empty;
             buttonBadDrone.Enabled = false;
@@ -734,9 +712,6 @@ public sealed partial class FormFlash : Form
         if (!s.User.Name.Equals(string.Empty) && labelUser.Text.Equals(string.Empty))
         {
             buttonFinish.Enabled = true;
-            _startTime = DateTime.Now;
-            _lastPaused = DateTime.Now;
-            _paused = DateTime.MinValue;
         }
 
         buttonBadDrone.Enabled = !_workFullFlash && !labelDroneId.Text.Equals(string.Empty);
@@ -753,35 +728,12 @@ public sealed partial class FormFlash : Form
         }
 
         var sec = (DateTime.Now - s.WorkStart).TotalSeconds;
-        if (_paused != DateTime.MinValue)
-        {
-            var msPaused = (DateTime.Now - _paused).TotalMilliseconds;
-            await s.ChangeWorkTimeAsync(_startTime.AddMilliseconds(msPaused), default);
-            if (msPaused > _timePausedMinutes * 1000 * 60)
-            {
-                _startTime = s.WorkStart;
-                _lastPaused = DateTime.Now;
-                _paused = DateTime.MinValue;
-            }
-            buttonPause.Text = $@"{(_timePausedMinutes * 60 - msPaused / 1000).ToSecTime()}";
-            labelTime.BackColor = Color.LightYellow;
-        }
-        else
-        {
-            var minLast = (DateTime.Now - _lastPaused).TotalMinutes;
-            var last = Math.Max(0, _timeMinWorkMinutes - minLast);
-            buttonPause.Text = last > 0 ? $@"ОТДЫХ [{last:0}]" : "ОТДЫХ";
-            buttonPause.Enabled = (DateTime.Now - _lastPaused).TotalMinutes > _timeMinWorkMinutes;
-            labelTime.BackColor = Color.WhiteSmoke;
-        }
 
         labelWork.Text = work.Name;
         labelUser.Text = s.User.Name;
         labelTime.Text = sec.ToSecTime();
         label1.Text = work.TimeNormalSec > 0 ? $@"НОРМАТИВ: {work.TimeNormalSec:0} сек." : string.Empty;
         labelCount.Text = work.TimeNormalSec > 0 ? $@"КОЛИЧЕСТВО: {_counts}" : string.Empty;
-        _timePausedMinutes = works.Get(Core.Config.Type).TimePauseSec / 60d;
-        _timeMinWorkMinutes = works.Get(Core.Config.Type).TimePauseLongSec / 60d;
 
         if (sec < work.TimeNormalSec * 1.0d)
             labelTime.ForeColor = Color.DarkGreen;
@@ -797,23 +749,6 @@ public sealed partial class FormFlash : Form
         if (f.ShowDialog(this) != DialogResult.Yes) return;
         var s = Core.IoC.Services.GetRequiredService<Station>();
         await s.StartWorkAsync(new Users.User(), default);
-    }
-
-    private async void ButtonPauseClick(object? sender, EventArgs e)
-    {
-        var s = Core.IoC.Services.GetRequiredService<Station>();
-
-        if (_paused == DateTime.MinValue)
-        {
-            _paused = DateTime.Now;
-        }
-        else
-        {
-            _startTime = s.WorkStart;
-            _lastPaused = DateTime.Now;
-            _paused = DateTime.MinValue;
-        }
-        await s.GetStateAsync(default);
     }
 
     private void Button1_Click(object sender, EventArgs e) => _betaflight.CliWrite("#");

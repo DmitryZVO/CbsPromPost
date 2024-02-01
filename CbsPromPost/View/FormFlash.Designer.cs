@@ -31,7 +31,6 @@ sealed partial class FormFlash
         label1 = new Label();
         labelCount = new Label();
         buttonFinish = new Button();
-        buttonPause = new Button();
         labelTime = new Label();
         labelUser = new Label();
         labelWork = new Label();
@@ -79,22 +78,22 @@ sealed partial class FormFlash
         // 
         // label1
         // 
-        label1.Font = new Font("Segoe UI", 24F, FontStyle.Regular, GraphicsUnit.Point);
+        label1.Font = new Font("Segoe UI", 28F, FontStyle.Regular, GraphicsUnit.Point);
         label1.ForeColor = Color.Black;
-        label1.Location = new Point(1151, 143);
+        label1.Location = new Point(1093, 143);
         label1.Name = "label1";
-        label1.Size = new Size(421, 82);
+        label1.Size = new Size(479, 82);
         label1.TabIndex = 17;
         label1.Text = "НОРМАТИВ: 10 мин.";
         label1.TextAlign = ContentAlignment.MiddleCenter;
         // 
         // labelCount
         // 
-        labelCount.Font = new Font("Segoe UI", 24F, FontStyle.Regular, GraphicsUnit.Point);
+        labelCount.Font = new Font("Segoe UI", 28F, FontStyle.Regular, GraphicsUnit.Point);
         labelCount.ForeColor = Color.Black;
         labelCount.Location = new Point(12, 143);
         labelCount.Name = "labelCount";
-        labelCount.Size = new Size(309, 82);
+        labelCount.Size = new Size(355, 82);
         labelCount.TabIndex = 16;
         labelCount.Text = "КОЛ-ВО: 0";
         labelCount.TextAlign = ContentAlignment.MiddleCenter;
@@ -103,31 +102,20 @@ sealed partial class FormFlash
         // 
         buttonFinish.Font = new Font("Segoe UI", 24F, FontStyle.Regular, GraphicsUnit.Point);
         buttonFinish.ForeColor = Color.FromArgb(64, 0, 0);
-        buttonFinish.Location = new Point(1331, 75);
+        buttonFinish.Location = new Point(1331, 70);
         buttonFinish.Name = "buttonFinish";
-        buttonFinish.Size = new Size(241, 61);
+        buttonFinish.Size = new Size(241, 63);
         buttonFinish.TabIndex = 15;
         buttonFinish.Text = "ЗАКОНЧИТЬ";
         buttonFinish.UseVisualStyleBackColor = true;
-        // 
-        // buttonPause
-        // 
-        buttonPause.Font = new Font("Segoe UI", 24F, FontStyle.Regular, GraphicsUnit.Point);
-        buttonPause.ForeColor = Color.Purple;
-        buttonPause.Location = new Point(12, 75);
-        buttonPause.Name = "buttonPause";
-        buttonPause.Size = new Size(230, 61);
-        buttonPause.TabIndex = 14;
-        buttonPause.Text = "ОТДЫХ";
-        buttonPause.UseVisualStyleBackColor = true;
         // 
         // labelTime
         // 
         labelTime.Font = new Font("Segoe UI", 48F, FontStyle.Regular, GraphicsUnit.Point);
         labelTime.ForeColor = Color.Black;
-        labelTime.Location = new Point(327, 143);
+        labelTime.Location = new Point(373, 143);
         labelTime.Name = "labelTime";
-        labelTime.Size = new Size(818, 82);
+        labelTime.Size = new Size(714, 82);
         labelTime.TabIndex = 13;
         labelTime.Text = "00:00:00";
         labelTime.TextAlign = ContentAlignment.MiddleCenter;
@@ -137,9 +125,9 @@ sealed partial class FormFlash
         labelUser.BorderStyle = BorderStyle.FixedSingle;
         labelUser.Font = new Font("Segoe UI", 20F, FontStyle.Regular, GraphicsUnit.Point);
         labelUser.ForeColor = Color.FromArgb(0, 0, 64);
-        labelUser.Location = new Point(730, 75);
+        labelUser.Location = new Point(495, 72);
         labelUser.Name = "labelUser";
-        labelUser.Size = new Size(595, 61);
+        labelUser.Size = new Size(830, 61);
         labelUser.TabIndex = 12;
         labelUser.TextAlign = ContentAlignment.MiddleCenter;
         // 
@@ -170,7 +158,7 @@ sealed partial class FormFlash
         labelDroneId.BorderStyle = BorderStyle.FixedSingle;
         labelDroneId.Font = new Font("Segoe UI", 28F, FontStyle.Regular, GraphicsUnit.Point);
         labelDroneId.ForeColor = Color.FromArgb(0, 0, 64);
-        labelDroneId.Location = new Point(248, 75);
+        labelDroneId.Location = new Point(12, 72);
         labelDroneId.Name = "labelDroneId";
         labelDroneId.Size = new Size(232, 61);
         labelDroneId.TabIndex = 18;
@@ -532,7 +520,7 @@ sealed partial class FormFlash
         // 
         buttonBadDrone.Font = new Font("Segoe UI", 24F, FontStyle.Regular, GraphicsUnit.Point);
         buttonBadDrone.ForeColor = Color.Maroon;
-        buttonBadDrone.Location = new Point(608, 75);
+        buttonBadDrone.Location = new Point(373, 72);
         buttonBadDrone.Name = "buttonBadDrone";
         buttonBadDrone.Size = new Size(116, 61);
         buttonBadDrone.TabIndex = 54;
@@ -543,7 +531,7 @@ sealed partial class FormFlash
         // 
         buttonOkDrone.Font = new Font("Segoe UI", 28F, FontStyle.Regular, GraphicsUnit.Point);
         buttonOkDrone.ForeColor = Color.FromArgb(0, 64, 64);
-        buttonOkDrone.Location = new Point(486, 75);
+        buttonOkDrone.Location = new Point(251, 72);
         buttonOkDrone.Name = "buttonOkDrone";
         buttonOkDrone.Size = new Size(116, 61);
         buttonOkDrone.TabIndex = 55;
@@ -586,7 +574,6 @@ sealed partial class FormFlash
         Controls.Add(label1);
         Controls.Add(labelCount);
         Controls.Add(buttonFinish);
-        Controls.Add(buttonPause);
         Controls.Add(labelTime);
         Controls.Add(labelUser);
         Controls.Add(labelWork);
@@ -607,7 +594,6 @@ sealed partial class FormFlash
     private Label label1;
     private Label labelCount;
     private Button buttonFinish;
-    private Button buttonPause;
     private Label labelTime;
     private Label labelUser;
     private Label labelWork;
