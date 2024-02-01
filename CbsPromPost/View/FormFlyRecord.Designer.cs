@@ -68,7 +68,7 @@ sealed partial class FormFlyRecord
         // 
         buttonFinish.Font = new Font("Segoe UI", 24F, FontStyle.Regular, GraphicsUnit.Point);
         buttonFinish.ForeColor = Color.FromArgb(64, 0, 0);
-        buttonFinish.Location = new Point(1331, 70);
+        buttonFinish.Location = new Point(1331, 73);
         buttonFinish.Name = "buttonFinish";
         buttonFinish.Size = new Size(241, 61);
         buttonFinish.TabIndex = 15;
@@ -91,7 +91,7 @@ sealed partial class FormFlyRecord
         labelUser.BorderStyle = BorderStyle.FixedSingle;
         labelUser.Font = new Font("Segoe UI", 20F, FontStyle.Regular, GraphicsUnit.Point);
         labelUser.ForeColor = Color.FromArgb(0, 0, 64);
-        labelUser.Location = new Point(494, 70);
+        labelUser.Location = new Point(494, 73);
         labelUser.Name = "labelUser";
         labelUser.Size = new Size(831, 61);
         labelUser.TabIndex = 12;
@@ -124,7 +124,7 @@ sealed partial class FormFlyRecord
         labelDroneId.BorderStyle = BorderStyle.FixedSingle;
         labelDroneId.Font = new Font("Segoe UI", 28F, FontStyle.Regular, GraphicsUnit.Point);
         labelDroneId.ForeColor = Color.FromArgb(0, 0, 64);
-        labelDroneId.Location = new Point(12, 70);
+        labelDroneId.Location = new Point(12, 73);
         labelDroneId.Name = "labelDroneId";
         labelDroneId.Size = new Size(232, 63);
         labelDroneId.TabIndex = 18;
@@ -143,7 +143,7 @@ sealed partial class FormFlyRecord
         // 
         buttonBadDrone.Font = new Font("Segoe UI", 24F, FontStyle.Regular, GraphicsUnit.Point);
         buttonBadDrone.ForeColor = Color.Maroon;
-        buttonBadDrone.Location = new Point(372, 70);
+        buttonBadDrone.Location = new Point(372, 73);
         buttonBadDrone.Name = "buttonBadDrone";
         buttonBadDrone.Size = new Size(116, 63);
         buttonBadDrone.TabIndex = 54;
@@ -154,7 +154,7 @@ sealed partial class FormFlyRecord
         // 
         buttonOkDrone.Font = new Font("Segoe UI", 28F, FontStyle.Regular, GraphicsUnit.Point);
         buttonOkDrone.ForeColor = Color.FromArgb(0, 64, 64);
-        buttonOkDrone.Location = new Point(250, 70);
+        buttonOkDrone.Location = new Point(250, 73);
         buttonOkDrone.Name = "buttonOkDrone";
         buttonOkDrone.Size = new Size(116, 63);
         buttonOkDrone.TabIndex = 55;

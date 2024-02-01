@@ -1,5 +1,5 @@
-﻿
-using OpenCvSharp;
+﻿using OpenCvSharp;
+using OpenCvSharp.Extensions;
 
 namespace CbsPromPost.Other;
 
@@ -13,13 +13,12 @@ public class WebCam
     {
         await Task.Run(async () =>
         {
-            using var capture = new VideoCapture(-1);
-            capture.FrameWidth = 640;
-            capture.FrameHeight = 480;
-
+            Environment.SetEnvironmentVariable("OPENCV_VIDEOIO_MSMF_ENABLE_HW_TRANSFORMS", "0");
+            Environment.SetEnvironmentVariable("MF_SOURCE_READER_D3D_MANAGER", "1");
+            using var capture = new VideoCapture(0, VideoCaptureAPIs.MSMF) { FrameWidth = 640, FrameHeight = 480 };
             while (!cancellationToken.IsCancellationRequested)
             {
-                if (_exit) break;
+                if (_exit) break;   
 
                 var start = DateTime.Now;
 
