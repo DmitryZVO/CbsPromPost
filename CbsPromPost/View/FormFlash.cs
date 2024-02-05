@@ -586,6 +586,17 @@ public sealed partial class FormFlash : Form
 
     private void ComReadString(string com, string text)
     {
+        if (Core.IoC.Services.GetRequiredService<Station>().User.Name.Equals(string.Empty) && text.Contains("USER_"))
+        {
+            if (!long.TryParse(text.Replace("USER_", ""), out var id)) return;
+            var user = Core.IoC.Services.GetRequiredService<Users>().Items.Find(x => x.Id == id);
+            if (user == null) return;
+            _ = Core.IoC.Services.GetRequiredService<Station>().StartWorkAsync(user, default);
+            Core.IoC.Services.GetRequiredService<Station>().User = user;
+
+            return;
+        }
+
         Invoke(async () =>
         {
             if (labelUser.Text.Equals(string.Empty)) return;
@@ -735,12 +746,14 @@ public sealed partial class FormFlash : Form
         label1.Text = work.TimeNormalSec > 0 ? $@"НОРМАТИВ: {work.TimeNormalSec:0} сек." : string.Empty;
         labelCount.Text = work.TimeNormalSec > 0 ? $@"КОЛИЧЕСТВО: {_counts}" : string.Empty;
 
+        /*
         if (sec < work.TimeNormalSec * 1.0d)
             labelTime.ForeColor = Color.DarkGreen;
         else if (sec < work.TimeNormalSec * 1.5d)
             labelTime.ForeColor = Color.DarkOrange;
         else
             labelTime.ForeColor = Color.DarkRed;
+        */
     }
 
     private async void ButtonFinishClick(object? sender, EventArgs e)
