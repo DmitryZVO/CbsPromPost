@@ -28,38 +28,38 @@
         /// </summary>
         private void InitializeComponent()
         {
-            dataGridView1 = new DataGridView();
-            ((System.ComponentModel.ISupportInitialize)dataGridView1).BeginInit();
+            dataGridViewMain = new DataGridView();
+            ((System.ComponentModel.ISupportInitialize)dataGridViewMain).BeginInit();
             SuspendLayout();
             // 
-            // dataGridView1
+            // dataGridViewMain
             // 
-            dataGridView1.AllowUserToAddRows = false;
-            dataGridView1.AllowUserToDeleteRows = false;
-            dataGridView1.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            dataGridView1.Dock = DockStyle.Fill;
-            dataGridView1.Location = new Point(0, 0);
-            dataGridView1.Name = "dataGridView1";
-            dataGridView1.ReadOnly = true;
-            dataGridView1.RowTemplate.Height = 25;
-            dataGridView1.Size = new Size(800, 450);
-            dataGridView1.TabIndex = 0;
+            dataGridViewMain.AllowUserToAddRows = false;
+            dataGridViewMain.AllowUserToDeleteRows = false;
+            dataGridViewMain.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            dataGridViewMain.Dock = DockStyle.Fill;
+            dataGridViewMain.Location = new Point(0, 0);
+            dataGridViewMain.Name = "dataGridViewMain";
+            dataGridViewMain.ReadOnly = true;
+            dataGridViewMain.RowTemplate.Height = 25;
+            dataGridViewMain.Size = new Size(800, 450);
+            dataGridViewMain.TabIndex = 0;
             // 
             // FormIdInfo
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(800, 450);
-            Controls.Add(dataGridView1);
+            Controls.Add(dataGridViewMain);
             Name = "FormIdInfo";
             StartPosition = FormStartPosition.CenterParent;
             Text = "FormIdInfo";
-            ((System.ComponentModel.ISupportInitialize)dataGridView1).EndInit();
+            ((System.ComponentModel.ISupportInitialize)dataGridViewMain).EndInit();
             ResumeLayout(false);
         }
 
         #endregion
 
-        private DataGridView dataGridView1;
+        private DataGridView dataGridViewMain;
     }
 }

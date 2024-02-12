@@ -1,6 +1,7 @@
 ﻿using System.Text.Json;
 using CbsPromPost.Other;
 using Microsoft.Extensions.DependencyInjection;
+using static CbsPromPost.Model.Works;
 
 namespace CbsPromPost.Model;
 
@@ -58,6 +59,31 @@ public class Server
         AnswerTime = (DateTime.Now - start).TotalMilliseconds;
     }
 
+    public static async Task<List<HistoryItem>> GetHistoryForId(string id, CancellationToken ct)
+    {
+        HttpClient web = new()
+        {
+            BaseAddress = new Uri(Core.Config.ServerUrl),
+        };
+
+        try
+        {
+            using var answ = await web.GetAsync($"GetHistoryForId?id={id}", ct);
+
+            if (answ.IsSuccessStatusCode)
+            {
+                var json = await answ.Content.ReadAsStringAsync(ct);
+                var values = JsonSerializer.Deserialize<List<HistoryItem>>(json);
+                return values ?? new List<HistoryItem>();
+            }
+        }
+        catch
+        {
+            //
+        }
+        return new List<HistoryItem>();
+    }
+
     public enum TimeStampsTypes
     {
         Logs = -2,
@@ -76,4 +102,17 @@ public class Server
         public Dictionary<TimeStampsTypes, DateTime> TimeStamp { get; set; } = new();
         public int RequestInSecond { get; set; }
     }
+
+    public class HistoryItem
+    {
+        public DateTime TimeStart { get; set; } = DateTime.MinValue;
+        public DateTime TimeEnd { get; set; } = DateTime.MinValue;
+        public Users.User User { get; set; } = new();
+        public Station Station { get; set; } = new();
+        public Work Work { get; set; } = new();
+        public long State { get; set; } = -1;
+        public string DroneId { get; set; } = string.Empty;
+
+    }
+
 }
