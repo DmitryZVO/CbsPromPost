@@ -97,6 +97,13 @@ public sealed partial class FormFlash : Form
         buttonBadDrone.Click += BadDrone;
         buttonOkDrone.Click += OkDrone;
         buttonPower.Click += PowerClick;
+        labelDroneId.MouseDoubleClick += ShowIdInfo;
+    }
+
+    private void ShowIdInfo(object? sender, MouseEventArgs e)
+    {
+        if (labelDroneId.Text.Equals(string.Empty)) return;
+        new FormIdInfo(labelDroneId.Text).Show(this);
     }
 
     private void PowerClick(object? sender, EventArgs e)
