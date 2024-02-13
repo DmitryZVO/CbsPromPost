@@ -94,6 +94,7 @@ public class Server
         Stocks = 3,
         Drones = 4,
         History = 5,
+        HistoryBox = 6,
     }
     protected class WebState
     {
