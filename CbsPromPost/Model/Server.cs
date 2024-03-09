@@ -1,4 +1,5 @@
-﻿using System.Text.Json;
+﻿using System.Text;
+using System.Text.Json;
 using CbsPromPost.Other;
 using Microsoft.Extensions.DependencyInjection;
 using static CbsPromPost.Model.Works;
@@ -84,6 +85,57 @@ public class Server
         return new List<HistoryItem>();
     }
 
+    public static async Task<string> CheckBadDrone(string droneId, CancellationToken ct)
+    {
+        HttpClient web = new()
+        {
+            BaseAddress = new Uri(Core.Config.ServerUrl),
+        };
+
+        try
+        {
+            using var answ = await web.GetAsync($"CheckDrone?droneId={droneId}", ct);
+
+            if (answ.IsSuccessStatusCode)
+            {
+                var text = await answ.Content.ReadAsStringAsync(ct);
+                return text;
+            }
+
+            return "ОШИБКА СЕРВЕРА";
+        }
+        catch
+        {
+            //
+        }
+        return "ОШИБКА СЕРВЕРА";
+    }
+
+    public static async Task<bool> AddBadDrone(string droneId, string text, CancellationToken ct)
+    {
+        HttpClient web = new()
+        {
+            BaseAddress = new Uri(Core.Config.ServerUrl),
+        };
+
+        try
+        {
+            var jsonString = JsonSerializer.Serialize(new BadDrone { Text = text });
+            var content = new StringContent(jsonString, Encoding.UTF8, "application/json");
+            content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/json");
+            content.Headers.ContentLength = jsonString.Length;
+
+            using var answ = await web.PostAsync($"AddBadDrone?droneId={droneId}", content, ct);
+
+            return answ.IsSuccessStatusCode;
+        }
+        catch
+        {
+            //
+        }
+        return false;
+    }
+
     public enum TimeStampsTypes
     {
         Logs = -2,
@@ -116,4 +168,8 @@ public class Server
 
     }
 
+    public class BadDrone
+    {
+        public string Text { get; set; } = string.Empty;
+    }
 }

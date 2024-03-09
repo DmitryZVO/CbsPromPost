@@ -11,7 +11,7 @@ using Timer = System.Windows.Forms.Timer;
 
 namespace CbsPromPost.View;
 
-public sealed partial class FormFlash : Form
+public sealed partial class FormBadDrone : Form
 {
     private readonly Timer _timer = new();
 
@@ -27,7 +27,7 @@ public sealed partial class FormFlash : Form
     private bool _workFullFlash;
     private readonly VideoRecord _record;
 
-    public FormFlash()
+    public FormBadDrone()
     {
         InitializeComponent();
 

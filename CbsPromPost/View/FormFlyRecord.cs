@@ -72,18 +72,29 @@ public sealed partial class FormFlyRecord : Form
 
     private async void BadDrone(object? sender, EventArgs e)
     {
-        // КОСТЫЛЬ
-        //var answ = await Core.IoC.Services.GetRequiredService<Station>().FinishBodyAsync(labelDroneId.Text, default);
-        //if (answ.Equals(string.Empty))
-        //{
+        if (labelDroneId.Text.Equals(string.Empty)) return;
+
+        var ft = new FormTextWrite(labelDroneId.Text);
+        ft.ShowDialog(this);
+        if (ft.Result.Equals(string.Empty))
+        {
+            return;
+        }
+
+        var ret = await Server.AddBadDrone(labelDroneId.Text, ft.Result, default);
+        if (!ret)
+        {
+            new FormInfo(@"НЕ УДАЛОСЬ ПЕРЕВЕСТИ В БРАК", Color.LightPink, Color.DarkRed, 3000, new Size(600, 400))
+                .Show(this);
+            return;
+        }
+
         await Core.IoC.Services.GetRequiredService<Station>().FinishBodyAsync(labelDroneId.Text, default);
-        new FormInfo(@"ПЕРЕВЕДЕНО В БРАК", Color.LightPink, Color.DarkRed, 3000, new Size(600, 400))
+        new FormInfo(@"ПЕРЕВЕДЕНО В БРАК", Color.Yellow, Color.DarkRed, 3000, new Size(600, 400))
             .Show(this);
         labelDroneId.Text = string.Empty; // Финиш работы
         await Core.IoC.Services.GetRequiredService<Station>().ChangeWorkTimeAsync(DateTime.Now, default);
-        //    return;
-        //}
-        //new FormInfo(@$"{answ}", Color.LightPink, Color.DarkRed, 3000, new Size(600, 400)).Show(this);
+        return;
     }
 
     private async void FormShown(object? sender, EventArgs e)
@@ -133,6 +144,14 @@ public sealed partial class FormFlyRecord : Form
 
             if (labelDroneId.Text.Equals(string.Empty)) // Это первичное сканирование
             {
+                var bad = await Server.CheckBadDrone(text, default);
+                if (!bad.Equals(string.Empty))
+                {
+                    new FormInfo($"ИЗДЕЛИЕ {text} В БРАКЕ!\r\n{bad}", Color.LightPink, Color.DarkRed,
+                        3000, new Size(600, 400)).Show(this);
+                    return;
+                }
+
                 labelDroneId.Text = text;
                 return;
             }

@@ -71,7 +71,10 @@
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
     <Compile Update="View\FormDroneConfig.cs" />
+    <Compile Update="View\FormBadDrone.cs" />
     <Compile Update="View\FormFlyRecord.cs" />
+    <Compile Update="View\FormTextWrite.cs" />
+    <Compile Update="View\FormIdInfo.cs" />
   </ItemGroup>
 
   <ItemGroup>
