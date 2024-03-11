@@ -54,10 +54,8 @@ public class RelayPower
         try
         {
             var ret = new StateRelay();
-            var http = new HttpClient
-            {
-                Timeout = TimeSpan.FromMilliseconds(1000) 
-            };
+            using var http = new HttpClient();
+            http.Timeout = TimeSpan.FromMilliseconds(1000);
             var result0 = http.GetAsync(@"http://" + _ip + @"/pstat.xml").Result;
             if (result0.StatusCode != HttpStatusCode.OK)
             {

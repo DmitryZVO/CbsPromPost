@@ -20,13 +20,10 @@ public class Works
 
     public async Task UpdateAsync(CancellationToken ct)
     {
-        HttpClient web = new()
-        {
-            BaseAddress = new Uri(Core.Config.ServerUrl),
-        };
-
         try
         {
+            using var web = new HttpClient();
+            web.BaseAddress = new Uri(Core.Config.ServerUrl);
             using var answ = await web.GetAsync("GetWorks", ct);
 
             if (answ.IsSuccessStatusCode)

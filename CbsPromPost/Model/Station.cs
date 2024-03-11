@@ -12,7 +12,7 @@ public class Station
     public string Address { get; set; } = string.Empty;
     public long Type { get; set; } = -1;
     public Users.User User { get; set; } = new();
-    public double Version { get; set; } = 1.03d;
+    public double Version { get; set; } = 1.04d;
 
     public async void StartAsync(CancellationToken ct = default)
     {
@@ -35,13 +35,10 @@ public class Station
 
     public async Task GetStateAsync(CancellationToken ct)
     {
-        HttpClient web = new()
-        {
-            BaseAddress = new Uri(Core.Config.ServerUrl),
-        };
-
         try
         {
+            using var web = new HttpClient();
+            web.BaseAddress = new Uri(Core.Config.ServerUrl);
             using var answ = await web.GetAsync($"GetStation?id={Number:0}", ct);
 
             if (answ.IsSuccessStatusCode)
@@ -61,12 +58,10 @@ public class Station
 
     private async Task PingAsync(CancellationToken ct)
     {
-        HttpClient web = new()
-        {
-            BaseAddress = new Uri(Core.Config.ServerUrl),
-        };
         try
         {
+            using var web = new HttpClient();
+            web.BaseAddress = new Uri(Core.Config.ServerUrl);
             using var answ = await web.GetAsync($"StationPing?id={Number}&ip={Address}&type={Type:0}&version={Version*100d:0}", ct);
         }
         catch
@@ -77,13 +72,10 @@ public class Station
 
     public async Task StartWorkAsync(Users.User user, CancellationToken ct)
     {
-        HttpClient web = new()
-        {
-            BaseAddress = new Uri(Core.Config.ServerUrl),
-        };
-
         try
         {
+            using var web = new HttpClient();
+            web.BaseAddress = new Uri(Core.Config.ServerUrl);
             using var answ = await web.GetAsync($"WorkStart?id={Number:0}&user={user.Id:0}", ct);
         }
         catch
@@ -94,13 +86,10 @@ public class Station
 
     public async Task ChangeWorkTimeAsync(DateTime newTime, CancellationToken ct)
     {
-        HttpClient web = new()
-        {
-            BaseAddress = new Uri(Core.Config.ServerUrl),
-        };
-
         try
         {
+            using var web = new HttpClient();
+            web.BaseAddress = new Uri(Core.Config.ServerUrl);
             using var answ = await web.GetAsync($"WorkStartChange?id={Number:0}&newTimeTicks={newTime.Ticks:0}", ct);
         }
         catch
@@ -111,12 +100,10 @@ public class Station
 
     public async Task<string> FinishBodyAsync(string text, CancellationToken ct)
     {
-        HttpClient web = new()
-        {
-            BaseAddress = new Uri(Core.Config.ServerUrl),
-        };
         try
         {
+            using var web = new HttpClient();
+            web.BaseAddress = new Uri(Core.Config.ServerUrl);
             using var answ = await web.GetAsync($"WorkFinish?stationId={Number:0}&workId={Type:0}&droneId={text}", ct);
             return answ.IsSuccessStatusCode ? string.Empty : await answ.Content.ReadAsStringAsync(ct);
         }
@@ -129,13 +116,10 @@ public class Station
 
     public async Task<long> GetCountsFinishWorks(CancellationToken ct)
     {
-        HttpClient web = new()
-        {
-            BaseAddress = new Uri(Core.Config.ServerUrl),
-        };
-
         try
         {
+            using var web = new HttpClient();
+            web.BaseAddress = new Uri(Core.Config.ServerUrl);
             using var answ = await web.GetAsync($"WorksGetCounts?userId={User.Id:0}&workId={Core.Config.Type:0}", ct);
             return answ.IsSuccessStatusCode ? long.Parse(await answ.Content.ReadAsStringAsync(ct)) : 0;
         }

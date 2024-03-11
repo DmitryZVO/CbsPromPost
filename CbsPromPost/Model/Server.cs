@@ -26,14 +26,11 @@ public class Server
 
     private async Task UpdateInfoAsync(CancellationToken ct)
     {
-        HttpClient web = new()
-        {
-            BaseAddress = new Uri(Core.Config.ServerUrl),
-        };
-
         var start = DateTime.Now;
         try
         {
+            using var web = new HttpClient();
+            web.BaseAddress = new Uri(Core.Config.ServerUrl);
             using var answ = await web.GetAsync("GetServer", ct);
 
             if (answ.IsSuccessStatusCode)
@@ -62,13 +59,10 @@ public class Server
 
     public static async Task<List<HistoryItem>> GetHistoryForId(string id, CancellationToken ct)
     {
-        HttpClient web = new()
-        {
-            BaseAddress = new Uri(Core.Config.ServerUrl),
-        };
-
         try
         {
+            using var web = new HttpClient();
+            web.BaseAddress = new Uri(Core.Config.ServerUrl);
             using var answ = await web.GetAsync($"GetHistoryForId?id={id}", ct);
 
             if (answ.IsSuccessStatusCode)
@@ -87,13 +81,10 @@ public class Server
 
     public static async Task<string> CheckBadDrone(string droneId, CancellationToken ct)
     {
-        HttpClient web = new()
-        {
-            BaseAddress = new Uri(Core.Config.ServerUrl),
-        };
-
         try
         {
+            using var web = new HttpClient();
+            web.BaseAddress = new Uri(Core.Config.ServerUrl);
             using var answ = await web.GetAsync($"CheckDrone?droneId={droneId}", ct);
 
             if (answ.IsSuccessStatusCode)
@@ -113,13 +104,10 @@ public class Server
 
     public static async Task<bool> AddBadDrone(string droneId, string text, CancellationToken ct)
     {
-        HttpClient web = new()
-        {
-            BaseAddress = new Uri(Core.Config.ServerUrl),
-        };
-
         try
         {
+            using var web = new HttpClient();
+            web.BaseAddress = new Uri(Core.Config.ServerUrl);
             var jsonString = JsonSerializer.Serialize(new BadDrone { Text = text });
             var content = new StringContent(jsonString, Encoding.UTF8, "application/json");
             content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/json");
