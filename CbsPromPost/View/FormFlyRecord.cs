@@ -89,7 +89,7 @@ public sealed partial class FormFlyRecord : Form
             return;
         }
 
-        await Core.IoC.Services.GetRequiredService<Station>().FinishBodyAsync(labelDroneId.Text, default);
+        //await Core.IoC.Services.GetRequiredService<Station>().FinishBodyAsync(labelDroneId.Text, default);
         new FormInfo(@"ПЕРЕВЕДЕНО В БРАК", Color.Yellow, Color.DarkRed, 3000, new Size(600, 400))
             .Show(this);
         labelDroneId.Text = string.Empty; // Финиш работы

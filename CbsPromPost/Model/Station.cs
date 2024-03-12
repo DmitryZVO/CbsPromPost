@@ -12,7 +12,7 @@ public class Station
     public string Address { get; set; } = string.Empty;
     public long Type { get; set; } = -1;
     public Users.User User { get; set; } = new();
-    public double Version { get; set; } = 1.04d;
+    public double Version { get; set; } = 1.05d;
 
     public async void StartAsync(CancellationToken ct = default)
     {
@@ -26,33 +26,8 @@ public class Station
 
         while (!ct.IsCancellationRequested)
         {
-            await GetStateAsync(ct);
-            await Task.Delay(500, ct);
             await PingAsync(ct);
-            await Task.Delay(500, ct);
-        }
-    }
-
-    public async Task GetStateAsync(CancellationToken ct)
-    {
-        try
-        {
-            using var web = new HttpClient();
-            web.BaseAddress = new Uri(Core.Config.ServerUrl);
-            using var answ = await web.GetAsync($"GetStation?id={Number:0}", ct);
-
-            if (answ.IsSuccessStatusCode)
-            {
-                var json = await answ.Content.ReadAsStringAsync(ct);
-                var value = JsonSerializer.Deserialize<Station>(json);
-                if (value == null) return;
-                User = value.User;
-                WorkStart = value.WorkStart;
-            }
-        }
-        catch
-        {
-            //
+            await Task.Delay(1000, ct);
         }
     }
 
@@ -62,7 +37,15 @@ public class Station
         {
             using var web = new HttpClient();
             web.BaseAddress = new Uri(Core.Config.ServerUrl);
-            using var answ = await web.GetAsync($"StationPing?id={Number}&ip={Address}&type={Type:0}&version={Version*100d:0}", ct);
+            using var answ = await web.GetAsync($"StationPing?id={Number}&ip={Address}&type={Type:0}&version={Version * 100d:0}", ct);
+            if (answ.IsSuccessStatusCode)
+            {
+                var json = await answ.Content.ReadAsStringAsync(ct);
+                var value = JsonSerializer.Deserialize<Station>(json);
+                if (value == null) return;
+                User = value.User;
+                WorkStart = value.WorkStart;
+            }
         }
         catch
         {
