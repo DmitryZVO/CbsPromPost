@@ -261,6 +261,7 @@ public sealed partial class FormFlash : Form
 
         await Task.Delay(1000);
 
+        /*
         // Переводим в DFU
         _betaflight.CliWrite("#\r\nbl");
         await Task.Delay(300);
@@ -269,6 +270,7 @@ public sealed partial class FormFlash : Form
         _betaflight.CliWrite("#\r\nbl");
         await Task.Delay(1000);
 
+        
         // Валидация
         PrintText($"DFU: ВАЛИДАЦИЯ ПРОШИКИ, ОБЛАСТЬ 0x{SerialBetaflight.DfuStartAddress:x8} - 0x{SerialBetaflight.DfuStartAddress + SerialBetaflight.DfuFlashSize:x8} файл hex [{dataBin.Length:0} байт]");
         var flashWriteBytes = await _betaflight.DfuRawBinReadAll();
@@ -288,6 +290,7 @@ public sealed partial class FormFlash : Form
 
         await _betaflight.DfuExit();
         await Task.Delay(1000);
+        */
 
         // Заливка FPL
         if (await WriteFplAsync(dataFpl) == false)
