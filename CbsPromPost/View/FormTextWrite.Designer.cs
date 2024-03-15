@@ -79,6 +79,7 @@
             richTextBoxMain.Size = new Size(1150, 145);
             richTextBoxMain.TabIndex = 0;
             richTextBoxMain.Text = "";
+            richTextBoxMain.KeyDown += RichTextBoxMain_KeyDown;
             // 
             // buttonCancel
             // 
@@ -505,7 +506,7 @@
             button36.Name = "button36";
             button36.Size = new Size(183, 49);
             button36.TabIndex = 39;
-            button36.Text = "ВИДЕО: нет изображения";
+            button36.Text = "ВИДЕО: нет изображения, но есть телеметрия";
             button36.UseVisualStyleBackColor = true;
             // 
             // FormTextWrite

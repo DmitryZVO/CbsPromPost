@@ -76,4 +76,11 @@ public sealed partial class FormTextWrite : Form
     {
         richTextBoxMain.Clear();
     }
+
+    private void RichTextBoxMain_KeyDown(object sender, KeyEventArgs e)
+    {
+        if (e.KeyCode != Keys.Enter) return;
+        Result = richTextBoxMain.Text;
+        Close();
+    }
 }

@@ -136,7 +136,7 @@ public partial class FormDroneConfig : Form
             _betaflight.MspGetAttitude();
             _betaflight.MspGetMotors();
             _betaflight.MspGetAnalog();
-            _betaflight.MspUpdateRc();
+            //_betaflight.MspUpdateRc();
             _betaflight.MspGetImu();
 
             if (!_firstOpen) continue;
@@ -212,6 +212,7 @@ public partial class FormDroneConfig : Form
                     MessageBoxIcon.Warning, MessageBoxDefaultButton.Button3) != DialogResult.Yes) return;
             finish = true;
         }
+        /*
         if (!finish && _betaflight.RcPwm.Min() == 885 && _betaflight.RcPwm.Max() == 1675 && _betaflight.RcPwm[0] == 1500)
         {
             if (MessageBox.Show(@"НЕ БЫЛО ДАННЫХ ОТ RC ПРИЕМНИКА! УВЕРЕНЫ, ЧТО ХОТИТЕ ЗАВЕРШИТЬ ТЕСТЫ?", @"ВНИМАНИЕ!!!!",
@@ -219,6 +220,7 @@ public partial class FormDroneConfig : Form
                     MessageBoxIcon.Warning, MessageBoxDefaultButton.Button3) != DialogResult.Yes) return;
             finish = true;
         }
+        */
         if (!finish && _betaflight is { GyroX: 0, GyroY: 0, GyroZ: 0, AccX: 0, AccY: 0, AccZ: 0, MagX: 0, MagY:0, MagZ: 0 })
         {
             if (MessageBox.Show(@"НЕ БЫЛО ДАННЫХ ОТ АКСЕЛЕРОМЕТРА! УВЕРЕНЫ, ЧТО ХОТИТЕ ЗАВЕРШИТЬ ТЕСТЫ?", @"ВНИМАНИЕ!!!!",
