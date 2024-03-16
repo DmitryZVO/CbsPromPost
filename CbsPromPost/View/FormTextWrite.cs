@@ -56,7 +56,7 @@ public sealed partial class FormTextWrite : Form
     {
         if (sender is not Button button) return;
 
-        Result = button.Name;
+        Result = button.Text;
         Close();
     }
 
