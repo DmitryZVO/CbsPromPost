@@ -131,7 +131,7 @@ public sealed partial class FormFlyRecord : Form
             if (labelUser.Text.Equals(string.Empty)) return;
 
             var notOk = text.Length != 8;
-            if (!notOk && text[..2] != "TT") notOk = true;
+            if (!notOk && text[..2] != Server.Prefix) notOk = true;
             if (!notOk && !long.TryParse(text[2..5], out _)) notOk = true;
             if (!notOk && !long.TryParse(text[5..8], out _)) notOk = true;
 

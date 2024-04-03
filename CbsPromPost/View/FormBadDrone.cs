@@ -357,7 +357,7 @@ public sealed partial class FormBadDrone : Form
                 await Task.Delay(3000);
 
                 PrintText($"CLI: ЗАПИСЬ FPL ЛИСТА, файл fpl [{data.Count:0} строк]");
-                if (labelDroneId.Text.Equals(string.Empty)) labelDroneId.Text = @"TT000000";
+                if (labelDroneId.Text.Equals(string.Empty)) labelDroneId.Text = @$"{Server.Prefix}000000";
                 var containName = false;
                 var i = 0;
                 var stringWrite = new StringBuilder();
@@ -402,7 +402,7 @@ public sealed partial class FormBadDrone : Form
 
                 await Task.Delay(3000);
 
-                if (labelDroneId.Text.Equals(@"TT000000")) labelDroneId.Text = string.Empty;
+                if (labelDroneId.Text.Equals(@$"{Server.Prefix}000000")) labelDroneId.Text = string.Empty;
                 var ok = !richTextBoxMain.Text.Contains("ERROR");
                 PrintText(ok ? "CLI: УСПЕХ!" : "CLI: ОШИБКА!!!");
                 if (!ok) return false;
@@ -619,7 +619,7 @@ public sealed partial class FormBadDrone : Form
             if (labelUser.Text.Equals(string.Empty)) return;
 
             var notOk = text.Length != 8;
-            if (!notOk && text[..2] != "TT") notOk = true;
+            if (!notOk && text[..2] != Server.Prefix) notOk = true;
             if (!notOk && !long.TryParse(text[2..5], out _)) notOk = true;
             if (!notOk && !long.TryParse(text[5..8], out _)) notOk = true;
 

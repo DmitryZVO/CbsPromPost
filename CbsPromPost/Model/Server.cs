@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.Runtime.InteropServices;
+using System.Text;
 using System.Text.Json;
 using CbsPromPost.Other;
 using Microsoft.Extensions.DependencyInjection;
@@ -12,6 +13,7 @@ public class Server
     public int RequestInSecond { get; set; }
     public bool Alive => (DateTime.Now - _lastAlive).TotalMilliseconds < 5000;
     public double AnswerTime { get; set; }
+    public static string Prefix { get; set; } = string.Empty;
 
     private DateTime _lastAlive = DateTime.MinValue;
 
@@ -22,6 +24,38 @@ public class Server
             await UpdateInfoAsync(ct);
             await Task.Delay(1000, ct);
         }
+    }
+
+    public struct SystemTime
+    {
+        public ushort Year;
+        public ushort Month;
+        public ushort DayOfWeek;
+        public ushort Day;
+        public ushort Hour;
+        public ushort Minute;
+        public ushort Second;
+        public ushort Millisecond;
+    };
+
+    [DllImport("kernel32.dll", EntryPoint = "SetSystemTime", SetLastError = true)]
+    private static extern bool Win32SetSystemTime(ref SystemTime sysTime);
+
+    private static void ChangeTime(DateTime time)
+    {
+        var st = new SystemTime
+        {
+            Year = (ushort)time.Year,
+            Month = (ushort)time.Month,
+            Day = (ushort)time.Day,
+            Hour = (ushort)time.Hour,
+            Minute = (ushort)time.Minute,
+            Second = (ushort)time.Second,
+            DayOfWeek = (ushort)time.DayOfWeek,
+            Millisecond = (ushort)time.Millisecond,
+        };
+
+        Win32SetSystemTime(ref st);
     }
 
     private async Task UpdateInfoAsync(CancellationToken ct)
@@ -40,7 +74,13 @@ public class Server
                 if (values == null) return;
                 _lastAlive = DateTime.Now;
                 RequestInSecond = values.RequestInSecond;
-                TimeStamp = values.TimeStamp[TimeStampsTypes.Server];
+                var newTime = values.TimeStamp[TimeStampsTypes.Server];
+                if (Math.Abs((DateTime.Now - newTime).Seconds) > 10) // Нужно обновить время на локальной машине
+                {
+                    ChangeTime(newTime.AddHours(-3)); // GTM +3
+                }
+                TimeStamp = newTime;
+                Prefix = values.Prefix;
 
                 var users = Core.IoC.Services.GetRequiredService<Users>();
                 if (values.TimeStamp.TryGetValue(TimeStampsTypes.Users, out var stampUsers) && stampUsers > users.TimeStamp) await users.UpdateAsync(ct);
@@ -142,6 +182,7 @@ public class Server
         public string VersionString { get; set; } = string.Empty;
         public Dictionary<TimeStampsTypes, DateTime> TimeStamp { get; set; } = new();
         public int RequestInSecond { get; set; }
+        public string Prefix { get; set; } = string.Empty;
     }
 
     public class HistoryItem
