@@ -638,7 +638,7 @@ public sealed partial class FormFlash : Form
                 var bad = await Server.CheckBadDrone(text, default);
                 if (!bad.Equals(string.Empty))
                 {
-                    new FormInfo($"ИЗДЕЛИЕ {text} В БРАКЕ!\r\n{bad}", Color.LightPink, Color.DarkRed,
+                    new FormInfo($"ИЗДЕЛИЕ\r\n{text}\r\nВ БРАКЕ!\r\n{bad}", Color.LightPink, Color.DarkRed,
                         3000, new Size(600, 400)).Show(this);
                     return;
                 }

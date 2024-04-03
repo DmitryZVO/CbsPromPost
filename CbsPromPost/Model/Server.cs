@@ -164,6 +164,29 @@ public class Server
         return false;
     }
 
+    public static async Task<string> RemoveBadDrone(string droneId, CancellationToken ct)
+    {
+        try
+        {
+            using var web = new HttpClient();
+            web.BaseAddress = new Uri(Core.Config.ServerUrl);
+            using var answ = await web.GetAsync($"RemoveBadDrone?droneId={droneId}", ct);
+
+            if (answ.IsSuccessStatusCode)
+            {
+                var text = await answ.Content.ReadAsStringAsync(ct);
+                return text;
+            }
+
+            return "ОШИБКА СЕРВЕРА";
+        }
+        catch
+        {
+            //
+        }
+        return "ОШИБКА СЕРВЕРА";
+    }
+
     public enum TimeStampsTypes
     {
         Logs = -2,

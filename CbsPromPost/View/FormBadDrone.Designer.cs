@@ -28,10 +28,7 @@ sealed partial class FormBadDrone
     /// </summary>
     private void InitializeComponent()
     {
-        label1 = new Label();
-        labelCount = new Label();
         buttonFinish = new Button();
-        labelTime = new Label();
         labelUser = new Label();
         labelWork = new Label();
         labelName = new Label();
@@ -67,65 +64,30 @@ sealed partial class FormBadDrone
         groupBoxCli = new GroupBox();
         labelTimer = new Label();
         comboBoxFirmware = new ComboBox();
-        pictureBoxMain = new PictureBox();
-        buttonBadDrone = new Button();
         buttonOkDrone = new Button();
         buttonPower = new Button();
+        richTextBoxInfo = new RichTextBox();
         groupBoxButtons.SuspendLayout();
         groupBoxCli.SuspendLayout();
-        ((System.ComponentModel.ISupportInitialize)pictureBoxMain).BeginInit();
         SuspendLayout();
-        // 
-        // label1
-        // 
-        label1.Font = new Font("Segoe UI", 28F, FontStyle.Regular, GraphicsUnit.Point);
-        label1.ForeColor = Color.Black;
-        label1.Location = new Point(1093, 143);
-        label1.Name = "label1";
-        label1.Size = new Size(479, 82);
-        label1.TabIndex = 17;
-        label1.Text = "НОРМАТИВ: 10 мин.";
-        label1.TextAlign = ContentAlignment.MiddleCenter;
-        // 
-        // labelCount
-        // 
-        labelCount.Font = new Font("Segoe UI", 28F, FontStyle.Regular, GraphicsUnit.Point);
-        labelCount.ForeColor = Color.Black;
-        labelCount.Location = new Point(12, 143);
-        labelCount.Name = "labelCount";
-        labelCount.Size = new Size(355, 82);
-        labelCount.TabIndex = 16;
-        labelCount.Text = "КОЛ-ВО: 0";
-        labelCount.TextAlign = ContentAlignment.MiddleCenter;
         // 
         // buttonFinish
         // 
         buttonFinish.Font = new Font("Segoe UI", 24F, FontStyle.Regular, GraphicsUnit.Point);
         buttonFinish.ForeColor = Color.FromArgb(64, 0, 0);
-        buttonFinish.Location = new Point(1331, 70);
+        buttonFinish.Location = new Point(1331, 72);
         buttonFinish.Name = "buttonFinish";
-        buttonFinish.Size = new Size(241, 63);
+        buttonFinish.Size = new Size(243, 61);
         buttonFinish.TabIndex = 15;
         buttonFinish.Text = "ЗАКОНЧИТЬ";
         buttonFinish.UseVisualStyleBackColor = true;
-        // 
-        // labelTime
-        // 
-        labelTime.Font = new Font("Segoe UI", 48F, FontStyle.Regular, GraphicsUnit.Point);
-        labelTime.ForeColor = Color.Black;
-        labelTime.Location = new Point(373, 143);
-        labelTime.Name = "labelTime";
-        labelTime.Size = new Size(714, 82);
-        labelTime.TabIndex = 13;
-        labelTime.Text = "00:00:00";
-        labelTime.TextAlign = ContentAlignment.MiddleCenter;
         // 
         // labelUser
         // 
         labelUser.BorderStyle = BorderStyle.FixedSingle;
         labelUser.Font = new Font("Segoe UI", 20F, FontStyle.Regular, GraphicsUnit.Point);
         labelUser.ForeColor = Color.FromArgb(0, 0, 64);
-        labelUser.Location = new Point(495, 72);
+        labelUser.Location = new Point(250, 72);
         labelUser.Name = "labelUser";
         labelUser.Size = new Size(830, 61);
         labelUser.TabIndex = 12;
@@ -168,10 +130,10 @@ sealed partial class FormBadDrone
         // 
         richTextBoxMain.BackColor = Color.White;
         richTextBoxMain.BorderStyle = BorderStyle.FixedSingle;
-        richTextBoxMain.Location = new Point(12, 265);
+        richTextBoxMain.Location = new Point(12, 582);
         richTextBoxMain.Name = "richTextBoxMain";
         richTextBoxMain.ReadOnly = true;
-        richTextBoxMain.Size = new Size(595, 534);
+        richTextBoxMain.Size = new Size(1313, 217);
         richTextBoxMain.TabIndex = 20;
         richTextBoxMain.Text = "";
         // 
@@ -256,7 +218,7 @@ sealed partial class FormBadDrone
         labelHex.BorderStyle = BorderStyle.FixedSingle;
         labelHex.Font = new Font("Segoe UI", 10F, FontStyle.Regular, GraphicsUnit.Point);
         labelHex.ForeColor = Color.Black;
-        labelHex.Location = new Point(373, 234);
+        labelHex.Location = new Point(373, 547);
         labelHex.Name = "labelHex";
         labelHex.Size = new Size(473, 28);
         labelHex.TabIndex = 30;
@@ -269,7 +231,7 @@ sealed partial class FormBadDrone
         labelFpl.BorderStyle = BorderStyle.FixedSingle;
         labelFpl.Font = new Font("Segoe UI", 10F, FontStyle.Regular, GraphicsUnit.Point);
         labelFpl.ForeColor = Color.Black;
-        labelFpl.Location = new Point(852, 234);
+        labelFpl.Location = new Point(852, 547);
         labelFpl.Name = "labelFpl";
         labelFpl.Size = new Size(473, 28);
         labelFpl.TabIndex = 31;
@@ -502,40 +464,20 @@ sealed partial class FormBadDrone
         comboBoxFirmware.DropDownStyle = ComboBoxStyle.DropDownList;
         comboBoxFirmware.Font = new Font("Segoe UI", 11F, FontStyle.Regular, GraphicsUnit.Point);
         comboBoxFirmware.FormattingEnabled = true;
-        comboBoxFirmware.Location = new Point(12, 234);
+        comboBoxFirmware.Location = new Point(12, 548);
         comboBoxFirmware.Name = "comboBoxFirmware";
         comboBoxFirmware.Size = new Size(355, 28);
         comboBoxFirmware.TabIndex = 52;
         // 
-        // pictureBoxMain
-        // 
-        pictureBoxMain.BorderStyle = BorderStyle.FixedSingle;
-        pictureBoxMain.Location = new Point(613, 265);
-        pictureBoxMain.Name = "pictureBoxMain";
-        pictureBoxMain.Size = new Size(712, 534);
-        pictureBoxMain.TabIndex = 53;
-        pictureBoxMain.TabStop = false;
-        // 
-        // buttonBadDrone
-        // 
-        buttonBadDrone.Font = new Font("Segoe UI", 24F, FontStyle.Regular, GraphicsUnit.Point);
-        buttonBadDrone.ForeColor = Color.Maroon;
-        buttonBadDrone.Location = new Point(373, 72);
-        buttonBadDrone.Name = "buttonBadDrone";
-        buttonBadDrone.Size = new Size(116, 61);
-        buttonBadDrone.TabIndex = 54;
-        buttonBadDrone.Text = "БРАК";
-        buttonBadDrone.UseVisualStyleBackColor = true;
-        // 
         // buttonOkDrone
         // 
-        buttonOkDrone.Font = new Font("Segoe UI", 28F, FontStyle.Regular, GraphicsUnit.Point);
+        buttonOkDrone.Font = new Font("Segoe UI", 20F, FontStyle.Regular, GraphicsUnit.Point);
         buttonOkDrone.ForeColor = Color.FromArgb(0, 64, 64);
-        buttonOkDrone.Location = new Point(251, 72);
+        buttonOkDrone.Location = new Point(1086, 72);
         buttonOkDrone.Name = "buttonOkDrone";
-        buttonOkDrone.Size = new Size(116, 61);
+        buttonOkDrone.Size = new Size(239, 61);
         buttonOkDrone.TabIndex = 55;
-        buttonOkDrone.Text = "ОК";
+        buttonOkDrone.Text = "ИСПРАВЛЕНО";
         buttonOkDrone.UseVisualStyleBackColor = true;
         // 
         // buttonPower
@@ -550,15 +492,26 @@ sealed partial class FormBadDrone
         buttonPower.Text = "ПИТАНИЕ ИЗДЕЛИЯ";
         buttonPower.UseVisualStyleBackColor = false;
         // 
-        // FormFlash
+        // richTextBoxInfo
+        // 
+        richTextBoxInfo.BackColor = Color.MistyRose;
+        richTextBoxInfo.BorderStyle = BorderStyle.FixedSingle;
+        richTextBoxInfo.Font = new Font("Segoe UI", 24F, FontStyle.Regular, GraphicsUnit.Point);
+        richTextBoxInfo.Location = new Point(12, 139);
+        richTextBoxInfo.Name = "richTextBoxInfo";
+        richTextBoxInfo.ReadOnly = true;
+        richTextBoxInfo.Size = new Size(1313, 403);
+        richTextBoxInfo.TabIndex = 57;
+        richTextBoxInfo.Text = "";
+        // 
+        // FormBadDrone
         // 
         AutoScaleDimensions = new SizeF(7F, 15F);
         AutoScaleMode = AutoScaleMode.Font;
         ClientSize = new Size(1584, 923);
+        Controls.Add(richTextBoxInfo);
         Controls.Add(buttonPower);
         Controls.Add(buttonOkDrone);
-        Controls.Add(buttonBadDrone);
-        Controls.Add(pictureBoxMain);
         Controls.Add(comboBoxFirmware);
         Controls.Add(groupBoxCli);
         Controls.Add(buttonReset);
@@ -571,30 +524,22 @@ sealed partial class FormBadDrone
         Controls.Add(labelHex);
         Controls.Add(richTextBoxMain);
         Controls.Add(labelDroneId);
-        Controls.Add(label1);
-        Controls.Add(labelCount);
         Controls.Add(buttonFinish);
-        Controls.Add(labelTime);
         Controls.Add(labelUser);
         Controls.Add(labelWork);
         Controls.Add(labelName);
         MaximizeBox = false;
-        Name = "FormFlash";
+        Name = "FormBadDrone";
         StartPosition = FormStartPosition.CenterScreen;
         Text = "[КБ ЦБС] Пост прошивки БПЛА";
         groupBoxButtons.ResumeLayout(false);
         groupBoxCli.ResumeLayout(false);
         groupBoxCli.PerformLayout();
-        ((System.ComponentModel.ISupportInitialize)pictureBoxMain).EndInit();
         ResumeLayout(false);
     }
 
     #endregion
-
-    private Label label1;
-    private Label labelCount;
     private Button buttonFinish;
-    private Label labelTime;
     private Label labelUser;
     private Label labelWork;
     private Label labelName;
@@ -630,8 +575,7 @@ sealed partial class FormBadDrone
     private Button buttonFullFlash;
     private ComboBox comboBoxFirmware;
     private Label labelTimer;
-    private PictureBox pictureBoxMain;
-    private Button buttonBadDrone;
     private Button buttonOkDrone;
     private Button buttonPower;
+    private RichTextBox richTextBoxInfo;
 }

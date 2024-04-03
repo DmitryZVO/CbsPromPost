@@ -52,7 +52,7 @@
             ClientSize = new Size(800, 450);
             Controls.Add(dataGridViewMain);
             Name = "FormIdInfo";
-            StartPosition = FormStartPosition.CenterParent;
+            StartPosition = FormStartPosition.CenterScreen;
             Text = "FormIdInfo";
             ((System.ComponentModel.ISupportInitialize)dataGridViewMain).EndInit();
             ResumeLayout(false);
