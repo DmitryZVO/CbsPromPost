@@ -40,7 +40,7 @@ public sealed partial class FormFlyRecord : Form
         var work = works.Get(Core.Config.Type);
         labelWork.Text = work.Name;
 
-        Text = $@"[КБ ЦБС] ПОСТ №{Core.Config.PostNumber:0}, полетные тесты и финализация изделия";
+        Text = $@"[КБ ЦБС] ПОСТ №{Core.Config.PostNumber:0}, полетный тест изделия, v{Core.IoC.Services.GetRequiredService<Station>().Version.ToStringF2()}";
         Icon = EmbeddedResources.Get<Icon>("Sprites._user_change.ico");
 
         buttonFinish.Click += ButtonFinishClick;

@@ -53,7 +53,7 @@ public sealed partial class FormBadDrone : Form
         var work = works.Get(Core.Config.Type);
         labelWork.Text = work.Name;
 
-        Text = $@"[КБ ЦБС] ПОСТ №{Core.Config.PostNumber:0}, прошивка и тестирование готовых изделий";
+        Text = $@"[КБ ЦБС] ПОСТ №{Core.Config.PostNumber:0}, зона исправления брака, v{Core.IoC.Services.GetRequiredService<Station>().Version.ToStringF2()}";
         Icon = EmbeddedResources.Get<Icon>("Sprites._user_change.ico");
         richTextBoxMain.Text = string.Empty;
 
