@@ -8,6 +8,7 @@ namespace CbsPromPost.Other;
 internal static class Core
 {
     public static ConfigApp Config = new ConfigApp().Load();
+    public static ConfigDbApp ConfigDb = new ConfigDbApp().Load();
     public static IHost IoC { get; private set; } = Host.CreateDefaultBuilder(null).Build();
 
     public static void Start()

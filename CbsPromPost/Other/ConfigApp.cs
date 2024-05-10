@@ -13,24 +13,10 @@ public struct ConfigApp
     public long Type { get; set; } = -1;
     public string ComScanner { get; set; } = "COM1";
     public string ComBeta { get; set; } = "COM3";
-    public string UsbDfuVid { get; set; } = "0483";
-    public string UsbDfuPid { get; set; } = "DF11";
-    public string LastFirmware { get; set; } = string.Empty;
     public string RelayPowerIp { get; set; } = "192.168.101.91";
     public string DirRecords { get; set; } = "C:\\#CAPTURE\\";
 
-    public List<Firmware> Firmwares { get; set; } = new()
-    {
-        new Firmware { FileBin = string.Empty, FileFpl = string.Empty, Name = "_DEFAULT" } 
-    };
-    public class Firmware
-    {
-        public string Name { get; set; } = string.Empty;
-        public string FileBin { get; set; } = string.Empty;
-        public string FileFpl { get; set; } = string.Empty;
-    }
-
-public ConfigApp()
+    public ConfigApp()
     {
     }
 
@@ -59,6 +45,7 @@ public ConfigApp()
                     WriteIndented = true,
                     Encoder = JavaScriptEncoder.Create(UnicodeRanges.BasicLatin, UnicodeRanges.Cyrillic)
                 }));
+            Core.ConfigDb.Save();
         }
         catch
         {

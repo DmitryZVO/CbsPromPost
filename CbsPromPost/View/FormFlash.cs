@@ -38,19 +38,19 @@ public sealed partial class FormFlash : Form
         _formDrone = new FormDroneConfig(_betaflight);
         labelName.Text = $@"ПОСТ №{Core.Config.PostNumber:0}";
         _timer.Interval = 100;
-        foreach (var f in Core.Config.Firmwares)
+        foreach (var f in Core.ConfigDb.Firmwares)
         {
             comboBoxFirmware.Items.Add(f.Name);
         }
 
-        if (comboBoxFirmware.Items.Contains(Core.Config.LastFirmware))
+        if (comboBoxFirmware.Items.Contains(Core.ConfigDb.LastFirmware))
         {
-            comboBoxFirmware.SelectedItem = Core.Config.LastFirmware;
+            comboBoxFirmware.SelectedItem = Core.ConfigDb.LastFirmware;
         }
         else
         {
             comboBoxFirmware.SelectedIndex = 0;
-            Core.Config.LastFirmware = comboBoxFirmware.Items[0]?.ToString() ?? string.Empty;
+            Core.ConfigDb.LastFirmware = comboBoxFirmware.Items[0]?.ToString() ?? string.Empty;
             Core.Config.Save();
         }
 
@@ -67,11 +67,11 @@ public sealed partial class FormFlash : Form
         Icon = EmbeddedResources.Get<Icon>("Sprites._user_change.ico");
         richTextBoxMain.Text = string.Empty;
 
-        labelFpl.Text = Core.Config.Firmwares.Find(x => x.Name.Equals(comboBoxFirmware.Items[comboBoxFirmware.SelectedIndex]!.ToString()))!.FileFpl;
-        labelHex.Text = Core.Config.Firmwares.Find(x => x.Name.Equals(comboBoxFirmware.Items[comboBoxFirmware.SelectedIndex]!.ToString()))!.FileBin;
+        labelFpl.Text = Core.ConfigDb.Firmwares.Find(x => x.Name.Equals(comboBoxFirmware.Items[comboBoxFirmware.SelectedIndex]!.ToString()))!.FileFpl;
+        labelHex.Text = Core.ConfigDb.Firmwares.Find(x => x.Name.Equals(comboBoxFirmware.Items[comboBoxFirmware.SelectedIndex]!.ToString()))!.FileBin;
         labelComScanner.Text = $@"ШК СКАНЕР [{Core.Config.ComScanner}]";
         labelComBeta.Text = $@"BetaFlight [{Core.Config.ComBeta}]";
-        labelDfu.Text = $@"BetaFlight DFU mode [{Core.Config.UsbDfuVid}:{Core.Config.UsbDfuPid}]";
+        labelDfu.Text = $@"BetaFlight DFU mode [{Core.ConfigDb.UsbDfuVid}:{Core.ConfigDb.UsbDfuPid}]";
 
         var menu = new ContextMenuStrip();
         menu.Items.Add("ОЧИСТИТЬ", null, OnRichTextBoxClear);
@@ -167,9 +167,9 @@ public sealed partial class FormFlash : Form
 
     private void FlashChanged(object? sender, EventArgs e)
     {
-        labelFpl.Text = Core.Config.Firmwares.Find(x => x.Name.Equals(comboBoxFirmware.Items[comboBoxFirmware.SelectedIndex]!.ToString()))!.FileFpl;
-        labelHex.Text = Core.Config.Firmwares.Find(x => x.Name.Equals(comboBoxFirmware.Items[comboBoxFirmware.SelectedIndex]!.ToString()))!.FileBin;
-        Core.Config.LastFirmware = comboBoxFirmware.Items[comboBoxFirmware.SelectedIndex]?.ToString() ?? string.Empty;
+        labelFpl.Text = Core.ConfigDb.Firmwares.Find(x => x.Name.Equals(comboBoxFirmware.Items[comboBoxFirmware.SelectedIndex]!.ToString()))!.FileFpl;
+        labelHex.Text = Core.ConfigDb.Firmwares.Find(x => x.Name.Equals(comboBoxFirmware.Items[comboBoxFirmware.SelectedIndex]!.ToString()))!.FileBin;
+        Core.ConfigDb.LastFirmware = comboBoxFirmware.Items[comboBoxFirmware.SelectedIndex]?.ToString() ?? string.Empty;
         Core.Config.Save();
     }
 
@@ -228,7 +228,7 @@ public sealed partial class FormFlash : Form
         PrintText("СТАНДАРТИЗАЦИЯ ИЗДЕЛИЯ");
         var start = DateTime.Now;
 
-        var pb = Application.StartupPath + "DB\\_HEX\\" + Core.Config.Firmwares.Find(x =>
+        var pb = Application.StartupPath + "DB\\_HEX\\" + Core.ConfigDb.Firmwares.Find(x =>
             x.Name.Equals(comboBoxFirmware.Items[comboBoxFirmware.SelectedIndex]!.ToString()))!.FileBin;
         if (!File.Exists(pb))
         {
@@ -237,7 +237,7 @@ public sealed partial class FormFlash : Form
         }
 
         var dataBin = await File.ReadAllBytesAsync(pb);
-        var pf = Application.StartupPath + "DB\\_HEX\\" + Core.Config.Firmwares.Find(x =>
+        var pf = Application.StartupPath + "DB\\_HEX\\" + Core.ConfigDb.Firmwares.Find(x =>
             x.Name.Equals(comboBoxFirmware.Items[comboBoxFirmware.SelectedIndex]!.ToString()))!.FileFpl;
         if (!File.Exists(pf))
         {
@@ -532,7 +532,7 @@ public sealed partial class FormFlash : Form
     {
         try
         {
-            System.Diagnostics.Process.Start($"{Application.StartupPath}DB\\ImpulseRC_Driver_Fixer.exe");
+            Process.Start($"{Application.StartupPath}DB\\ImpulseRC_Driver_Fixer.exe");
         }
         catch (Exception ex)
         {
@@ -562,7 +562,7 @@ public sealed partial class FormFlash : Form
     {
         _scanner.StartAsync(Core.Config.ComScanner);
         _ = _betaflight.StartAsync(Core.Config.ComBeta);
-        _ = _betaflight.StartUsbAsync(int.Parse(Core.Config.UsbDfuVid, System.Globalization.NumberStyles.HexNumber), int.Parse(Core.Config.UsbDfuPid, System.Globalization.NumberStyles.HexNumber));
+        _ = _betaflight.StartUsbAsync(int.Parse(Core.ConfigDb.UsbDfuVid, System.Globalization.NumberStyles.HexNumber), int.Parse(Core.ConfigDb.UsbDfuPid, System.Globalization.NumberStyles.HexNumber));
         _betaflight.OnNewCliMessage += OnNewCliMessage;
         _webCam.StartAsync(20);
         _webCam.OnNewVideoFrame += NewFrame;
