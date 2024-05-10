@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.Diagnostics;
+using System.Text;
 using CbsPromPost.Model;
 using CbsPromPost.Other;
 using CbsPromPost.Resources;
@@ -574,6 +575,43 @@ public sealed partial class FormFlash : Form
         }
         _timer.Start();
         _counts = await Core.IoC.Services.GetRequiredService<Station>().GetCountsFinishWorks(default);
+
+        _ = StartCheckNewVersionAsync();
+    }
+
+    private async Task StartCheckNewVersionAsync(CancellationToken ct = default)
+    {
+        while (!ct.IsCancellationRequested)
+        {
+            await Task.Delay(TimeSpan.FromMilliseconds(1000), ct);
+
+            if (Core.Config.TestMode) continue;
+
+            var updateAvailabeSize = Core.IoC.Services.GetRequiredService<Server>().UpdateVersionPostSize;
+            var updateFile = $"{Application.StartupPath}Updater\\update.zip";
+            var updateSize = File.Exists(updateFile) ? new FileInfo(updateFile).Length : 0;
+            if (updateAvailabeSize > 0 && updateAvailabeSize != updateSize) // Доступно обновление на сервере
+            {
+                await UpdateProgramAsync();
+            }
+        }
+    }
+
+    private async Task UpdateProgramAsync()
+    {
+        var data = await Server.GetUpdatePostAsync(default);
+        if (data.Length <= 0) return;
+
+        var upFile = $"{Application.StartupPath}Updater\\update.zip";
+        await File.WriteAllBytesAsync(upFile, data);
+
+        Process.Start($"{Application.StartupPath}Updater\\Updater.exe", new List<string>
+        {
+            upFile, // Архив zip с новой версией
+            $"{Application.StartupPath}{Application.ProductName}.exe" // Имя запускаемого файла после распаковки
+        });
+        await Task.Delay(TimeSpan.FromMilliseconds(1000));
+        Invoke(Close); // Закрываем головное приложение
     }
 
     private async void OnNewCliMessage(string message)

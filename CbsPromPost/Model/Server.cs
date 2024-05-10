@@ -3,6 +3,7 @@ using System.Text;
 using System.Text.Json;
 using CbsPromPost.Other;
 using Microsoft.Extensions.DependencyInjection;
+using static CbsPromPost.Model.Server;
 using static CbsPromPost.Model.Works;
 
 namespace CbsPromPost.Model;
@@ -13,6 +14,7 @@ public class Server
     public int RequestInSecond { get; set; }
     public bool Alive => (DateTime.Now - _lastAlive).TotalMilliseconds < 5000;
     public double AnswerTime { get; set; }
+    public long UpdateVersionPostSize { get; set; } // Размер доступной версии для обновления клиента
     public static string Prefix { get; set; } = string.Empty;
 
     private DateTime _lastAlive = DateTime.MinValue;
@@ -81,6 +83,7 @@ public class Server
                 }
                 TimeStamp = newTime;
                 Prefix = values.Prefix;
+                UpdateVersionPostSize = values.UpdateVersionPostSize;
 
                 var users = Core.IoC.Services.GetRequiredService<Users>();
                 if (values.TimeStamp.TryGetValue(TimeStampsTypes.Users, out var stampUsers) && stampUsers > users.TimeStamp) await users.UpdateAsync(ct);
@@ -199,15 +202,6 @@ public class Server
         History = 5,
         HistoryBox = 6,
     }
-    protected class WebState
-    {
-        public float Version { get; set; }
-        public string VersionString { get; set; } = string.Empty;
-        public Dictionary<TimeStampsTypes, DateTime> TimeStamp { get; set; } = new();
-        public int RequestInSecond { get; set; }
-        public string Prefix { get; set; } = string.Empty;
-    }
-
     public class HistoryItem
     {
         public DateTime TimeStart { get; set; } = DateTime.MinValue;
@@ -224,4 +218,29 @@ public class Server
     {
         public string Text { get; set; } = string.Empty;
     }
+
+    public static async Task<byte[]> GetUpdatePostAsync(CancellationToken ct)
+    {
+        try
+        {
+            using var web = new HttpClient();
+            web.BaseAddress = new Uri(Core.Config.ServerUrl);
+            using var answ = await web.GetAsync("GetUpdatePost", ct);
+            return !answ.IsSuccessStatusCode ? Array.Empty<byte>() : Convert.FromBase64String(await answ.Content.ReadAsStringAsync(ct));
+        }
+        catch
+        {
+            //
+        }
+        return Array.Empty<byte>();
+    }
+}
+public class WebState
+{
+    public float Version { get; set; }
+    public string VersionString { get; set; } = string.Empty;
+    public Dictionary<TimeStampsTypes, DateTime> TimeStamp { get; set; } = new();
+    public int RequestInSecond { get; set; }
+    public long UpdateVersionPostSize { get; set; } // Размер доступной версии для обновления клиента
+    public string Prefix { get; set; } = string.Empty;
 }

@@ -15,7 +15,7 @@ public partial class FormDroneConfig : Form
     private bool _reverseSpinAll;
     private bool _firstOpen = true;
     private bool _motorNotChecked = true;
-    private System.Windows.Forms.Timer _timer = new System.Windows.Forms.Timer();
+    private readonly System.Windows.Forms.Timer _timer = new();
 
     public FormDroneConfig(SerialBetaflight bf)
     {
