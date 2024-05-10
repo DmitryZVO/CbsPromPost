@@ -95,7 +95,6 @@ public sealed partial class FormFlyRecord : Form
             .Show(this);
         labelDroneId.Text = string.Empty; // Финиш работы
         await Core.IoC.Services.GetRequiredService<Station>().ChangeWorkTimeAsync(DateTime.Now, default);
-        return;
     }
 
     private async void FormShown(object? sender, EventArgs e)
