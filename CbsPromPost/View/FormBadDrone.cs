@@ -124,8 +124,8 @@ public sealed partial class FormBadDrone : Form
 
     private async void OkDrone(object? sender, EventArgs e)
     {
-        var f = new FormYesNo(@"ИЗДЕЛИЕ ОТРЕМОНТИРОВАНО?", Color.LightGreen, Color.DarkRed, new Size(600, 400));
-        if (f.ShowDialog(this) != DialogResult.Yes) return;
+        var fprice = new FormBadPrice(labelDroneId.Text);
+        if (fprice.ShowDialog(this) != DialogResult.OK) return;
 
         var answ = await Server.RemoveBadDrone(labelDroneId.Text, default);
         if (answ.Equals(string.Empty))
@@ -542,6 +542,8 @@ public sealed partial class FormBadDrone : Form
         _betaflight.OnNewCliMessage += OnNewCliMessage;
         _timer.Start();
         _ = StartCheckNewVersionAsync();
+
+        new FormBadPrice("TT127127").Show(this);
     }
 
     private async Task StartCheckNewVersionAsync(CancellationToken ct = default)
