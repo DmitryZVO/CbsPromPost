@@ -67,6 +67,7 @@ sealed partial class FormBadDrone
         buttonOkDrone = new Button();
         buttonPower = new Button();
         richTextBoxInfo = new RichTextBox();
+        buttonCloneBarr = new Button();
         groupBoxButtons.SuspendLayout();
         groupBoxCli.SuspendLayout();
         SuspendLayout();
@@ -504,11 +505,24 @@ sealed partial class FormBadDrone
         richTextBoxInfo.TabIndex = 57;
         richTextBoxInfo.Text = "";
         // 
+        // buttonCloneBarr
+        // 
+        buttonCloneBarr.BackColor = Color.FromArgb(255, 192, 255);
+        buttonCloneBarr.FlatStyle = FlatStyle.Flat;
+        buttonCloneBarr.Font = new Font("Segoe UI", 10F, FontStyle.Regular, GraphicsUnit.Point);
+        buttonCloneBarr.Location = new Point(1331, 200);
+        buttonCloneBarr.Name = "buttonCloneBarr";
+        buttonCloneBarr.Size = new Size(243, 28);
+        buttonCloneBarr.TabIndex = 58;
+        buttonCloneBarr.Text = "ПОВТОР ШК";
+        buttonCloneBarr.UseVisualStyleBackColor = false;
+        // 
         // FormBadDrone
         // 
         AutoScaleDimensions = new SizeF(7F, 15F);
         AutoScaleMode = AutoScaleMode.Font;
         ClientSize = new Size(1584, 923);
+        Controls.Add(buttonCloneBarr);
         Controls.Add(richTextBoxInfo);
         Controls.Add(buttonPower);
         Controls.Add(buttonOkDrone);
@@ -578,4 +592,5 @@ sealed partial class FormBadDrone
     private Button buttonOkDrone;
     private Button buttonPower;
     private RichTextBox richTextBoxInfo;
+    private Button buttonCloneBarr;
 }

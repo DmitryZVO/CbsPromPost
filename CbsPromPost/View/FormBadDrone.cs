@@ -84,10 +84,30 @@ public sealed partial class FormBadDrone : Form
         buttonWriteFpl.Click += ButtonWriteFplClick;
         buttonFullFlash.Click += ButtonFullFlashClick;
         buttonDroneConfig.Click += ButtonDroneConfigClick;
+        buttonCloneBarr.Click += ButtonDroneCloneBarr;
         comboBoxFirmware.SelectedValueChanged += FlashChanged;
         buttonOkDrone.Click += OkDrone;
         buttonPower.Click += PowerClick;
         labelDroneId.MouseDoubleClick += ShowIdInfo;
+    }
+
+    private async void ButtonDroneCloneBarr(object? sender, EventArgs e)
+    {
+        var fn = new DialogInputNumeric(Server.Prefix, 0, 999999, 0);
+        if (fn.ShowDialog(this) != DialogResult.OK) return;
+        var fp = new FormPrinters();
+        if (fp.ShowDialog(this) != DialogResult.OK) return;
+
+        try
+        {
+            using var web = new HttpClient();
+            web.BaseAddress = new Uri(Core.Config.ServerUrl);
+            using var answ = await web.GetAsync($"PrintLabelFreeNumber?number={fn.Value:0}&count=1&printer={fp.Printer:0}");
+        }
+        catch
+        {
+            //
+        }
     }
 
     private void ShowIdInfo(object? sender, MouseEventArgs e)
@@ -488,7 +508,7 @@ public sealed partial class FormBadDrone : Form
     {
         try
         {
-            System.Diagnostics.Process.Start($"{Application.StartupPath}DB\\ImpulseRC_Driver_Fixer.exe");
+            Process.Start($"{Application.StartupPath}DB\\ImpulseRC_Driver_Fixer.exe");
         }
         catch (Exception ex)
         {
