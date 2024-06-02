@@ -9,7 +9,7 @@ public sealed partial class FormBadPrice : Form
 {
     public int Dec { get; private set; } // Сумма штрафа
     public int Inc { get; private set; } // Сумма оплаты
-    public string DecUserName { get; private set; } = string.Empty; // ФИО сотрудника для штрафа
+    public List<string> DecUserName { get; private set; } = new(); // ФИО сотрудника для штрафа
 
     public FormBadPrice(string id)
     {
@@ -39,11 +39,25 @@ public sealed partial class FormBadPrice : Form
         buttonI6.Click += ButtonI6;
 
         comboBox1.SelectedIndexChanged += NameChange;
+        comboBox2.SelectedIndexChanged += NameChange;
+        comboBox3.SelectedIndexChanged += NameChange;
+        comboBox4.SelectedIndexChanged += NameChange;
+        comboBox5.SelectedIndexChanged += NameChange;
     }
 
     private void NameChange(object? sender, EventArgs e)
     {
-        DecUserName = comboBox1.SelectedItem?.ToString() ?? string.Empty;
+        var c1 = comboBox1.SelectedItem?.ToString() ?? string.Empty;
+        var c2 = comboBox2.SelectedItem?.ToString() ?? string.Empty;
+        var c3 = comboBox3.SelectedItem?.ToString() ?? string.Empty;
+        var c4 = comboBox4.SelectedItem?.ToString() ?? string.Empty;
+        var c5 = comboBox5.SelectedItem?.ToString() ?? string.Empty;
+        if (DecUserName.FindAll(x => x.Equals(c1)).Count == 0) DecUserName.Add(c1);
+        if (DecUserName.FindAll(x => x.Equals(c2)).Count == 0) DecUserName.Add(c2);
+        if (DecUserName.FindAll(x => x.Equals(c3)).Count == 0) DecUserName.Add(c3);
+        if (DecUserName.FindAll(x => x.Equals(c4)).Count == 0) DecUserName.Add(c4);
+        if (DecUserName.FindAll(x => x.Equals(c5)).Count == 0) DecUserName.Add(c5);
+
         RefreshButtons();
     }
 
@@ -209,12 +223,25 @@ public sealed partial class FormBadPrice : Form
     {
         await Core.IoC.Services.GetRequiredService<Users>().UpdateAsync(default);
         var users = Core.IoC.Services.GetRequiredService<Users>().Items.FindAll(x => x.State == 0 && !x.Name.Equals(string.Empty));
+        comboBox1.Items.Add(string.Empty);
+        comboBox2.Items.Add(string.Empty);
+        comboBox3.Items.Add(string.Empty);
+        comboBox4.Items.Add(string.Empty);
+        comboBox5.Items.Add(string.Empty);
         foreach (var u in users)
         {
             comboBox1.Items.Add(u.Name);
+            comboBox2.Items.Add(u.Name);
+            comboBox3.Items.Add(u.Name);
+            comboBox4.Items.Add(u.Name);
+            comboBox5.Items.Add(u.Name);
         }
 
-        if (users.Count > 0) comboBox1.SelectedIndex = 0;
+        comboBox1.SelectedIndex = 0;
+        comboBox2.SelectedIndex = 0;
+        comboBox3.SelectedIndex = 0;
+        comboBox4.SelectedIndex = 0;
+        comboBox5.SelectedIndex = 0;
 
         RefreshButtons();
     }

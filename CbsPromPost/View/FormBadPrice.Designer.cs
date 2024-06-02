@@ -47,13 +47,17 @@
             buttonI5 = new Button();
             buttonI6 = new Button();
             label2 = new Label();
+            comboBox2 = new ComboBox();
+            comboBox3 = new ComboBox();
+            comboBox4 = new ComboBox();
+            comboBox5 = new ComboBox();
             SuspendLayout();
             // 
             // buttonCancel
             // 
             buttonCancel.Font = new Font("Segoe UI", 15.75F, FontStyle.Bold, GraphicsUnit.Point);
             buttonCancel.ForeColor = Color.Maroon;
-            buttonCancel.Location = new Point(12, 503);
+            buttonCancel.Location = new Point(12, 632);
             buttonCancel.Name = "buttonCancel";
             buttonCancel.Size = new Size(323, 39);
             buttonCancel.TabIndex = 1;
@@ -64,7 +68,7 @@
             // 
             buttonSend.Font = new Font("Segoe UI", 15.75F, FontStyle.Bold, GraphicsUnit.Point);
             buttonSend.ForeColor = Color.FromArgb(0, 64, 0);
-            buttonSend.Location = new Point(341, 503);
+            buttonSend.Location = new Point(341, 632);
             buttonSend.Name = "buttonSend";
             buttonSend.Size = new Size(323, 39);
             buttonSend.TabIndex = 2;
@@ -257,11 +261,55 @@
             label2.TabIndex = 53;
             label2.Text = "СТОИМОСТЬ РЕМОНТА";
             // 
+            // comboBox2
+            // 
+            comboBox2.DropDownStyle = ComboBoxStyle.DropDownList;
+            comboBox2.Font = new Font("Segoe UI", 12F, FontStyle.Regular, GraphicsUnit.Point);
+            comboBox2.FormattingEnabled = true;
+            comboBox2.Location = new Point(12, 469);
+            comboBox2.Name = "comboBox2";
+            comboBox2.Size = new Size(323, 29);
+            comboBox2.TabIndex = 54;
+            // 
+            // comboBox3
+            // 
+            comboBox3.DropDownStyle = ComboBoxStyle.DropDownList;
+            comboBox3.Font = new Font("Segoe UI", 12F, FontStyle.Regular, GraphicsUnit.Point);
+            comboBox3.FormattingEnabled = true;
+            comboBox3.Location = new Point(12, 504);
+            comboBox3.Name = "comboBox3";
+            comboBox3.Size = new Size(323, 29);
+            comboBox3.TabIndex = 55;
+            // 
+            // comboBox4
+            // 
+            comboBox4.DropDownStyle = ComboBoxStyle.DropDownList;
+            comboBox4.Font = new Font("Segoe UI", 12F, FontStyle.Regular, GraphicsUnit.Point);
+            comboBox4.FormattingEnabled = true;
+            comboBox4.Location = new Point(12, 539);
+            comboBox4.Name = "comboBox4";
+            comboBox4.Size = new Size(323, 29);
+            comboBox4.TabIndex = 56;
+            // 
+            // comboBox5
+            // 
+            comboBox5.DropDownStyle = ComboBoxStyle.DropDownList;
+            comboBox5.Font = new Font("Segoe UI", 12F, FontStyle.Regular, GraphicsUnit.Point);
+            comboBox5.FormattingEnabled = true;
+            comboBox5.Location = new Point(12, 574);
+            comboBox5.Name = "comboBox5";
+            comboBox5.Size = new Size(323, 29);
+            comboBox5.TabIndex = 57;
+            // 
             // FormBadPrice
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(672, 551);
+            ClientSize = new Size(672, 683);
+            Controls.Add(comboBox5);
+            Controls.Add(comboBox4);
+            Controls.Add(comboBox3);
+            Controls.Add(comboBox2);
             Controls.Add(label2);
             Controls.Add(buttonI6);
             Controls.Add(buttonI5);
@@ -308,5 +356,9 @@
         private Button buttonI5;
         private Button buttonI6;
         private Label label2;
+        private ComboBox comboBox2;
+        private ComboBox comboBox3;
+        private ComboBox comboBox4;
+        private ComboBox comboBox5;
     }
 }

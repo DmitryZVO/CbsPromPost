@@ -137,11 +137,20 @@ public sealed partial class FormBadDrone : Form
             if (wDeс.Name.Equals(string.Empty)) return;
             var wInc = works.Get(14); // премия за ремонт брака
             if (wInc.Name.Equals(string.Empty)) return;
-            var user = Core.IoC.Services.GetRequiredService<Users>().Items.Find(x => x.Name.Equals(fprice.DecUserName)); // Пользователь для штрафа
-            if (user == null) return;
+            if (fprice.Dec != 0)
+            {
+                foreach (var u in fprice.DecUserName)
+                {
+                    if (u.Equals(string.Empty)) continue;
 
-            if (fprice.Dec != 0) await Server.AddOtherPrice(wDeс, user, -fprice.Dec / (int)wDeс.CostRub, default); // Корректируем штраф
-            if (fprice.Inc != 0) await Server.AddOtherPrice(wInc, s.User, fprice.Inc / (int)wInc.CostRub, default); // Корректируем премию за работу
+                    var user = Core.IoC.Services.GetRequiredService<Users>().Items.Find(x => x.Name.Equals(u)); // Пользователь для штрафа
+                    if (user == null) continue;
+
+                    await Server.AddOtherPrice(wDeс, user, -fprice.Dec / (int)wDeс.CostRub,
+                        default); // Корректируем штраф
+                }
+            }
+            await Server.AddOtherPrice(wInc, s.User, fprice.Inc / (int)wInc.CostRub, default); // Корректируем премию за работу
 
             new FormInfo(@"РАБОТА ЗАВЕРШЕНА", Color.LightGreen, Color.DarkGreen, 3000, new Size(600, 400))
                 .Show(this);
