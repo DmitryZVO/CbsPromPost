@@ -564,6 +564,8 @@ public sealed partial class FormBadDrone : Form
         _betaflight.OnNewCliMessage += OnNewCliMessage;
         _timer.Start();
         _ = StartCheckNewVersionAsync();
+
+        //new FormBadPrice("TT127127").Show();
     }
 
     private async Task StartCheckNewVersionAsync(CancellationToken ct = default)
