@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using System.Text;
+using Assimp;
 using CbsPromPost.Model;
 using CbsPromPost.Other;
 using CbsPromPost.Resources;
@@ -130,6 +131,18 @@ public sealed partial class FormBadDrone : Form
         var answ = await Server.RemoveBadDrone(labelDroneId.Text, default);
         if (answ.Equals(string.Empty))
         {
+            var s = Core.IoC.Services.GetRequiredService<Station>();
+            var works = Core.IoC.Services.GetRequiredService<Works>();
+            var wDeс = works.Get(15); // штраф за брак
+            if (wDeс.Name.Equals(string.Empty)) return;
+            var wInc = works.Get(14); // премия за ремонт брака
+            if (wInc.Name.Equals(string.Empty)) return;
+            var user = Core.IoC.Services.GetRequiredService<Users>().Items.Find(x => x.Name.Equals(fprice.DecUserName)); // Пользователь для штрафа
+            if (user == null) return;
+
+            if (fprice.Dec != 0) await Server.AddOtherPrice(wDeс, user, -fprice.Dec / (int)wDeс.CostRub, default); // Корректируем штраф
+            if (fprice.Inc != 0) await Server.AddOtherPrice(wInc, s.User, fprice.Inc / (int)wInc.CostRub, default); // Корректируем премию за работу
+
             new FormInfo(@"РАБОТА ЗАВЕРШЕНА", Color.LightGreen, Color.DarkGreen, 3000, new Size(600, 400))
                 .Show(this);
             labelDroneId.Text = string.Empty; // Финиш работы
@@ -542,8 +555,6 @@ public sealed partial class FormBadDrone : Form
         _betaflight.OnNewCliMessage += OnNewCliMessage;
         _timer.Start();
         _ = StartCheckNewVersionAsync();
-
-        new FormBadPrice("TT127127").Show(this);
     }
 
     private async Task StartCheckNewVersionAsync(CancellationToken ct = default)

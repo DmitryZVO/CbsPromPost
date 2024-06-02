@@ -145,6 +145,27 @@ public class Server
         return "ОШИБКА СЕРВЕРА";
     }
 
+    public static async Task<bool> AddOtherPrice(Work work, Users.User user, int count, CancellationToken ct)
+    {
+        try
+        {
+            using var web = new HttpClient();
+            web.BaseAddress = new Uri(Core.Config.ServerUrl);
+            using var answ = await web.GetAsync($"WorkFinishOther?workId={work.Id:0}&userId={user.Id:0}&count={count:0}", ct);
+
+            if (answ.IsSuccessStatusCode)
+            {
+                return true;
+            }
+        }
+        catch
+        {
+            //
+        }
+
+        return false;
+    }
+
     public static async Task<bool> AddBadDrone(string droneId, string text, CancellationToken ct)
     {
         try
