@@ -5,6 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using OpenCvSharp;
 using System.Diagnostics;
+using static CbsPromPost.Other.SharpDxDrone2d;
 using Size = System.Drawing.Size;
 using Timer = System.Windows.Forms.Timer;
 
@@ -156,6 +157,14 @@ public sealed partial class FormFlyRecord : Form
             if (!long.TryParse(text.Replace("USER_", ""), out var id)) return;
             var user = Core.IoC.Services.GetRequiredService<Users>().Items.Find(x => x.Id == id);
             if (user == null) return;
+
+            if (user.State < 0)
+            {
+                new FormInfo($"ПОЛЬЗОВАТЕЛЬ {text}\r\nЗАБЛОКИРОВАН!", Color.LightPink, Color.DarkRed, 3000, new Size(600, 400))
+                    .Show(this);
+                return;
+            }
+
             _ = Core.IoC.Services.GetRequiredService<Station>().StartWorkAsync(user, default);
             Core.IoC.Services.GetRequiredService<Station>().User = user;
 
