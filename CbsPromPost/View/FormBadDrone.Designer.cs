@@ -68,8 +68,10 @@ sealed partial class FormBadDrone
         buttonPower = new Button();
         richTextBoxInfo = new RichTextBox();
         buttonCloneBarr = new Button();
+        pictureBoxMain = new PictureBox();
         groupBoxButtons.SuspendLayout();
         groupBoxCli.SuspendLayout();
+        ((System.ComponentModel.ISupportInitialize)pictureBoxMain).BeginInit();
         SuspendLayout();
         // 
         // buttonFinish
@@ -497,11 +499,11 @@ sealed partial class FormBadDrone
         // 
         richTextBoxInfo.BackColor = Color.MistyRose;
         richTextBoxInfo.BorderStyle = BorderStyle.FixedSingle;
-        richTextBoxInfo.Font = new Font("Segoe UI", 24F, FontStyle.Regular, GraphicsUnit.Point);
+        richTextBoxInfo.Font = new Font("Segoe UI", 18F, FontStyle.Regular, GraphicsUnit.Point);
         richTextBoxInfo.Location = new Point(12, 139);
         richTextBoxInfo.Name = "richTextBoxInfo";
         richTextBoxInfo.ReadOnly = true;
-        richTextBoxInfo.Size = new Size(1313, 403);
+        richTextBoxInfo.Size = new Size(668, 403);
         richTextBoxInfo.TabIndex = 57;
         richTextBoxInfo.Text = "";
         // 
@@ -517,11 +519,21 @@ sealed partial class FormBadDrone
         buttonCloneBarr.Text = "ПОВТОР ШК";
         buttonCloneBarr.UseVisualStyleBackColor = false;
         // 
+        // pictureBoxMain
+        // 
+        pictureBoxMain.BorderStyle = BorderStyle.FixedSingle;
+        pictureBoxMain.Location = new Point(686, 139);
+        pictureBoxMain.Name = "pictureBoxMain";
+        pictureBoxMain.Size = new Size(639, 403);
+        pictureBoxMain.TabIndex = 59;
+        pictureBoxMain.TabStop = false;
+        // 
         // FormBadDrone
         // 
         AutoScaleDimensions = new SizeF(7F, 15F);
         AutoScaleMode = AutoScaleMode.Font;
         ClientSize = new Size(1584, 923);
+        Controls.Add(pictureBoxMain);
         Controls.Add(buttonCloneBarr);
         Controls.Add(richTextBoxInfo);
         Controls.Add(buttonPower);
@@ -549,6 +561,7 @@ sealed partial class FormBadDrone
         groupBoxButtons.ResumeLayout(false);
         groupBoxCli.ResumeLayout(false);
         groupBoxCli.PerformLayout();
+        ((System.ComponentModel.ISupportInitialize)pictureBoxMain).EndInit();
         ResumeLayout(false);
     }
 
@@ -593,4 +606,5 @@ sealed partial class FormBadDrone
     private Button buttonPower;
     private RichTextBox richTextBoxInfo;
     private Button buttonCloneBarr;
+    private PictureBox pictureBoxMain;
 }

@@ -6,6 +6,7 @@ using CbsPromPost.Other;
 using CbsPromPost.Resources;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using OpenCvSharp;
 using Application = System.Windows.Forms.Application;
 using Size = System.Drawing.Size;
 using Timer = System.Windows.Forms.Timer;
@@ -19,6 +20,8 @@ public sealed partial class FormBadDrone : Form
     private long _counterClick;
     private DateTime _counterClickTime = DateTime.Now;
     private FormDroneConfig _formDrone;
+    private readonly WebCam _webCam;
+    private readonly SharpDxMain _dx;
 
     private readonly SerialScanner _scanner;
     private readonly SerialBetaflight _betaflight;
@@ -69,6 +72,10 @@ public sealed partial class FormBadDrone : Form
         richTextBoxMain.ContextMenuStrip = menu;
 
         buttonFinish.Click += ButtonFinishClick;
+
+        _webCam = new WebCam();
+        _dx = new SharpDxMain(pictureBoxMain, -1);
+        pictureBoxMain.SizeMode = PictureBoxSizeMode.StretchImage;
 
         _timer.Tick += TimerTick;
         _scanner.OnReadValue += ComReadString;
@@ -565,7 +572,17 @@ public sealed partial class FormBadDrone : Form
         _timer.Start();
         _ = StartCheckNewVersionAsync();
 
+        _webCam.StartAsync(20);
+        _webCam.OnNewVideoFrame += NewFrame;
+
         //new FormBadPrice("TT127127").Show();
+    }
+
+    private void NewFrame(Mat mat)
+    {
+        if (mat.Empty()) return;
+        _dx.FrameUpdate(mat);
+        if (_formDrone.Visible) _formDrone.UpdateFrame(mat);
     }
 
     private async Task StartCheckNewVersionAsync(CancellationToken ct = default)
