@@ -30,6 +30,9 @@ internal static class Program
             case 14:
                 Application.Run(new FormBadDrone());
                 break;
+            case 50:
+                Application.Run(new FormOtk());
+                break;
             default:
                 MessageBox.Show(@"Неизвестный тип работы!", @"ОШИБКА", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 break;

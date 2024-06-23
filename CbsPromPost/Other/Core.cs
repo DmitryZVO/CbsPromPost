@@ -9,6 +9,7 @@ internal static class Core
 {
     public static ConfigApp Config = new ConfigApp().Load();
     public static ConfigDbApp ConfigDb = new ConfigDbApp().Load();
+    public static ConfigOtk ConfigOtk = new ConfigOtk().Load();
     public static IHost IoC { get; private set; } = Host.CreateDefaultBuilder(null).Build();
 
     public static void Start()
@@ -40,6 +41,7 @@ internal static class Core
         IoC.Services.GetRequiredService<RelayPower>().StartAsync();
 
         Config.Save();
+        ConfigOtk.Save();
 
         if (Config.TestMode)
         {

@@ -72,6 +72,9 @@
     </Compile>
     <Compile Update="View\FormDroneConfig.cs" />
     <Compile Update="View\FormBadDrone.cs" />
+    <Compile Update="View\FormOtk.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Update="View\FormFlyRecord.cs" />
     <Compile Update="View\FormBadPrice.cs">
       <SubType>Form</SubType>

@@ -86,6 +86,7 @@ public abstract class SharpDx : IDisposable
         public TextFormat SysText20;
         public TextFormat SysText34;
         public TextFormat SysText74;
+        public TextFormat SysText104;
         public SharpDX.Direct2D1.Brush SysTextBrushBlue;
         public SharpDX.Direct2D1.Brush SysTextBrushOrange;
         public SharpDX.Direct2D1.Brush SysTextBrushYellow;
@@ -117,6 +118,7 @@ public abstract class SharpDx : IDisposable
             SysText20 = new TextFormat(sdx.DWf, "Arial", 20);
             SysText34 = new TextFormat(sdx.DWf, "Arial", 34);
             SysText74 = new TextFormat(sdx.DWf, "Arial", 74);
+            SysText104 = new TextFormat(sdx.DWf, "Arial", 104);
             SysTextBrushBlue = new SolidColorBrush(sdx.Rt,
                 new RawColor4(0.3F, 0.3F, 1.0F, 1.0F));
             SysTextBrushOrange = new SolidColorBrush(sdx.Rt,
@@ -172,6 +174,7 @@ public abstract class SharpDx : IDisposable
             SysText20.Dispose();
             SysText34.Dispose();
             SysText74.Dispose();
+            SysText104.Dispose();
             SysTextBrushBlue.Dispose();
             SysTextBrushOrange.Dispose();
             SysTextBrushRed.Dispose();
