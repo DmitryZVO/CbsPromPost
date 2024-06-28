@@ -425,6 +425,10 @@ public abstract class SharpDx : IDisposable
         GC.SuppressFinalize(this);
     }
 
+    protected virtual void FirstRun()
+    {
+    }
+
     public void RenderCallback() // Цикл отрисовки изображений в окне камеры
     {
         lock (this)

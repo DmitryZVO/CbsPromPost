@@ -1,5 +1,4 @@
 ﻿using OpenCvSharp;
-using OpenCvSharp.Extensions;
 using Size = OpenCvSharp.Size;
 
 namespace CbsPromPost.Other;
@@ -68,9 +67,10 @@ public class WebCamOtk
             Environment.SetEnvironmentVariable("OPENCV_VIDEOIO_MSMF_ENABLE_HW_TRANSFORMS", "0");
             Environment.SetEnvironmentVariable("MF_SOURCE_READER_D3D_MANAGER", "1");
             using var capture = new VideoCapture(camNumber, VideoCaptureAPIs.MSMF);
-            capture.FrameWidth = 3840;
-            capture.FrameHeight = 2160;
+            capture.FrameWidth = 1920;//3840;
+            capture.FrameHeight = 1080;//2160;
             capture.Set(VideoCaptureProperties.AutoFocus, 0);
+            capture.Set(VideoCaptureProperties.Sharpness, 20);
             var focus = capture.Get(VideoCaptureProperties.Focus);
             while (!cancellationToken.IsCancellationRequested)
             {

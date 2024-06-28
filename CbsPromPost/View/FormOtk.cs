@@ -112,7 +112,7 @@ public sealed partial class FormOtk : Form
         }
     }
 
-    private async void OkDrone(object? sender, EventArgs e)
+    private async void OkDrone()
     {
         var answ = await Core.IoC.Services.GetRequiredService<Station>().FinishBodyAsync(labelDroneId.Text, default);
         _counts = await Core.IoC.Services.GetRequiredService<Station>().GetCountsFinishWorks(default);
@@ -252,25 +252,25 @@ public sealed partial class FormOtk : Form
     {
         if (mat.Empty()) return;
         //_dx.NotActive = labelDroneId.Text.Equals(string.Empty); // КОСТЫЛЬ
-        _dx.FrameUpdate(mat);
+        _dx.FrameCamUpdate(mat, SharpDxMainOtk.CameraType.Full);
     }
 
     private void NewFrameUp(Mat mat)
     {
         if (mat.Empty()) return;
-        _dx.FrameCamUpUpdate(mat);
+        _dx.FrameCamUpdate(mat, SharpDxMainOtk.CameraType.Up);
     }
 
     private void NewFrameLeft(Mat mat)
     {
         if (mat.Empty()) return;
-        _dx.FrameCamLeftUpdate(mat);
+        _dx.FrameCamUpdate(mat, SharpDxMainOtk.CameraType.Left);
     }
 
     private void NewFrameRight(Mat mat)
     {
         if (mat.Empty()) return;
-        _dx.FrameCamRightUpdate(mat);
+        _dx.FrameCamUpdate(mat, SharpDxMainOtk.CameraType.Right);
     }
 
     private void OnClose(object? sender, EventArgs e)
@@ -299,6 +299,12 @@ public sealed partial class FormOtk : Form
     private void TimerTick(object? sender, EventArgs e)
     {
         if ((DateTime.Now - _counterClickTime).TotalMilliseconds > 1000) _counterClick = 0;
+
+        if (_dx.CheckedAll)
+        {
+            OkDrone();
+            _dx.Reset();
+        }
 
         var works = Core.IoC.Services.GetRequiredService<Works>();
         var work = works.Get(Core.Config.Type);
