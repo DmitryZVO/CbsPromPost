@@ -242,10 +242,19 @@ public sealed partial class FormFlash : Form
 
             if (richTextBoxMain.Text.Contains("4.4.3")) // Прошиваем только FPL
             {
-                // Заливка FPL
-                if (await WriteFplAsync(dataFpl) == false)
+                var pf2 = Application.StartupPath + "DB\\_HEX\\_fpl_4_4_3_speedy_bee_new.txt";
+                if (!File.Exists(pf2))
                 {
-                    PrintTextFinalError("СТАНДАРТИЗАЦИЯ НЕ УДАЛАСЬ! НЕ УДАЛОСЬ ЗАЛИТЬ КОНФИГУРАЦИЮ FPL");
+                    PrintTextFinalError("СТАНДАРТИЗАЦИЯ НЕ УДАЛАСЬ! НЕ НАЙДЕН ФАЙЛ FPL _fpl_4_4_3_speedy_bee_new.txt");
+                    return;
+                }
+
+                var dataFpl2 = await File.ReadAllLinesAsync(pf2);
+
+                // Заливка FPL
+                if (await WriteFplAsync(dataFpl2) == false)
+                {
+                    PrintTextFinalError("СТАНДАРТИЗАЦИЯ НЕ УДАЛАСЬ! НЕ УДАЛОСЬ ЗАЛИТЬ КОНФИГУРАЦИЮ FPL _fpl_4_4_3_speedy_bee_new.txt");
                     return;
                 }
 
