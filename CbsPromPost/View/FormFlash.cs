@@ -217,6 +217,43 @@ public sealed partial class FormFlash : Form
 
         richTextBoxMain.Clear();
 
+        PrintText("СТАНДАРТИЗАЦИЯ ИЗДЕЛИЯ");
+        var start = DateTime.Now;
+
+        var pf = Application.StartupPath + "DB\\_HEX\\" + Core.ConfigDb.Firmwares.Find(x =>
+            x.Name.Equals(comboBoxFirmware.Items[comboBoxFirmware.SelectedIndex]!.ToString()))!.FileFpl;
+        if (!File.Exists(pf))
+        {
+            PrintTextFinalError("СТАНДАРТИЗАЦИЯ НЕ УДАЛАСЬ! НЕ НАЙДЕН ФАЙЛ FPL");
+            return;
+        }
+
+        var dataFpl = await File.ReadAllLinesAsync(pf);
+
+        // КОСТЫЛЬ НА ПОЛЕТНИКИ speedebee NEW
+        if (comboBoxFirmware.Items[comboBoxFirmware.SelectedIndex]!.ToString()!.Equals("SPDYBEE_4_3_2 NEW"))
+        {
+            _betaflight.CliWrite("#\r\nversion\r\n");
+            await Task.Delay(300);
+            _betaflight.CliWrite("#\r\nversion\r\n");
+            await Task.Delay(300);
+            _betaflight.CliWrite("#\r\nversion\r\n");
+            await Task.Delay(300);
+
+            if (richTextBoxMain.Text.Contains("4.4.3")) // Прошиваем только FPL
+            {
+                // Заливка FPL
+                if (await WriteFplAsync(dataFpl) == false)
+                {
+                    PrintTextFinalError("СТАНДАРТИЗАЦИЯ НЕ УДАЛАСЬ! НЕ УДАЛОСЬ ЗАЛИТЬ КОНФИГУРАЦИЮ FPL");
+                    return;
+                }
+
+                PrintTextFinalGood($"СТАНДАРТИЗАЦИЯ УСПЕШНА! ЗАТРАЧЕНО {(DateTime.Now - start).TotalSeconds:0} СЕК.");
+                return;
+            }
+        }
+
         // Переводим в DFU
         _betaflight.CliWrite("#\r\nbl");
         await Task.Delay(300);
@@ -224,9 +261,6 @@ public sealed partial class FormFlash : Form
         await Task.Delay(300);
         _betaflight.CliWrite("#\r\nbl");
         await Task.Delay(1000);
-
-        PrintText("СТАНДАРТИЗАЦИЯ ИЗДЕЛИЯ");
-        var start = DateTime.Now;
 
         var pb = Application.StartupPath + "DB\\_HEX\\" + Core.ConfigDb.Firmwares.Find(x =>
             x.Name.Equals(comboBoxFirmware.Items[comboBoxFirmware.SelectedIndex]!.ToString()))!.FileBin;
@@ -237,15 +271,6 @@ public sealed partial class FormFlash : Form
         }
 
         var dataBin = await File.ReadAllBytesAsync(pb);
-        var pf = Application.StartupPath + "DB\\_HEX\\" + Core.ConfigDb.Firmwares.Find(x =>
-            x.Name.Equals(comboBoxFirmware.Items[comboBoxFirmware.SelectedIndex]!.ToString()))!.FileFpl;
-        if (!File.Exists(pf))
-        {
-            PrintTextFinalError("СТАНДАРТИЗАЦИЯ НЕ УДАЛАСЬ! НЕ НАЙДЕН ФАЙЛ FPL");
-            return;
-        }
-
-        var dataFpl = await File.ReadAllLinesAsync(pf);
 
         if (!_betaflight.IsAliveDfu())
         {
