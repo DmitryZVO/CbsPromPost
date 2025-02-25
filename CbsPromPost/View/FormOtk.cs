@@ -114,7 +114,7 @@ public sealed partial class FormOtk : Form
 
     private async void OkDrone()
     {
-        var answ = await Core.IoC.Services.GetRequiredService<Station>().FinishBodyAsync(labelDroneId.Text, default);
+        var answ = await Core.IoC.Services.GetRequiredService<Station>().FinishBodyAsync(labelDroneId.Text, false, default);
         _counts = await Core.IoC.Services.GetRequiredService<Station>().GetCountsFinishWorks(default);
         if (answ.Equals(string.Empty))
         {

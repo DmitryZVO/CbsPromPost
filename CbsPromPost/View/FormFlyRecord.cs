@@ -58,7 +58,7 @@ public sealed partial class FormFlyRecord : Form
 
     private async void OkDrone(object? sender, EventArgs e)
     {
-        var answ = await Core.IoC.Services.GetRequiredService<Station>().FinishBodyAsync(labelDroneId.Text, default);
+        var answ = await Core.IoC.Services.GetRequiredService<Station>().FinishBodyAsync(labelDroneId.Text, checkBoxNotMy.Checked, default);
         _counts = await Core.IoC.Services.GetRequiredService<Station>().GetCountsFinishWorks(default);
         if (answ.Equals(string.Empty))
         {
@@ -208,7 +208,7 @@ public sealed partial class FormFlyRecord : Form
                 return;
             }
 
-            var answ = await Core.IoC.Services.GetRequiredService<Station>().FinishBodyAsync(labelDroneId.Text, default);
+            var answ = await Core.IoC.Services.GetRequiredService<Station>().FinishBodyAsync(labelDroneId.Text, checkBoxNotMy.Checked, default);
             _counts = await Core.IoC.Services.GetRequiredService<Station>().GetCountsFinishWorks(default);
             if (answ.Equals(string.Empty))
             {

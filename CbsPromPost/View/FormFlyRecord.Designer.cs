@@ -39,6 +39,7 @@ sealed partial class FormFlyRecord
         pictureBoxMain = new PictureBox();
         buttonBadDrone = new Button();
         buttonOkDrone = new Button();
+        checkBoxNotMy = new CheckBox();
         ((System.ComponentModel.ISupportInitialize)pictureBoxMain).BeginInit();
         SuspendLayout();
         // 
@@ -81,7 +82,7 @@ sealed partial class FormFlyRecord
         labelTime.ForeColor = Color.Black;
         labelTime.Location = new Point(372, 143);
         labelTime.Name = "labelTime";
-        labelTime.Size = new Size(751, 82);
+        labelTime.Size = new Size(584, 82);
         labelTime.TabIndex = 13;
         labelTime.Text = "00:00:00";
         labelTime.TextAlign = ContentAlignment.MiddleCenter;
@@ -161,11 +162,23 @@ sealed partial class FormFlyRecord
         buttonOkDrone.Text = "ОК";
         buttonOkDrone.UseVisualStyleBackColor = true;
         // 
+        // checkBoxNotMy
+        // 
+        checkBoxNotMy.AutoSize = true;
+        checkBoxNotMy.Font = new Font("Segoe UI", 14.25F, FontStyle.Bold, GraphicsUnit.Point);
+        checkBoxNotMy.Location = new Point(962, 173);
+        checkBoxNotMy.Name = "checkBoxNotMy";
+        checkBoxNotMy.Size = new Size(196, 29);
+        checkBoxNotMy.TabIndex = 56;
+        checkBoxNotMy.Text = "ЧУЖОЕ ИЗДЕЛИЕ";
+        checkBoxNotMy.UseVisualStyleBackColor = true;
+        // 
         // FormFlyRecord
         // 
         AutoScaleDimensions = new SizeF(7F, 15F);
         AutoScaleMode = AutoScaleMode.Font;
         ClientSize = new Size(1584, 961);
+        Controls.Add(checkBoxNotMy);
         Controls.Add(buttonOkDrone);
         Controls.Add(buttonBadDrone);
         Controls.Add(pictureBoxMain);
@@ -183,6 +196,7 @@ sealed partial class FormFlyRecord
         Text = "[КБ ЦБС] Пост финальных полетов БПЛА";
         ((System.ComponentModel.ISupportInitialize)pictureBoxMain).EndInit();
         ResumeLayout(false);
+        PerformLayout();
     }
 
     #endregion
@@ -198,4 +212,5 @@ sealed partial class FormFlyRecord
     private PictureBox pictureBoxMain;
     private Button buttonBadDrone;
     private Button buttonOkDrone;
+    private CheckBox checkBoxNotMy;
 }

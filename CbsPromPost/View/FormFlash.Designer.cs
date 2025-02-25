@@ -71,6 +71,7 @@ sealed partial class FormFlash
         buttonBadDrone = new Button();
         buttonOkDrone = new Button();
         buttonPower = new Button();
+        checkBoxNotMy = new CheckBox();
         groupBoxButtons.SuspendLayout();
         groupBoxCli.SuspendLayout();
         ((System.ComponentModel.ISupportInitialize)pictureBoxMain).BeginInit();
@@ -271,7 +272,7 @@ sealed partial class FormFlash
         labelFpl.ForeColor = Color.Black;
         labelFpl.Location = new Point(852, 234);
         labelFpl.Name = "labelFpl";
-        labelFpl.Size = new Size(473, 28);
+        labelFpl.Size = new Size(339, 28);
         labelFpl.TabIndex = 31;
         labelFpl.Text = "FPL";
         labelFpl.TextAlign = ContentAlignment.MiddleCenter;
@@ -550,11 +551,22 @@ sealed partial class FormFlash
         buttonPower.Text = "ПИТАНИЕ ИЗДЕЛИЯ";
         buttonPower.UseVisualStyleBackColor = false;
         // 
+        // checkBoxNotMy
+        // 
+        checkBoxNotMy.Font = new Font("Segoe UI Black", 11F, FontStyle.Bold, GraphicsUnit.Point);
+        checkBoxNotMy.Location = new Point(1197, 234);
+        checkBoxNotMy.Name = "checkBoxNotMy";
+        checkBoxNotMy.Size = new Size(128, 28);
+        checkBoxNotMy.TabIndex = 57;
+        checkBoxNotMy.Text = "БЕЗ СБОРКИ";
+        checkBoxNotMy.UseVisualStyleBackColor = true;
+        // 
         // FormFlash
         // 
         AutoScaleDimensions = new SizeF(7F, 15F);
         AutoScaleMode = AutoScaleMode.Font;
         ClientSize = new Size(1584, 923);
+        Controls.Add(checkBoxNotMy);
         Controls.Add(buttonPower);
         Controls.Add(buttonOkDrone);
         Controls.Add(buttonBadDrone);
@@ -634,4 +646,5 @@ sealed partial class FormFlash
     private Button buttonBadDrone;
     private Button buttonOkDrone;
     private Button buttonPower;
+    private CheckBox checkBoxNotMy;
 }

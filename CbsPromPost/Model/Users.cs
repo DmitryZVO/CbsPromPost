@@ -37,9 +37,7 @@ public class Users
 
     private static void WriteLog(LogLevel level, string log)
     {
-#pragma warning disable CA2254
         Core.IoC.Services.GetRequiredService<ILogger<Users>>().Log(level, $"*Users* {log}");
-#pragma warning restore CA2254
     }
 
     public class User

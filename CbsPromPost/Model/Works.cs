@@ -44,9 +44,7 @@ public class Works
 
     private static void WriteLog(LogLevel level, string log)
     {
-#pragma warning disable CA2254
         Core.IoC.Services.GetRequiredService<ILogger<Works>>().Log(level, $"*Works* {log}");
-#pragma warning restore CA2254
     }
 
     public class Work

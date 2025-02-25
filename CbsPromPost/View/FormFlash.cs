@@ -54,6 +54,8 @@ public sealed partial class FormFlash : Form
             Core.Config.Save();
         }
 
+        NotMyCheckVisible();
+
         _webCam = new WebCam();
         _dx = new SharpDxMain(pictureBoxMain, -1);
         _record = new VideoRecord();
@@ -115,7 +117,7 @@ public sealed partial class FormFlash : Form
 
     private async void OkDrone(object? sender, EventArgs e)
     {
-        var answ = await Core.IoC.Services.GetRequiredService<Station>().FinishBodyAsync(labelDroneId.Text, default);
+        var answ = await Core.IoC.Services.GetRequiredService<Station>().FinishBodyAsync(labelDroneId.Text, checkBoxNotMy.Checked, default);
         _counts = await Core.IoC.Services.GetRequiredService<Station>().GetCountsFinishWorks(default);
         if (answ.Equals(string.Empty))
         {
@@ -165,8 +167,23 @@ public sealed partial class FormFlash : Form
         _formDrone.Visible = false;
     }
 
+    private void NotMyCheckVisible()
+    {
+        if (comboBoxFirmware.Items[comboBoxFirmware.SelectedIndex]!.ToString()!.ToUpper().Contains("NOT_MY"))
+        {
+            checkBoxNotMy.Visible = true;
+            checkBoxNotMy.Checked = false;
+        }
+        else
+        {
+            checkBoxNotMy.Visible = false;
+            checkBoxNotMy.Checked = false;
+        }
+    }
+
     private void FlashChanged(object? sender, EventArgs e)
     {
+        NotMyCheckVisible();
         labelFpl.Text = Core.ConfigDb.Firmwares.Find(x => x.Name.Equals(comboBoxFirmware.Items[comboBoxFirmware.SelectedIndex]!.ToString()))!.FileFpl;
         labelHex.Text = Core.ConfigDb.Firmwares.Find(x => x.Name.Equals(comboBoxFirmware.Items[comboBoxFirmware.SelectedIndex]!.ToString()))!.FileBin;
         Core.ConfigDb.LastFirmware = comboBoxFirmware.Items[comboBoxFirmware.SelectedIndex]?.ToString() ?? string.Empty;
@@ -734,7 +751,7 @@ public sealed partial class FormFlash : Form
                 return;
             }
 
-            var answ = await Core.IoC.Services.GetRequiredService<Station>().FinishBodyAsync(labelDroneId.Text, default);
+            var answ = await Core.IoC.Services.GetRequiredService<Station>().FinishBodyAsync(labelDroneId.Text, checkBoxNotMy.Checked, default);
             _counts = await Core.IoC.Services.GetRequiredService<Station>().GetCountsFinishWorks(default);
             if (answ.Equals(string.Empty))
             {

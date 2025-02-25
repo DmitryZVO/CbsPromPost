@@ -12,7 +12,7 @@ public class Station
     public string Address { get; set; } = string.Empty;
     public long Type { get; set; } = -1;
     public Users.User User { get; set; } = new();
-    public double Version { get; set; } = 1.17d;
+    public double Version { get; set; } = 1.18d;
 
     public async void StartAsync(CancellationToken ct = default)
     {
@@ -81,13 +81,14 @@ public class Station
         }
     }
 
-    public async Task<string> FinishBodyAsync(string text, CancellationToken ct)
+    public async Task<string> FinishBodyAsync(string text, bool notCheckPipe, CancellationToken ct)
     {
         try
         {
             using var web = new HttpClient();
             web.BaseAddress = new Uri(Core.Config.ServerUrl);
-            using var answ = await web.GetAsync($"WorkFinish?stationId={Number:0}&workId={Type:0}&droneId={text}", ct);
+            var strReq = notCheckPipe ? $"WorkFinishNotCheckPipe?stationId={Number:0}&workId={Type:0}&droneId={text}" : $"WorkFinish?stationId={Number:0}&workId={Type:0}&droneId={text}";
+            using var answ = await web.GetAsync(strReq, ct);
             return answ.IsSuccessStatusCode ? string.Empty : await answ.Content.ReadAsStringAsync(ct);
         }
         catch
