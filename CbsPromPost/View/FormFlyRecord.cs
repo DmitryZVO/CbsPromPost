@@ -15,8 +15,10 @@ public sealed partial class FormFlyRecord : Form
 {
     private readonly Timer _timer = new();
 
-    private readonly WebCam _webCam;
-    private readonly SharpDxMain _dx;
+    private readonly WebCam _webCamFpv;
+    private readonly WebCam _webCamBox;
+    private readonly SharpDxMain _dxFpv;
+    private readonly SharpDxMain _dxBox;
     private long _counts;
 
     private int _counterClick;
@@ -33,9 +35,11 @@ public sealed partial class FormFlyRecord : Form
         labelName.Text = $@"ПОСТ №{Core.Config.PostNumber:0}";
         _timer.Interval = 100;
 
-        _webCam = new WebCam();
-        _dx = new SharpDxMain(pictureBoxMain, -1);
-        pictureBoxMain.SizeMode = PictureBoxSizeMode.CenterImage;
+        _webCamFpv = new WebCam();
+        _webCamBox = new WebCam();
+        _dxFpv = new SharpDxMain(pictureBoxCamFpv, -1);
+        _dxBox = new SharpDxMain(pictureBoxCamBox, -1);
+        pictureBoxCamFpv.SizeMode = PictureBoxSizeMode.CenterImage;
 
         var works = Core.IoC.Services.GetRequiredService<Works>();
         var work = works.Get(Core.Config.Type);
@@ -101,8 +105,10 @@ public sealed partial class FormFlyRecord : Form
     private async void FormShown(object? sender, EventArgs e)
     {
         _scanner.StartAsync(Core.Config.ComScanner);
-        _webCam.StartAsync(20);
-        _webCam.OnNewVideoFrame += NewFrame;
+        _webCamFpv.StartAsync(0, 20);
+        _webCamFpv.OnNewVideoFrame += NewFrameFpv;
+        _webCamBox.StartAsync(1, 20);
+        _webCamBox.OnNewVideoFrame += NewFrameBox;
 
         var s = Core.IoC.Services.GetRequiredService<Station>();
         labelUser.Text = s.User.Name;
@@ -222,19 +228,30 @@ public sealed partial class FormFlyRecord : Form
         });
     }
 
-    private void NewFrame(Mat mat)
+    private void NewFrameFpv(Mat mat)
     {
         if (mat.Empty()) return;
-        _dx.NotActive = labelDroneId.Text.Equals(string.Empty);
+        _dxFpv.NotActive = labelDroneId.Text.Equals(string.Empty);
         _record.FrameAdd(labelDroneId.Text, mat);
-        _dx.FrameUpdate(mat);
+        _dxFpv.FrameUpdate(mat);
+    }
+
+    private void NewFrameBox(Mat mat)
+    {
+        if (mat.Empty()) return;
+        _dxBox.NotActive = labelDroneId.Text.Equals(string.Empty);
+        //_record.FrameAdd(labelDroneId.Text, mat);
+        _dxBox.FrameUpdate(mat);
     }
 
     private void OnClose(object? sender, EventArgs e)
     {
-        _webCam.OnNewVideoFrame -= NewFrame;
-        _webCam.Dispose();
-        _dx.Dispose();
+        _webCamFpv.OnNewVideoFrame -= NewFrameFpv;
+        _webCamFpv.Dispose();
+        _webCamBox.OnNewVideoFrame -= NewFrameBox;
+        _webCamBox.Dispose();
+        _dxFpv.Dispose();
+        _dxBox.Dispose();
         _timer.Stop();
     }
 

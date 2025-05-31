@@ -572,7 +572,7 @@ public sealed partial class FormBadDrone : Form
         _timer.Start();
         _ = StartCheckNewVersionAsync();
 
-        _webCam.StartAsync(20);
+        _webCam.StartAsync(0, 20);
         _webCam.OnNewVideoFrame += NewFrame;
 
         //new FormBadPrice("TT127127").Show();

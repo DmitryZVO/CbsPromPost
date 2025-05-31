@@ -36,11 +36,13 @@ sealed partial class FormFlyRecord
         labelWork = new Label();
         labelName = new Label();
         labelDroneId = new Label();
-        pictureBoxMain = new PictureBox();
+        pictureBoxCamFpv = new PictureBox();
         buttonBadDrone = new Button();
         buttonOkDrone = new Button();
         checkBoxNotMy = new CheckBox();
-        ((System.ComponentModel.ISupportInitialize)pictureBoxMain).BeginInit();
+        pictureBoxCamBox = new PictureBox();
+        ((System.ComponentModel.ISupportInitialize)pictureBoxCamFpv).BeginInit();
+        ((System.ComponentModel.ISupportInitialize)pictureBoxCamBox).BeginInit();
         SuspendLayout();
         // 
         // label1
@@ -131,14 +133,14 @@ sealed partial class FormFlyRecord
         labelDroneId.TabIndex = 18;
         labelDroneId.TextAlign = ContentAlignment.MiddleCenter;
         // 
-        // pictureBoxMain
+        // pictureBoxCamFpv
         // 
-        pictureBoxMain.BorderStyle = BorderStyle.FixedSingle;
-        pictureBoxMain.Location = new Point(12, 228);
-        pictureBoxMain.Name = "pictureBoxMain";
-        pictureBoxMain.Size = new Size(1560, 721);
-        pictureBoxMain.TabIndex = 53;
-        pictureBoxMain.TabStop = false;
+        pictureBoxCamFpv.BorderStyle = BorderStyle.FixedSingle;
+        pictureBoxCamFpv.Location = new Point(12, 228);
+        pictureBoxCamFpv.Name = "pictureBoxCamFpv";
+        pictureBoxCamFpv.Size = new Size(775, 582);
+        pictureBoxCamFpv.TabIndex = 53;
+        pictureBoxCamFpv.TabStop = false;
         // 
         // buttonBadDrone
         // 
@@ -173,15 +175,25 @@ sealed partial class FormFlyRecord
         checkBoxNotMy.Text = "ЧУЖОЕ ИЗДЕЛИЕ";
         checkBoxNotMy.UseVisualStyleBackColor = true;
         // 
+        // pictureBoxCamBox
+        // 
+        pictureBoxCamBox.BorderStyle = BorderStyle.FixedSingle;
+        pictureBoxCamBox.Location = new Point(797, 228);
+        pictureBoxCamBox.Name = "pictureBoxCamBox";
+        pictureBoxCamBox.Size = new Size(775, 582);
+        pictureBoxCamBox.TabIndex = 57;
+        pictureBoxCamBox.TabStop = false;
+        // 
         // FormFlyRecord
         // 
         AutoScaleDimensions = new SizeF(7F, 15F);
         AutoScaleMode = AutoScaleMode.Font;
         ClientSize = new Size(1584, 961);
+        Controls.Add(pictureBoxCamBox);
         Controls.Add(checkBoxNotMy);
         Controls.Add(buttonOkDrone);
         Controls.Add(buttonBadDrone);
-        Controls.Add(pictureBoxMain);
+        Controls.Add(pictureBoxCamFpv);
         Controls.Add(labelDroneId);
         Controls.Add(label1);
         Controls.Add(labelCount);
@@ -194,7 +206,8 @@ sealed partial class FormFlyRecord
         Name = "FormFlyRecord";
         StartPosition = FormStartPosition.CenterScreen;
         Text = "[КБ ЦБС] Пост финальных полетов БПЛА";
-        ((System.ComponentModel.ISupportInitialize)pictureBoxMain).EndInit();
+        ((System.ComponentModel.ISupportInitialize)pictureBoxCamFpv).EndInit();
+        ((System.ComponentModel.ISupportInitialize)pictureBoxCamBox).EndInit();
         ResumeLayout(false);
         PerformLayout();
     }
@@ -209,8 +222,9 @@ sealed partial class FormFlyRecord
     private Label labelWork;
     private Label labelName;
     private Label labelDroneId;
-    private PictureBox pictureBoxMain;
+    private PictureBox pictureBoxCamFpv;
     private Button buttonBadDrone;
     private Button buttonOkDrone;
     private CheckBox checkBoxNotMy;
+    private PictureBox pictureBoxCamBox;
 }
