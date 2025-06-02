@@ -190,7 +190,7 @@ sealed partial class FormFlyRecord
         // buttonCamChange
         // 
         buttonCamChange.Font = new Font("Segoe UI", 12F, FontStyle.Regular, GraphicsUnit.Point);
-        buttonCamChange.Location = new Point(734, 228);
+        buttonCamChange.Location = new Point(734, 231);
         buttonCamChange.Name = "buttonCamChange";
         buttonCamChange.Size = new Size(122, 35);
         buttonCamChange.TabIndex = 58;
