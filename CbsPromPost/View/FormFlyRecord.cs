@@ -27,6 +27,7 @@ public sealed partial class FormFlyRecord : Form
     private readonly SerialScanner _scanner;
     private readonly VideoRecord _record;
     private bool _reverse = false;
+    private int FullScreenCamNumber = 0;
 
     public FormFlyRecord()
     {
@@ -41,7 +42,7 @@ public sealed partial class FormFlyRecord : Form
         _webCamBox = new WebCam();
         _dxFpv = new SharpDxMain(pictureBoxCamFpv, -1);
         _dxBox = new SharpDxMain(pictureBoxCamBox, -1);
-        _dxFullScreen = new SharpDxMain(Program.FullScreen.pictureBoxMain, -1);
+        _dxFullScreen = new SharpDxMain(pictureBoxFullScreen, -1);
         pictureBoxCamFpv.SizeMode = PictureBoxSizeMode.CenterImage;
 
         var works = Core.IoC.Services.GetRequiredService<Works>();
@@ -64,6 +65,17 @@ public sealed partial class FormFlyRecord : Form
         pictureBoxCamFpv.DoubleClick += FpvDoubleClick;
         pictureBoxCamBox.DoubleClick += BoxDoubleClick;
         buttonCamChange.Click += CamChanges;
+        pictureBoxFullScreen.Visible = false;
+        pictureBoxFullScreen.DoubleClick += DoubleClick;
+    }
+
+    private new void DoubleClick(object? sender, EventArgs e)
+    {
+        FullScreenCamNumber = 0;
+        pictureBoxFullScreen.Visible = false;
+        //buttonCamChange.Visible = true;
+        pictureBoxCamFpv.Visible = true;
+        pictureBoxCamBox.Visible = true;
     }
 
     private async void OkDrone(object? sender, EventArgs e)
@@ -84,14 +96,20 @@ public sealed partial class FormFlyRecord : Form
 
     private void FpvDoubleClick(object? sender, EventArgs e)
     {
-        Program.FullScreen.CamNumber = 1;
-        Program.FullScreen.Visible = true;
+        FullScreenCamNumber = 1;
+        pictureBoxFullScreen.Visible = true;
+        //buttonCamChange.Visible = false;
+        pictureBoxCamFpv.Visible = false;
+        pictureBoxCamBox.Visible = false;
     }
 
     private void BoxDoubleClick(object? sender, EventArgs e)
     {
-        Program.FullScreen.CamNumber = 2;
-        Program.FullScreen.Visible = true;
+        FullScreenCamNumber = 2;
+        pictureBoxFullScreen.Visible = true;
+        //buttonCamChange.Visible = false;
+        pictureBoxCamFpv.Visible = false;
+        pictureBoxCamBox.Visible = false;
     }
 
     private async void BadDrone(object? sender, EventArgs e)
@@ -269,12 +287,12 @@ public sealed partial class FormFlyRecord : Form
     {
         if (mat.Empty()) return;
         _record.FrameAdd(labelDroneId.Text, mat);
-        if (Program.FullScreen.CamNumber == 0)
+        if (FullScreenCamNumber == 0)
         {
             _dxFpv.NotActive = labelDroneId.Text.Equals(string.Empty);
             _dxFpv.FrameUpdate(mat);
         }
-        else if (Program.FullScreen.CamNumber == 1)
+        else if (FullScreenCamNumber == 1)
         {
             _dxFullScreen.NotActive = labelDroneId.Text.Equals(string.Empty);
             _dxFullScreen.FrameUpdate(mat);
@@ -285,12 +303,12 @@ public sealed partial class FormFlyRecord : Form
     {
         if (mat.Empty()) return;
         //_record.FrameAdd(labelDroneId.Text, mat);
-        if (Program.FullScreen.CamNumber == 0)
+        if (FullScreenCamNumber == 0)
         {
             _dxBox.NotActive = labelDroneId.Text.Equals(string.Empty);
             _dxBox.FrameUpdate(mat);
         }
-        else if (Program.FullScreen.CamNumber == 2)
+        else if (FullScreenCamNumber == 2)
         {
             _dxFullScreen.NotActive = labelDroneId.Text.Equals(string.Empty);
             _dxFullScreen.FrameUpdate(mat);

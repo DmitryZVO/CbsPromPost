@@ -42,8 +42,10 @@ sealed partial class FormFlyRecord
         checkBoxNotMy = new CheckBox();
         pictureBoxCamBox = new PictureBox();
         buttonCamChange = new Button();
+        pictureBoxFullScreen = new PictureBox();
         ((System.ComponentModel.ISupportInitialize)pictureBoxCamFpv).BeginInit();
         ((System.ComponentModel.ISupportInitialize)pictureBoxCamBox).BeginInit();
+        ((System.ComponentModel.ISupportInitialize)pictureBoxFullScreen).BeginInit();
         SuspendLayout();
         // 
         // label1
@@ -137,7 +139,7 @@ sealed partial class FormFlyRecord
         // pictureBoxCamFpv
         // 
         pictureBoxCamFpv.BorderStyle = BorderStyle.FixedSingle;
-        pictureBoxCamFpv.Location = new Point(12, 228);
+        pictureBoxCamFpv.Location = new Point(12, 269);
         pictureBoxCamFpv.Name = "pictureBoxCamFpv";
         pictureBoxCamFpv.Size = new Size(775, 582);
         pictureBoxCamFpv.TabIndex = 53;
@@ -179,7 +181,7 @@ sealed partial class FormFlyRecord
         // pictureBoxCamBox
         // 
         pictureBoxCamBox.BorderStyle = BorderStyle.FixedSingle;
-        pictureBoxCamBox.Location = new Point(797, 228);
+        pictureBoxCamBox.Location = new Point(797, 269);
         pictureBoxCamBox.Name = "pictureBoxCamBox";
         pictureBoxCamBox.Size = new Size(775, 582);
         pictureBoxCamBox.TabIndex = 57;
@@ -188,12 +190,22 @@ sealed partial class FormFlyRecord
         // buttonCamChange
         // 
         buttonCamChange.Font = new Font("Segoe UI", 12F, FontStyle.Regular, GraphicsUnit.Point);
-        buttonCamChange.Location = new Point(731, 816);
+        buttonCamChange.Location = new Point(734, 228);
         buttonCamChange.Name = "buttonCamChange";
         buttonCamChange.Size = new Size(122, 35);
         buttonCamChange.TabIndex = 58;
         buttonCamChange.Text = "<<<===>>>";
         buttonCamChange.UseVisualStyleBackColor = true;
+        // 
+        // pictureBoxFullScreen
+        // 
+        pictureBoxFullScreen.BorderStyle = BorderStyle.FixedSingle;
+        pictureBoxFullScreen.Location = new Point(12, 228);
+        pictureBoxFullScreen.Name = "pictureBoxFullScreen";
+        pictureBoxFullScreen.Size = new Size(1560, 730);
+        pictureBoxFullScreen.TabIndex = 59;
+        pictureBoxFullScreen.TabStop = false;
+        pictureBoxFullScreen.Visible = false;
         // 
         // FormFlyRecord
         // 
@@ -214,12 +226,14 @@ sealed partial class FormFlyRecord
         Controls.Add(labelUser);
         Controls.Add(labelWork);
         Controls.Add(labelName);
+        Controls.Add(pictureBoxFullScreen);
         MaximizeBox = false;
         Name = "FormFlyRecord";
         StartPosition = FormStartPosition.CenterScreen;
         Text = "[КБ ЦБС] Пост финальных полетов БПЛА";
         ((System.ComponentModel.ISupportInitialize)pictureBoxCamFpv).EndInit();
         ((System.ComponentModel.ISupportInitialize)pictureBoxCamBox).EndInit();
+        ((System.ComponentModel.ISupportInitialize)pictureBoxFullScreen).EndInit();
         ResumeLayout(false);
         PerformLayout();
     }
@@ -240,4 +254,5 @@ sealed partial class FormFlyRecord
     private CheckBox checkBoxNotMy;
     private PictureBox pictureBoxCamBox;
     private Button buttonCamChange;
+    private PictureBox pictureBoxFullScreen;
 }
