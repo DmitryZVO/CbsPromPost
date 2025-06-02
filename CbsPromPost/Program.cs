@@ -5,6 +5,8 @@ namespace CbsPromPost;
 
 internal static class Program
 {
+    public static FormFullScreen FullScreen = new();
+
     [STAThread]
     private static void Main()
     {

@@ -41,6 +41,7 @@ sealed partial class FormFlyRecord
         buttonOkDrone = new Button();
         checkBoxNotMy = new CheckBox();
         pictureBoxCamBox = new PictureBox();
+        buttonCamChange = new Button();
         ((System.ComponentModel.ISupportInitialize)pictureBoxCamFpv).BeginInit();
         ((System.ComponentModel.ISupportInitialize)pictureBoxCamBox).BeginInit();
         SuspendLayout();
@@ -184,11 +185,22 @@ sealed partial class FormFlyRecord
         pictureBoxCamBox.TabIndex = 57;
         pictureBoxCamBox.TabStop = false;
         // 
+        // buttonCamChange
+        // 
+        buttonCamChange.Font = new Font("Segoe UI", 12F, FontStyle.Regular, GraphicsUnit.Point);
+        buttonCamChange.Location = new Point(731, 816);
+        buttonCamChange.Name = "buttonCamChange";
+        buttonCamChange.Size = new Size(122, 35);
+        buttonCamChange.TabIndex = 58;
+        buttonCamChange.Text = "<<<===>>>";
+        buttonCamChange.UseVisualStyleBackColor = true;
+        // 
         // FormFlyRecord
         // 
         AutoScaleDimensions = new SizeF(7F, 15F);
         AutoScaleMode = AutoScaleMode.Font;
         ClientSize = new Size(1584, 961);
+        Controls.Add(buttonCamChange);
         Controls.Add(pictureBoxCamBox);
         Controls.Add(checkBoxNotMy);
         Controls.Add(buttonOkDrone);
@@ -227,4 +239,5 @@ sealed partial class FormFlyRecord
     private Button buttonOkDrone;
     private CheckBox checkBoxNotMy;
     private PictureBox pictureBoxCamBox;
+    private Button buttonCamChange;
 }

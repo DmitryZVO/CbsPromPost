@@ -5,7 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using OpenCvSharp;
 using System.Diagnostics;
-using static CbsPromPost.Other.SharpDxDrone2d;
+using System.Runtime.InteropServices;
 using Size = System.Drawing.Size;
 using Timer = System.Windows.Forms.Timer;
 
@@ -19,12 +19,14 @@ public sealed partial class FormFlyRecord : Form
     private readonly WebCam _webCamBox;
     private readonly SharpDxMain _dxFpv;
     private readonly SharpDxMain _dxBox;
+    private readonly SharpDxMain _dxFullScreen;
     private long _counts;
 
     private int _counterClick;
     private DateTime _counterClickTime;
     private readonly SerialScanner _scanner;
     private readonly VideoRecord _record;
+    private bool _reverse = false;
 
     public FormFlyRecord()
     {
@@ -39,6 +41,7 @@ public sealed partial class FormFlyRecord : Form
         _webCamBox = new WebCam();
         _dxFpv = new SharpDxMain(pictureBoxCamFpv, -1);
         _dxBox = new SharpDxMain(pictureBoxCamBox, -1);
+        _dxFullScreen = new SharpDxMain(Program.FullScreen.pictureBoxMain, -1);
         pictureBoxCamFpv.SizeMode = PictureBoxSizeMode.CenterImage;
 
         var works = Core.IoC.Services.GetRequiredService<Works>();
@@ -58,6 +61,9 @@ public sealed partial class FormFlyRecord : Form
         Shown += FormShown;
         buttonBadDrone.Click += BadDrone;
         buttonOkDrone.Click += OkDrone;
+        pictureBoxCamFpv.DoubleClick += FpvDoubleClick;
+        pictureBoxCamBox.DoubleClick += BoxDoubleClick;
+        buttonCamChange.Click += CamChanges;
     }
 
     private async void OkDrone(object? sender, EventArgs e)
@@ -74,6 +80,18 @@ public sealed partial class FormFlyRecord : Form
         }
 
         new FormInfo(@$"{answ}", Color.LightPink, Color.DarkRed, 3000, new Size(600, 400)).Show(this);
+    }
+
+    private void FpvDoubleClick(object? sender, EventArgs e)
+    {
+        Program.FullScreen.CamNumber = 1;
+        Program.FullScreen.Visible = true;
+    }
+
+    private void BoxDoubleClick(object? sender, EventArgs e)
+    {
+        Program.FullScreen.CamNumber = 2;
+        Program.FullScreen.Visible = true;
     }
 
     private async void BadDrone(object? sender, EventArgs e)
@@ -100,6 +118,25 @@ public sealed partial class FormFlyRecord : Form
             .Show(this);
         labelDroneId.Text = string.Empty; // Финиш работы
         await Core.IoC.Services.GetRequiredService<Station>().ChangeWorkTimeAsync(DateTime.Now, default);
+    }
+
+    private void CamChanges(object? sender, EventArgs e)
+    {
+        if (_reverse)
+        {
+            _webCamFpv.OnNewVideoFrame -= NewFrameBox;
+            _webCamBox.OnNewVideoFrame -= NewFrameFpv;
+            _webCamFpv.OnNewVideoFrame += NewFrameFpv;
+            _webCamBox.OnNewVideoFrame += NewFrameBox;
+        }
+        else
+        {
+            _webCamFpv.OnNewVideoFrame -= NewFrameFpv;
+            _webCamBox.OnNewVideoFrame -= NewFrameBox;
+            _webCamFpv.OnNewVideoFrame += NewFrameBox;
+            _webCamBox.OnNewVideoFrame += NewFrameFpv;
+        }
+        _reverse = !_reverse;
     }
 
     private async void FormShown(object? sender, EventArgs e)
@@ -231,17 +268,33 @@ public sealed partial class FormFlyRecord : Form
     private void NewFrameFpv(Mat mat)
     {
         if (mat.Empty()) return;
-        _dxFpv.NotActive = labelDroneId.Text.Equals(string.Empty);
         _record.FrameAdd(labelDroneId.Text, mat);
-        _dxFpv.FrameUpdate(mat);
+        if (Program.FullScreen.CamNumber == 0)
+        {
+            _dxFpv.NotActive = labelDroneId.Text.Equals(string.Empty);
+            _dxFpv.FrameUpdate(mat);
+        }
+        else if (Program.FullScreen.CamNumber == 1)
+        {
+            _dxFullScreen.NotActive = labelDroneId.Text.Equals(string.Empty);
+            _dxFullScreen.FrameUpdate(mat);
+        }
     }
 
     private void NewFrameBox(Mat mat)
     {
         if (mat.Empty()) return;
-        _dxBox.NotActive = labelDroneId.Text.Equals(string.Empty);
         //_record.FrameAdd(labelDroneId.Text, mat);
-        _dxBox.FrameUpdate(mat);
+        if (Program.FullScreen.CamNumber == 0)
+        {
+            _dxBox.NotActive = labelDroneId.Text.Equals(string.Empty);
+            _dxBox.FrameUpdate(mat);
+        }
+        else if (Program.FullScreen.CamNumber == 2)
+        {
+            _dxFullScreen.NotActive = labelDroneId.Text.Equals(string.Empty);
+            _dxFullScreen.FrameUpdate(mat);
+        }
     }
 
     private void OnClose(object? sender, EventArgs e)
@@ -252,6 +305,7 @@ public sealed partial class FormFlyRecord : Form
         _webCamBox.Dispose();
         _dxFpv.Dispose();
         _dxBox.Dispose();
+        _dxFullScreen.Dispose();
         _timer.Stop();
     }
 
