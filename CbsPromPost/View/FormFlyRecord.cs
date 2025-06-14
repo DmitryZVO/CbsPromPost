@@ -28,6 +28,11 @@ public sealed partial class FormFlyRecord : Form
     private readonly VideoRecord _record;
     private bool _reverse = false;
     private int FullScreenCamNumber = 0;
+    DateTime _lastCam1Update;
+    DateTime _lastCam2Update;
+
+    private VideoWriter _wr1 = new(string.Empty, -1, 0, new OpenCvSharp.Size());
+    private VideoWriter _wr2 = new(string.Empty, -1, 0, new OpenCvSharp.Size());
 
     public FormFlyRecord()
     {
@@ -88,6 +93,12 @@ public sealed partial class FormFlyRecord : Form
                 .Show(this);
             labelDroneId.Text = string.Empty; // Финиш работы
             await Core.IoC.Services.GetRequiredService<Station>().ChangeWorkTimeAsync(DateTime.Now, default);
+
+            if (Core.RecordState != Core.RecState.None)
+            {
+                RecordStop();
+            }
+
             return;
         }
 
@@ -115,6 +126,11 @@ public sealed partial class FormFlyRecord : Form
     private async void BadDrone(object? sender, EventArgs e)
     {
         if (labelDroneId.Text.Equals(string.Empty)) return;
+
+        if (Core.RecordState != Core.RecState.None)
+        {
+            RecordStop();
+        }
 
         var ft = new FormTextWrite(labelDroneId.Text);
         ft.ShowDialog(this);
@@ -259,6 +275,8 @@ public sealed partial class FormFlyRecord : Form
                 }
 
                 labelDroneId.Text = text;
+                RecordStart(text);
+
                 return;
             }
 
@@ -276,6 +294,11 @@ public sealed partial class FormFlyRecord : Form
                 new FormInfo(@"РАБОТА ЗАВЕРШЕНА", Color.LightGreen, Color.DarkGreen, 3000, new Size(600, 400))
                     .Show(this);
                 labelDroneId.Text = string.Empty; // Финиш работы
+
+                if (Core.RecordState != Core.RecState.None)
+                {
+                    RecordStop();
+                }
                 return;
             }
 
@@ -286,7 +309,10 @@ public sealed partial class FormFlyRecord : Form
     private void NewFrameFpv(Mat mat)
     {
         if (mat.Empty()) return;
-        _record.FrameAdd(labelDroneId.Text, mat);
+        mat.Rectangle(new OpenCvSharp.Point(0, 0), new OpenCvSharp.Point(mat.Width, 15), Scalar.Black, -1);
+        Cv2.PutText(mat, Server.Prefix + ", " + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff") + ", " + labelDroneId.Text, new OpenCvSharp.Point(8, 13), HersheyFonts.HersheyComplexSmall, 0.8, Scalar.White);
+        _lastCam1Update = DateTime.Now;
+        //_record.FrameAdd(labelDroneId.Text, mat);
         if (FullScreenCamNumber == 0)
         {
             _dxFpv.NotActive = labelDroneId.Text.Equals(string.Empty);
@@ -297,11 +323,15 @@ public sealed partial class FormFlyRecord : Form
             _dxFullScreen.NotActive = labelDroneId.Text.Equals(string.Empty);
             _dxFullScreen.FrameUpdate(mat);
         }
+        WriteCAM(1, mat);
     }
 
     private void NewFrameBox(Mat mat)
     {
         if (mat.Empty()) return;
+        mat.Rectangle(new OpenCvSharp.Point(0, 0), new OpenCvSharp.Point(mat.Width, 15), Scalar.Black, -1);
+        Cv2.PutText(mat, Server.Prefix + ", " + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff") + ", " + labelDroneId.Text, new OpenCvSharp.Point(8, 13), HersheyFonts.HersheyComplexSmall, 0.8, Scalar.White);
+        _lastCam2Update = DateTime.Now;
         //_record.FrameAdd(labelDroneId.Text, mat);
         if (FullScreenCamNumber == 0)
         {
@@ -313,6 +343,7 @@ public sealed partial class FormFlyRecord : Form
             _dxFullScreen.NotActive = labelDroneId.Text.Equals(string.Empty);
             _dxFullScreen.FrameUpdate(mat);
         }
+        WriteCAM(2, mat);
     }
 
     private void OnClose(object? sender, EventArgs e)
@@ -325,6 +356,73 @@ public sealed partial class FormFlyRecord : Form
         _dxBox.Dispose();
         _dxFullScreen.Dispose();
         _timer.Stop();
+    }
+
+    private void WriteCAM(int camN, Mat capt)
+    {
+        using var frame = capt.CvtColor(ColorConversionCodes.BGRA2RGB);
+        string cam = $"CAM{camN:0}";
+        var date = DateTime.Now.ToString("yyyy-MM-dd") + "\\";
+        string filename = $"{Core.Config.DirRecords}{date}{Core.RecordBarr}\\{Core.RecordBarr}_{Core.RecordTimeStart:yyyy-MM-dd HH-mm-ss_fff}_{cam}.avi";
+        if (camN == 1)
+        {
+            if (Core.RecordState == Core.RecState.Record)
+            {
+                if (!File.Exists(filename))
+                {
+                    if (!_wr1.IsDisposed) _wr1.Dispose();
+                    _wr1 = new VideoWriter(filename, FourCC.FromString("XVID"), 20, new OpenCvSharp.Size(640, 480));
+                }
+                if (!_wr1.IsDisposed) _wr1.Write(frame);
+            }
+            else
+            {
+                if (!_wr1.IsDisposed) _wr1.Dispose();
+            }
+        }
+        else if (camN == 2)
+        {
+            if (Core.RecordState == Core.RecState.Record)
+            {
+                if (!File.Exists(filename))
+                {
+                    if (!_wr2.IsDisposed) _wr2.Dispose();
+                    _wr2 = new VideoWriter(filename, FourCC.FromString("XVID"), 20, new OpenCvSharp.Size(640, 480));
+                }
+                if (!_wr2.IsDisposed) _wr2.Write(frame);
+            }
+            else
+            {
+                if (!_wr2.IsDisposed) _wr2.Dispose();
+            }
+        }
+    }
+
+    private void RecordStop()
+    {
+        Core.RecordState = Core.RecState.None;
+        Core.RecordBarr = string.Empty;
+        Core.RecordTimeStart = DateTime.MinValue;
+    }
+
+    private void RecordStart(string barr)
+    {
+        Core.RecordState = Core.RecState.Record;
+        Core.RecordBarr = barr;
+        Core.RecordTimeStart = DateTime.Now;
+        var date = DateTime.Now.ToString("yyyy-MM-dd") + "\\";
+        try
+        {
+            Directory.CreateDirectory(Core.Config.DirRecords + date);
+        }
+        catch { }
+        ;
+        try
+        {
+            Directory.CreateDirectory(Core.Config.DirRecords + date + barr);
+        }
+        catch { }
+        ;
     }
 
     private void NameClick(object? sender, MouseEventArgs e)

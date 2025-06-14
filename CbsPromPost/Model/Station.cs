@@ -12,7 +12,7 @@ public class Station
     public string Address { get; set; } = string.Empty;
     public long Type { get; set; } = -1;
     public Users.User User { get; set; } = new();
-    public double Version { get; set; } = 1.20d;
+    public double Version { get; set; } = 1.21d;
 
     public async void StartAsync(CancellationToken ct = default)
     {

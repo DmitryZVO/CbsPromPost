@@ -12,6 +12,16 @@ internal static class Core
     public static ConfigOtk ConfigOtk = new ConfigOtk().Load();
     public static IHost IoC { get; private set; } = Host.CreateDefaultBuilder(null).Build();
 
+    public static RecState RecordState = RecState.None;
+    public static string RecordBarr = string.Empty;
+    public static DateTime RecordTimeStart = DateTime.MinValue;
+
+    public enum RecState : int
+    {
+        None = -1,
+        Record = 0,
+    }
+
     public static void Start()
     {
         IoC = Host.CreateDefaultBuilder(null)
