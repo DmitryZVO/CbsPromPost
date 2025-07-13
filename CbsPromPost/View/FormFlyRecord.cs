@@ -4,8 +4,19 @@ using CbsPromPost.Resources;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using OpenCvSharp;
+using OpenCvSharp.Dnn;
+using SharpDX;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
+using System.Text;
+using System.Text.Encodings.Web;
+using System.Text.Json;
+using System.Text.Unicode;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+using static CbsPromPost.Model.Server;
+using static System.Net.Mime.MediaTypeNames;
+using Color = System.Drawing.Color;
 using Size = System.Drawing.Size;
 using Timer = System.Windows.Forms.Timer;
 
@@ -72,6 +83,98 @@ public sealed partial class FormFlyRecord : Form
         buttonCamChange.Click += CamChanges;
         pictureBoxFullScreen.Visible = false;
         pictureBoxFullScreen.DoubleClick += DoubleClick;
+
+        //button1.Click += TestUser;
+        //button2.Click += Test1C;
+    }
+
+    private async void Test1C(object? sender, EventArgs e)
+    {
+        await Web1CTest(default);
+    }
+
+    public class SendJson1C
+    {
+        public string UserId { get; set; } = string.Empty;
+        public string UserText { get; set; } = string.Empty;
+        public string DroneId { get; set; } = string.Empty;
+        public string Drone1C { get; set; } = string.Empty;
+        public string CurrentTime { get; set; } = string.Empty;
+    }
+
+    private async Task<string> Web1CTest(CancellationToken ct)
+    {
+        //try
+        //{
+        var user = Core.IoC.Services.GetRequiredService<Station>().User;
+        var serv = Core.IoC.Services.GetRequiredService<Server>();
+        using var web = new HttpClient();
+        web.DefaultRequestHeaders.Add("Accept", "application/json");
+        web.DefaultRequestHeaders.Add("Content", "application/json; charset=UTF-8");
+        web.DefaultRequestHeaders.Add("Accept-Charset", "utf-8");
+        web.DefaultRequestHeaders.Add("PostNumber", $"{Core.IoC.Services.GetRequiredService<Station>().Number.ToString()}");
+        web.DefaultRequestHeaders.Add("PostType", $"{Core.IoC.Services.GetRequiredService<Station>().Type.ToString()}");
+        web.DefaultRequestHeaders.Add("PostPrefix", $"{Prefix}");
+        JsonSerializerOptions options = new JsonSerializerOptions
+        {
+            Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping
+        };
+        var data = new SendJson1C { UserId = user.Id.ToString(), UserText = user.Name, DroneId = labelDroneId.Text, Drone1C = "testId", CurrentTime = serv.TimeStamp.ToString("dd.MM.yyyy HH:mm:ss.fff") };
+        var jsonString = JsonSerializer.Serialize(data);
+        var jsonStringUtf = JsonSerializer.Serialize(data, options);
+        var content = new StringContent(jsonStringUtf, Encoding.UTF8, "application/json");
+        content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/json");
+        content.Headers.ContentLength = jsonString.Length;
+
+        using var answ = await web.PostAsync($"http://10.0.1.23/bd_test_hs/hs/stepreport", content, ct);
+        if (!answ.IsSuccessStatusCode)
+        {
+            return await answ.Content.ReadAsStringAsync(ct);
+        }
+        return string.Empty;
+
+        //return answ.IsSuccessStatusCode;
+        //}
+        //catch
+        //{
+        //
+        //}
+
+        /*
+        string data = 
+        var get = new HttpClient { Timeout = TimeSpan.FromSeconds(10) };
+        get.DefaultRequestHeaders.Add("Accept", "application/json");
+        get.DefaultRequestHeaders.Add("Content", "application/json; charset=UTF-8");
+        get.DefaultRequestHeaders.Add("Accept-Charset", "utf-8");
+        var content = new StringContent(data, Encoding.UTF8, "application/json");
+        content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/json");
+        content.Headers.ContentLength = data.Length;
+        var result = get.PostAsync($"https://10.0.1.23/bd_test_hs/hs/stepreport", content, ct).Result;
+        if (!result.IsSuccessStatusCode)
+        {
+            return await result.Content.ReadAsStringAsync(ct);
+        }
+        return string.Empty;
+        */
+    }
+
+    private void TestUser(object? sender, EventArgs e)
+    {
+        long id = 45;
+        var user = Core.IoC.Services.GetRequiredService<Users>().Items.Find(x => x.Id == id);
+        if (user == null) return;
+
+        if (user.State < 0)
+        {
+            new FormInfo($"ПОЛЬЗОВАТЕЛЬ {user.Name}\r\nЗАБЛОКИРОВАН!", Color.LightPink, Color.DarkRed, 3000, new Size(600, 400))
+                .Show(this);
+            return;
+        }
+
+        labelDroneId.Text = "TT999999";
+
+        _ = Core.IoC.Services.GetRequiredService<Station>().StartWorkAsync(user, default);
+        Core.IoC.Services.GetRequiredService<Station>().User = user;
     }
 
     private new void DoubleClick(object? sender, EventArgs e)
@@ -192,6 +295,8 @@ public sealed partial class FormFlyRecord : Form
         _ = StartCheckNewVersionAsync();
     }
 
+
+
     private async Task StartCheckNewVersionAsync(CancellationToken ct = default)
     {
         while (!ct.IsCancellationRequested)
@@ -201,7 +306,7 @@ public sealed partial class FormFlyRecord : Form
             if (Core.Config.TestMode) continue;
 
             var updateAvailabeSize = Core.IoC.Services.GetRequiredService<Server>().UpdateVersionPostSize;
-            var updateFile = $"{Application.StartupPath}Updater\\update.zip";
+            var updateFile = $"{System.Windows.Forms.Application.StartupPath}Updater\\update.zip";
             var updateSize = File.Exists(updateFile) ? new FileInfo(updateFile).Length : 0;
             if (updateAvailabeSize > 0 && updateAvailabeSize != updateSize) // Доступно обновление на сервере
             {
@@ -215,13 +320,13 @@ public sealed partial class FormFlyRecord : Form
         var data = await Server.GetUpdatePostAsync(default);
         if (data.Length <= 0) return;
 
-        var upFile = $"{Application.StartupPath}Updater\\update.zip";
+        var upFile = $"{System.Windows.Forms.Application.StartupPath}Updater\\update.zip";
         await File.WriteAllBytesAsync(upFile, data);
 
-        Process.Start($"{Application.StartupPath}Updater\\Updater.exe", new List<string>
+        Process.Start($"{System.Windows.Forms.Application.StartupPath}Updater\\Updater.exe", new List<string>
         {
             upFile, // Архив zip с новой версией
-            $"{Application.StartupPath}{Application.ProductName}.exe" // Имя запускаемого файла после распаковки
+            $"{System.Windows.Forms.Application.StartupPath}{System.Windows.Forms.Application.ProductName}.exe" // Имя запускаемого файла после распаковки
         });
         await Task.Delay(TimeSpan.FromMilliseconds(1000));
         Invoke(Close); // Закрываем головное приложение
