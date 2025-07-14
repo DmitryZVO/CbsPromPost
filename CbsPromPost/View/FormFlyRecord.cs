@@ -132,15 +132,17 @@ public sealed partial class FormFlyRecord : Form
             using var answ = await web.PostAsync($"http://10.0.1.23/bd_test_hs/hs/stepreport", content, ct);
             if (!answ.IsSuccessStatusCode)
             {
-                return await answ.Content.ReadAsStringAsync(ct);
+                var er = await answ.Content.ReadAsStringAsync(ct);
+                Core.IoC.Services.GetRequiredService<ILogger<SerialScanner>>().LogInformation("Web1C: Error: {Txt}", er);
+                return er;
             }
         }
         catch (Exception ex)
         {
-            Core.IoC.Services.GetRequiredService<ILogger<Works>>().Log(Microsoft.Extensions.Logging.LogLevel.Error, $"*Web1C* {ex.Message}");
+            Core.IoC.Services.GetRequiredService<ILogger<SerialScanner>>().LogInformation("Web1C: Exception: {Txt}", ex.Message);
             return "Чтото пошло не так, повторите попытку!";
         }
-        Core.IoC.Services.GetRequiredService<ILogger<Works>>().Log(Microsoft.Extensions.Logging.LogLevel.Error, $"*Web1C* OK! [200]");
+        Core.IoC.Services.GetRequiredService<ILogger<SerialScanner>>().LogInformation("Web1C: OK![200]");
         return string.Empty;
     }
 
