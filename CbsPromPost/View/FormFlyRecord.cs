@@ -3,6 +3,7 @@ using CbsPromPost.Other;
 using CbsPromPost.Resources;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.VisualBasic.Logging;
 using OpenCvSharp;
 using OpenCvSharp.Dnn;
 using SharpDX;
@@ -88,10 +89,12 @@ public sealed partial class FormFlyRecord : Form
         //button2.Click += Test1C;
     }
 
+    /*
     private async void Test1C(object? sender, EventArgs e)
     {
         await Web1CTest(default);
     }
+    */
 
     public class SendJson1C
     {
@@ -102,60 +105,42 @@ public sealed partial class FormFlyRecord : Form
         public string CurrentTime { get; set; } = string.Empty;
     }
 
-    private async Task<string> Web1CTest(CancellationToken ct)
+    private async Task<string> Web1CSend(string dId, string d1C, CancellationToken ct)
     {
-        //try
-        //{
-        var user = Core.IoC.Services.GetRequiredService<Station>().User;
-        var serv = Core.IoC.Services.GetRequiredService<Server>();
-        using var web = new HttpClient();
-        web.DefaultRequestHeaders.Add("Accept", "application/json");
-        web.DefaultRequestHeaders.Add("Content", "application/json; charset=UTF-8");
-        web.DefaultRequestHeaders.Add("Accept-Charset", "utf-8");
-        web.DefaultRequestHeaders.Add("PostNumber", $"{Core.IoC.Services.GetRequiredService<Station>().Number.ToString()}");
-        web.DefaultRequestHeaders.Add("PostType", $"{Core.IoC.Services.GetRequiredService<Station>().Type.ToString()}");
-        web.DefaultRequestHeaders.Add("PostPrefix", $"{Prefix}");
-        JsonSerializerOptions options = new JsonSerializerOptions
+        try
         {
-            Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping
-        };
-        var data = new SendJson1C { UserId = user.Id.ToString(), UserText = user.Name, DroneId = labelDroneId.Text, Drone1C = "testId", CurrentTime = serv.TimeStamp.ToString("dd.MM.yyyy HH:mm:ss.fff") };
-        var jsonString = JsonSerializer.Serialize(data);
-        var jsonStringUtf = JsonSerializer.Serialize(data, options);
-        var content = new StringContent(jsonStringUtf, Encoding.UTF8, "application/json");
-        content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/json");
-        content.Headers.ContentLength = jsonString.Length;
+            var user = Core.IoC.Services.GetRequiredService<Station>().User;
+            var serv = Core.IoC.Services.GetRequiredService<Server>();
+            using var web = new HttpClient();
+            web.DefaultRequestHeaders.Add("Accept", "application/json");
+            web.DefaultRequestHeaders.Add("Content", "application/json; charset=UTF-8");
+            web.DefaultRequestHeaders.Add("Accept-Charset", "utf-8");
+            web.DefaultRequestHeaders.Add("PostNumber", $"{Core.IoC.Services.GetRequiredService<Station>().Number.ToString()}");
+            web.DefaultRequestHeaders.Add("PostType", $"{Core.IoC.Services.GetRequiredService<Station>().Type.ToString()}");
+            web.DefaultRequestHeaders.Add("PostPrefix", $"{Prefix}");
+            JsonSerializerOptions options = new JsonSerializerOptions
+            {
+                Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping
+            };
+            var data = new SendJson1C { UserId = user.Id.ToString(), UserText = user.Name, DroneId = dId, Drone1C = d1C, CurrentTime = serv.TimeStamp.ToString("dd.MM.yyyy HH:mm:ss.fff") };
+            var jsonString = JsonSerializer.Serialize(data);
+            var jsonStringUtf = JsonSerializer.Serialize(data, options);
+            var content = new StringContent(jsonStringUtf, Encoding.UTF8, "application/json");
+            content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/json");
+            content.Headers.ContentLength = jsonString.Length;
 
-        using var answ = await web.PostAsync($"http://10.0.1.23/bd_test_hs/hs/stepreport", content, ct);
-        if (!answ.IsSuccessStatusCode)
+            using var answ = await web.PostAsync($"http://10.0.1.23/bd_test_hs/hs/stepreport", content, ct);
+            if (!answ.IsSuccessStatusCode)
+            {
+                return await answ.Content.ReadAsStringAsync(ct);
+            }
+        }
+        catch (Exception ex)
         {
-            return await answ.Content.ReadAsStringAsync(ct);
+            Core.IoC.Services.GetRequiredService<ILogger<Works>>().Log(Microsoft.Extensions.Logging.LogLevel.Error, $"*Web1C* {ex.Message}");
+            return "Чтото пошло не так, повторите попытку!";
         }
         return string.Empty;
-
-        //return answ.IsSuccessStatusCode;
-        //}
-        //catch
-        //{
-        //
-        //}
-
-        /*
-        string data = 
-        var get = new HttpClient { Timeout = TimeSpan.FromSeconds(10) };
-        get.DefaultRequestHeaders.Add("Accept", "application/json");
-        get.DefaultRequestHeaders.Add("Content", "application/json; charset=UTF-8");
-        get.DefaultRequestHeaders.Add("Accept-Charset", "utf-8");
-        var content = new StringContent(data, Encoding.UTF8, "application/json");
-        content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/json");
-        content.Headers.ContentLength = data.Length;
-        var result = get.PostAsync($"https://10.0.1.23/bd_test_hs/hs/stepreport", content, ct).Result;
-        if (!result.IsSuccessStatusCode)
-        {
-            return await result.Content.ReadAsStringAsync(ct);
-        }
-        return string.Empty;
-        */
     }
 
     private void TestUser(object? sender, EventArgs e)
@@ -194,14 +179,17 @@ public sealed partial class FormFlyRecord : Form
         {
             new FormInfo(@"РАБОТА ЗАВЕРШЕНА", Color.LightGreen, Color.DarkGreen, 3000, new Size(600, 400))
                 .Show(this);
+            var dId = labelDroneId.Text;
+            var d1c = labelDrone1C.Text;
             labelDroneId.Text = string.Empty; // Финиш работы
+            labelDrone1C.Text = string.Empty; // Финиш работы
             await Core.IoC.Services.GetRequiredService<Station>().ChangeWorkTimeAsync(DateTime.Now, default);
 
             if (Core.RecordState != Core.RecState.None)
             {
                 RecordStop();
             }
-
+            await Web1CSend(dId, d1c, default); // Отправляем данные о успешном полете
             return;
         }
 
@@ -254,6 +242,7 @@ public sealed partial class FormFlyRecord : Form
         new FormInfo(@"ПЕРЕВЕДЕНО В БРАК", Color.Yellow, Color.DarkRed, 3000, new Size(600, 400))
             .Show(this);
         labelDroneId.Text = string.Empty; // Финиш работы
+        labelDrone1C.Text = string.Empty; // Финиш работы
         await Core.IoC.Services.GetRequiredService<Station>().ChangeWorkTimeAsync(DateTime.Now, default);
     }
 
@@ -362,14 +351,14 @@ public sealed partial class FormFlyRecord : Form
             if (!notOk && !long.TryParse(text[2..5], out _)) notOk = true;
             if (!notOk && !long.TryParse(text[5..8], out _)) notOk = true;
 
-            if (notOk)
+            if (notOk && text.Length != 20)
             {
                 new FormInfo(@$"НЕИЗВЕСТНЫЙ ШК: {text}", Color.LightPink, Color.DarkRed, 3000, new Size(600, 400))
                     .Show(this);
                 return;
             }
 
-            if (labelDroneId.Text.Equals(string.Empty)) // Это первичное сканирование
+            if (text.Length == 8 && labelDroneId.Text.Equals(string.Empty)) // Это первичное сканирование
             {
                 var bad = await Server.CheckBadDrone(text, default);
                 if (!bad.Equals(string.Empty))
@@ -380,7 +369,15 @@ public sealed partial class FormFlyRecord : Form
                 }
 
                 labelDroneId.Text = text;
-                RecordStart(text);
+                if (!labelDrone1C.Text.Equals(string.Empty)) RecordStart(labelDroneId.Text);
+
+                return;
+            }
+
+            if (text.Length == 20 && labelDrone1C.Text.Equals(string.Empty)) // Это первичное сканирование
+            {
+                labelDrone1C.Text = text;
+                if (!labelDroneId.Text.Equals(string.Empty)) RecordStart(labelDroneId.Text);
 
                 return;
             }
@@ -398,12 +395,17 @@ public sealed partial class FormFlyRecord : Form
             {
                 new FormInfo(@"РАБОТА ЗАВЕРШЕНА", Color.LightGreen, Color.DarkGreen, 3000, new Size(600, 400))
                     .Show(this);
+                var dId = labelDroneId.Text;
+                var d1c = labelDrone1C.Text;
+
                 labelDroneId.Text = string.Empty; // Финиш работы
+                labelDrone1C.Text = string.Empty; // Финиш работы
 
                 if (Core.RecordState != Core.RecState.None)
                 {
                     RecordStop();
                 }
+                await Web1CSend(dId, d1c, default); // Отправляем данные о успешном полете
                 return;
             }
 
@@ -552,11 +554,13 @@ public sealed partial class FormFlyRecord : Form
         var work = works.Get(Core.Config.Type);
 
         var s = Core.IoC.Services.GetRequiredService<Station>();
-        if (s.User.Name.Equals(string.Empty) && !labelUser.Text.Equals(string.Empty) | s.User.Name.Equals(string.Empty) && labelUser.Text.Equals(string.Empty)) // Выключение работы
+        if (s.User.Name.Equals(string.Empty) && !labelUser.Text.Equals(string.Empty) | 
+            s.User.Name.Equals(string.Empty) && labelUser.Text.Equals(string.Empty)) // Выключение работы
         {
             if (!Core.Config.TestMode)
             {
                 labelDroneId.Text = string.Empty;
+                labelDrone1C.Text = string.Empty;
             }
             labelUser.Text = string.Empty;
             buttonFinish.Enabled = false;
@@ -576,8 +580,8 @@ public sealed partial class FormFlyRecord : Form
             buttonFinish.Enabled = true;
         }
 
-        buttonBadDrone.Enabled = !labelDroneId.Text.Equals(string.Empty);
-        buttonOkDrone.Enabled = !labelDroneId.Text.Equals(string.Empty);
+        buttonBadDrone.Enabled = !labelDroneId.Text.Equals(string.Empty) && !labelDrone1C.Text.Equals(string.Empty);
+        buttonOkDrone.Enabled = !labelDroneId.Text.Equals(string.Empty) && !labelDrone1C.Text.Equals(string.Empty);
 
         var sec = (DateTime.Now - s.WorkStart).TotalSeconds;
 
@@ -585,7 +589,7 @@ public sealed partial class FormFlyRecord : Form
         labelUser.Text = s.User.Name;
         labelTime.Text = sec.ToSecTime();
         label1.Text = work.TimeNormalSec > 0 ? $@"НОРМАТИВ: {work.TimeNormalSec:0} сек." : string.Empty;
-        labelCount.Text = work.TimeNormalSec > 0 ? $@"КОЛИЧЕСТВО: {_counts}" : string.Empty;
+        labelCount.Text = work.TimeNormalSec > 0 ? $@"КОЛ: {_counts}" : string.Empty;
 
         /*
         if (sec < work.TimeNormalSec * 1.0d)

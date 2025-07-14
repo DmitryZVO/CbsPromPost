@@ -43,6 +43,7 @@ sealed partial class FormFlyRecord
         pictureBoxCamBox = new PictureBox();
         buttonCamChange = new Button();
         pictureBoxFullScreen = new PictureBox();
+        labelDrone1C = new Label();
         ((System.ComponentModel.ISupportInitialize)pictureBoxCamFpv).BeginInit();
         ((System.ComponentModel.ISupportInitialize)pictureBoxCamBox).BeginInit();
         ((System.ComponentModel.ISupportInitialize)pictureBoxFullScreen).BeginInit();
@@ -61,11 +62,11 @@ sealed partial class FormFlyRecord
         // 
         // labelCount
         // 
-        labelCount.Font = new Font("Segoe UI", 28F, FontStyle.Regular, GraphicsUnit.Point);
+        labelCount.Font = new Font("Segoe UI", 26F, FontStyle.Regular, GraphicsUnit.Point);
         labelCount.ForeColor = Color.Black;
-        labelCount.Location = new Point(12, 143);
+        labelCount.Location = new Point(372, 143);
         labelCount.Name = "labelCount";
-        labelCount.Size = new Size(354, 82);
+        labelCount.Size = new Size(258, 82);
         labelCount.TabIndex = 16;
         labelCount.Text = "КОЛ-ВО: 0";
         labelCount.TextAlign = ContentAlignment.MiddleCenter;
@@ -85,9 +86,9 @@ sealed partial class FormFlyRecord
         // 
         labelTime.Font = new Font("Segoe UI", 48F, FontStyle.Regular, GraphicsUnit.Point);
         labelTime.ForeColor = Color.Black;
-        labelTime.Location = new Point(372, 143);
+        labelTime.Location = new Point(636, 143);
         labelTime.Name = "labelTime";
-        labelTime.Size = new Size(584, 82);
+        labelTime.Size = new Size(320, 82);
         labelTime.TabIndex = 13;
         labelTime.Text = "00:00:00";
         labelTime.TextAlign = ContentAlignment.MiddleCenter;
@@ -207,11 +208,23 @@ sealed partial class FormFlyRecord
         pictureBoxFullScreen.TabStop = false;
         pictureBoxFullScreen.Visible = false;
         // 
+        // labelDrone1C
+        // 
+        labelDrone1C.BorderStyle = BorderStyle.FixedSingle;
+        labelDrone1C.Font = new Font("Segoe UI", 18F, FontStyle.Regular, GraphicsUnit.Point);
+        labelDrone1C.ForeColor = Color.FromArgb(0, 0, 64);
+        labelDrone1C.Location = new Point(12, 148);
+        labelDrone1C.Name = "labelDrone1C";
+        labelDrone1C.Size = new Size(354, 63);
+        labelDrone1C.TabIndex = 60;
+        labelDrone1C.TextAlign = ContentAlignment.MiddleCenter;
+        // 
         // FormFlyRecord
         // 
         AutoScaleDimensions = new SizeF(7F, 15F);
         AutoScaleMode = AutoScaleMode.Font;
         ClientSize = new Size(1584, 961);
+        Controls.Add(labelDrone1C);
         Controls.Add(buttonCamChange);
         Controls.Add(pictureBoxCamBox);
         Controls.Add(checkBoxNotMy);
@@ -255,4 +268,5 @@ sealed partial class FormFlyRecord
     private PictureBox pictureBoxCamBox;
     private Button buttonCamChange;
     private PictureBox pictureBoxFullScreen;
+    private Label labelDrone1C;
 }
