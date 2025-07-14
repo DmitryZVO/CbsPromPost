@@ -140,6 +140,7 @@ public sealed partial class FormFlyRecord : Form
             Core.IoC.Services.GetRequiredService<ILogger<Works>>().Log(Microsoft.Extensions.Logging.LogLevel.Error, $"*Web1C* {ex.Message}");
             return "Чтото пошло не так, повторите попытку!";
         }
+        Core.IoC.Services.GetRequiredService<ILogger<Works>>().Log(Microsoft.Extensions.Logging.LogLevel.Error, $"*Web1C* OK! [200]");
         return string.Empty;
     }
 
